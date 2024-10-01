@@ -98,7 +98,7 @@ function process_recipes()
         if not recipe.hidden then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
-                if is_placeable(product) then
+                if is_placeable(product.name) then
                     -- Only keep going if product is 100% success and is not a catalyst
                     if product.probability == 1 and not product.catalyst_amount then
                         local prototype
@@ -188,7 +188,7 @@ function calculate_default_priority()
                 min_products = recipe_name
             end
             for _, product_2 in pairs(recipe.products) do
-                if is_placeable(product_2) then
+                if is_placeable(product_2.name) then
                     if not product_min or product_2.amount < product_min then
                         product_min = product_2.amount
                         product_min_s = recipe_name

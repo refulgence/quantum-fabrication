@@ -10,17 +10,9 @@ function merge_tables(t1, t2)
 end
 
 ---comment
----@param item string | table
+---@param item_name string | table
 ---@return boolean
-function is_placeable(item)
-    local item_name
-    if type(item) == "string" then
-        item_name = item
-    else
-        if item.type ~= "item" then return false end
-        item_name = item.name
-    end
-    if not global.placeable then global.placeable = {} end
+function is_placeable(item_name)
     if global.placeable[item_name] ~= nil then return global.placeable[item_name] end
     local item_prototype = game.item_prototypes[item_name]
     --if item_prototype and item_prototype.place_result and item_prototype.place_result.type ~= "logistic-robot" and item_prototype.place_result.type ~= "construction-robot" and item_prototype.place_result.type ~= "unit" and item_prototype.place_result.type ~= "spider-vehicle" and item_prototype.place_result.type ~= "car" then

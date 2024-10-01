@@ -36,14 +36,13 @@ end
 
 ---Returns the first enabled recipe for that item. this doesn't care about craftability
 ---@param item_name string
----@param player_inventory LuaInventory
 ---@return table | nil
-function get_decraftable_recipe(item_name, player_inventory)
+function get_decraftable_recipe(item_name)
     local recipes = global.product_craft_data[item_name]
     local unpacked_recipes = global.unpacked_recipes
     if not recipes then return nil end
     for i = 1, recipes[1].number_of_recipes do
-        if unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_craftable({ingredients = unpacked_recipes[recipes[i].recipe_name].products}, player_inventory) then
+        if unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_decraftable({ingredients = unpacked_recipes[recipes[i].recipe_name].products}) then
             return unpacked_recipes[recipes[i].recipe_name]
         end
     end
@@ -82,6 +81,19 @@ function is_recipe_craftable(recipe, player_inventory)
             if global.fabricator_inventory[ingredient.type][ingredient.name] < ingredient.amount then
                 return false
             end
+        end
+    end
+    return true
+end
+
+---comment
+---@param recipe table
+---@return boolean
+function is_recipe_decraftable(recipe)
+    for _, ingredient in pairs(recipe.ingredients) do
+        if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
+        if global.fabricator_inventory[ingredient.type][ingredient.name] < ingredient.amount then
+            return false
         end
     end
     return true

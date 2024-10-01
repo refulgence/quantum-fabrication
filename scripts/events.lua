@@ -119,13 +119,13 @@ function update_entity(entity_data, entity_id)
         local inventory = entity_data.inventory
         if inventory and not inventory.is_empty() and inventory.get_contents() then
             for name, count in pairs(inventory.get_contents()) do
-                add_to_storage({name = name, count = count, type = "item"})
+                add_to_storage({name = name, count = count, type = "item"}, true)
             end
             inventory.clear()
         end
         if entity_data.container_fluid and entity_data.container_fluid.get_fluid_contents() then
             for name, count in pairs(entity_data.container_fluid.get_fluid_contents()) do
-                add_to_storage({name = name, count = count, type = "fluid"})
+                add_to_storage({name = name, count = count, type = "fluid"}, false)
             end
             entity_data.container_fluid.clear_fluid_inside()
         end
@@ -236,7 +236,7 @@ function pull_from_storage(item, target_inventory)
                 end
                 return status
             else
-                add_to_storage({name = name, amount = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid"})
+                add_to_storage({name = name, amount = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid"}, false)
             end
         end
         local inserted = target_inventory.insert_fluid{name = item.name, amount = to_be_provided}
@@ -432,10 +432,33 @@ end
 
 ---comment
 ---@param item table
-function add_to_storage(item)
+---@param try_defabricate boolean
+function add_to_storage(item, try_defabricate)
     if not item then return end
     if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
     global.fabricator_inventory[item.type][item.name] = global.fabricator_inventory[item.type][item.name] + (item.count or item.amount)
+    if try_defabricate then decraft(item) end
+end
+
+function decraft(item)
+    local recipe = get_decraftable_recipe(item.name)
+    if recipe then
+        defabricate_recipe({products = recipe.ingredients, ingredients = recipe.products, count = item.count})
+    end
+end
+
+
+function defabricate_recipe(recipe)
+    local multiplier = 1
+    if recipe.count and recipe.count > 1 then
+        multiplier = math.min(recipe.count, how_many_can_craft(recipe, nil))
+    end
+    for _, ingredient in pairs(recipe.ingredients) do
+        remove_from_storage({name = ingredient.name, amount = ingredient.amount * multiplier, type = ingredient.type})
+    end
+    for _, product in pairs(recipe.products) do
+        add_to_storage({name = product.name, amount = product.amount * multiplier, type = product.type}, false)
+    end
 end
 
 

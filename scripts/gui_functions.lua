@@ -46,14 +46,14 @@ end
 
 ---comment
 ---@param recipe table
----@param player_inventory LuaInventory
+---@param player_inventory LuaInventory | nil
 ---@return int
 function how_many_can_craft(recipe, player_inventory)
     local result
     for _, ingredient in pairs(recipe.ingredients) do
         if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
         local available = 0
-        if ingredient.type == "item" then
+        if ingredient.type == "item" and player_inventory then
             available = player_inventory.get_item_count(ingredient.name) + global.fabricator_inventory[ingredient.type][ingredient.name]
         else
             available = global.fabricator_inventory[ingredient.type][ingredient.name]

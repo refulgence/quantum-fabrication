@@ -3,13 +3,7 @@
 ---@param player_index int
 function instant_defabrication(entity, player_index)
     local item_name = global.prototypes_data[entity.name].item_name
-    local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
-    if not player_inventory then return end
-    add_to_player_inventory(player_inventory, {name = item_name, amount = 1, type = "item"})
-    local recipe = get_decraftable_recipe(item_name, player_inventory)
-    if recipe then
-        fabricate_recipe({products = recipe.ingredients, ingredients = recipe.products}, player_inventory)
-    end
+    add_to_storage({name = item_name, amount = 1, type = "item"}, true)
     return entity.destroy({raise_destroy = true})
 end
 

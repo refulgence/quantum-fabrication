@@ -30,17 +30,16 @@ end
 function fabricate_recipe(recipe, player_inventory)
     for _, ingredient in pairs(recipe.ingredients) do
         local required = ingredient.amount
-
         if player_inventory.get_item_count(ingredient.name) > 0 then
             if player_inventory.get_item_count(ingredient.name) >= required then
                 player_inventory.remove({name = ingredient.name, count = required})
             else
                 required = required - player_inventory.get_item_count(ingredient.name)
                 player_inventory.remove({name = ingredient.name, count = player_inventory.get_item_count(ingredient.name)})
-                global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
+                remove_from_storage({name = ingredient.name, amount = required, type = ingredient.type})
             end
         else
-            global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
+            remove_from_storage({name = ingredient.name, amount = required, type = ingredient.type})
         end
 
     end
@@ -50,16 +49,18 @@ function fabricate_recipe(recipe, player_inventory)
 end
 
 
+
+
 ---comment
 ---@param player_inventory LuaInventory
 ---@param item table
 function add_to_player_inventory(player_inventory, item)
     if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
     if is_placeable(item.name) or is_module(item.name) or global.ingredient[item.name] or item.type == "fluid" then
-        global.fabricator_inventory[item.type][item.name] = global.fabricator_inventory[item.type][item.name] + item.amount
+        add_to_storage(item, true)
     else
         local inserted = player_inventory.insert(item)
-        global.fabricator_inventory.item[item.name] = global.fabricator_inventory.item[item.name] + item.amount - inserted
+        if item.amount - inserted > 0 then add_to_storage({name = item.name, amount = item.amount - inserted, type = item.type}, false) end
     end
 end
 
@@ -75,7 +76,7 @@ function revive_ghost(entity, player_inventory, inventory_type)
     _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
         if inventory_type == "digital storage" then
-            global.fabricator_inventory.item[entity_name] = global.fabricator_inventory.item[entity_name] - 1
+            remove_from_storage({name = entity_name, count = 1, type = "item"})
         else
             player_inventory.remove({name = entity_name, count = 1})
         end
@@ -144,7 +145,7 @@ function insert_modules(entity, modules, inventory, inventory_type)
     local module_inventory = entity.get_module_inventory()
     if not module_inventory then return end
     if inventory_type == "digital storage" then
-        global.fabricator_inventory.item[modules.name] = global.fabricator_inventory.item[modules.name] - modules.count
+        remove_from_storage({name = modules.name, count = modules.count, type = "item"})
     else
         inventory.remove({name = modules.name, count = modules.count})
     end

@@ -53,7 +53,7 @@ function how_many_can_craft(recipe, player_inventory)
     for _, ingredient in pairs(recipe.ingredients) do
         if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
         local available = 0
-        if settings.global["qf-use-player-inventory"].value and ingredient.type == "item" then
+        if ingredient.type == "item" then
             available = player_inventory.get_item_count(ingredient.name) + global.fabricator_inventory[ingredient.type][ingredient.name]
         else
             available = global.fabricator_inventory[ingredient.type][ingredient.name]

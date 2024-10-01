@@ -1,21 +1,6 @@
 local settings = {}
 
-table.insert(settings,
-{
-    type = "bool-setting",
-    order = "cc",
-    name = "qf-use-player-inventory",
-    setting_type = "runtime-global",
-    default_value = true
-})
-table.insert(settings,
-{
-    type = "bool-setting",
-    order = "ce",
-    name = "qf-prioritize-player-inventory",
-    setting_type = "runtime-global",
-    default_value = true
-})
+
 
 table.insert(settings,
 {

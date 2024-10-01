@@ -7,27 +7,14 @@ function instant_fabrication(entity, player_index)
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
     if not player_inventory then game.print("player inventory not found for " .. player_index) return end
     if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
-    if settings.global["qf-use-player-inventory"].value then
-        if settings.global["qf-prioritize-player-inventory"].value then
-            if player_inventory.get_item_count(item_name) > 0 then
-                return revive_ghost(entity, player_inventory, "player")
-            end
-            if global.fabricator_inventory.item[item_name] > 0 then
-                return revive_ghost(entity, player_inventory, "digital storage")
-            end
-        else
-            if global.fabricator_inventory.item[item_name] > 0 then
-                return revive_ghost(entity, player_inventory, "digital storage")
-            end
-            if player_inventory.get_item_count(item_name) > 0 then
-                return revive_ghost(entity, player_inventory, "player")
-            end
-        end
-    else
-        if global.fabricator_inventory.item[item_name] > 0 then
-            return revive_ghost(entity, player_inventory, "digital storage")
-        end
+
+    if player_inventory.get_item_count(item_name) > 0 then
+        return revive_ghost(entity, player_inventory, "player")
     end
+    if global.fabricator_inventory.item[item_name] > 0 then
+        return revive_ghost(entity, player_inventory, "digital storage")
+    end
+
     -- Nothing? Guess we are fabricating
     local recipe = get_craftable_recipe(item_name, player_inventory)
     if not recipe then return false end
@@ -43,35 +30,19 @@ end
 function fabricate_recipe(recipe, player_inventory)
     for _, ingredient in pairs(recipe.ingredients) do
         local required = ingredient.amount
-        if settings.global["qf-use-player-inventory"].value and ingredient.type == "item" then
-            if settings.global["qf-prioritize-player-inventory"].value then
-                if player_inventory.get_item_count(ingredient.name) > 0 then
-                    if player_inventory.get_item_count(ingredient.name) >= required then
-                        player_inventory.remove({name = ingredient.name, count = required})
-                    else
-                        required = required - player_inventory.get_item_count(ingredient.name)
-                        player_inventory.remove({name = ingredient.name, count = player_inventory.get_item_count(ingredient.name)})
-                        global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
-                    end
-                else
-                    global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
-                end
+
+        if player_inventory.get_item_count(ingredient.name) > 0 then
+            if player_inventory.get_item_count(ingredient.name) >= required then
+                player_inventory.remove({name = ingredient.name, count = required})
             else
-                if global.fabricator_inventory[ingredient.type][ingredient.name] > 0 then
-                    if global.fabricator_inventory[ingredient.type][ingredient.name] >= required then
-                        global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
-                    else
-                        required = required - global.fabricator_inventory[ingredient.typ][ingredient.name]
-                        global.fabricator_inventory[ingredient.type][ingredient.name] = 0
-                        player_inventory.remove({name = ingredient.name, count = required})
-                    end
-                else
-                    player_inventory.remove({name = ingredient.name, count = required})
-                end
+                required = required - player_inventory.get_item_count(ingredient.name)
+                player_inventory.remove({name = ingredient.name, count = player_inventory.get_item_count(ingredient.name)})
+                global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
             end
         else
             global.fabricator_inventory[ingredient.type][ingredient.name] = global.fabricator_inventory[ingredient.type][ingredient.name] - required
         end
+
     end
     for _, product in pairs(recipe.products) do
             add_to_player_inventory(player_inventory, {name = product.name, type = product.type, amount = product.amount})
@@ -126,19 +97,9 @@ function add_modules(entity, modules, inventory)
     if not module_inventory then return true end
     for module, amount in pairs(modules) do
         local required = amount
-        if settings.global["qf-use-player-inventory"].value and inventory then
-            if settings.global["qf-prioritize-player-inventory"].value then
-                required = process_modules(entity, module, amount, inventory, "player")
-                if required == 0 then goto continue end
-                required = process_modules(entity, module, required, inventory, "digital storage")
-            else
-                required = process_modules(entity, module, amount, inventory, "digital storage")
-                if required == 0 then goto continue end
-                required = process_modules(entity, module, required, inventory, "player")
-            end
-        else
-            process_modules(entity, module, amount, inventory, "digital storage")
-        end
+        required = process_modules(entity, module, amount, inventory, "player")
+        if required == 0 then goto continue end
+        required = process_modules(entity, module, required, inventory, "digital storage")
         if required > 0 then satisfied = false end
         ::continue::
     end

@@ -87,7 +87,7 @@ end
 function is_recipe_craftable(recipe, player_inventory)
     for _, ingredient in pairs(recipe.ingredients) do
         if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
-        if settings.global["qf-use-player-inventory"].value and ingredient.type == "item" then
+        if ingredient.type == "item" then
             if global.fabricator_inventory[ingredient.type][ingredient.name] + player_inventory.get_item_count(ingredient.name) < ingredient.amount then
                 return false
             end

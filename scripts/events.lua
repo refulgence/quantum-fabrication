@@ -367,15 +367,13 @@ function on_pre_mined(event)
     local player_index = event.player_index
     if entity and entity.valid and player_index then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
-            if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" then
+            if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" then
                 instant_deforestation(entity, player_index)
-            else
-                if global.prototypes_data[entity.name] then
-                    local item_name = global.prototypes_data[entity.name].item_name
-                    if is_placeable(item_name) then
-                        if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
-                        create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
-                    end
+            elseif global.prototypes_data[entity.name] then
+                local item_name = global.prototypes_data[entity.name].item_name
+                if is_placeable(item_name) then
+                    if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
+                    create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
                 end
             end
         end

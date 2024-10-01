@@ -35,8 +35,9 @@ end
 function instant_deforestation(entity, player_index)
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
     if not player_inventory then return end
-    process_loot(entity.prototype.loot, player_inventory)
-    process_mining(entity.prototype.mineable_properties, player_inventory)
+    if entity.prototype.loot then process_loot(entity.prototype.loot, player_inventory) end
+    if entity.prototype.mineable_properties and entity.prototype.mineable_properties.products then process_mining(entity.prototype.mineable_properties, player_inventory) end
+    if entity.prototype.type == "item-entity" then add_to_player_inventory(player_inventory, {name = entity.stack.name, amount = entity.stack.count, type = "item"}) end
     entity.destroy()
 end
 
@@ -44,7 +45,6 @@ end
 ---@param loot table
 ---@param player_inventory LuaInventory
 function process_loot(loot, player_inventory)
-    if not loot then return end
     for _, item in pairs(loot) do
         if item.probability >= math.random() then
             add_to_player_inventory(player_inventory, {name = item.item, amount = math.random(item.count_min, item.count_max), type = "item"})
@@ -56,7 +56,7 @@ end
 ---@param mining_properties table
 ---@param player_inventory LuaInventory
 function process_mining(mining_properties, player_inventory)
-    if not mining_properties then return end
+    if not mining_properties or not mining_properties.products then return end
     for _, item in pairs(mining_properties.products) do
         if item.probability >= math.random() then
             if item.amount then

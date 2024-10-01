@@ -2,26 +2,6 @@ local settings = {}
 
 
 
-table.insert(settings,
-{
-    type = "bool-setting",
-    order = "dc",
-    name = "qf-defabricator-enable",
-    setting_type = "runtime-global",
-    default_value = true
-})
-
--- Deconstructor
-table.insert(settings,
-{
-    type = "string-setting",
-    order = "ff",
-    name = "qf-deconstructor-inventory",
-    setting_type = "runtime-global",
-    default_value = "both",
-    allowed_values = {"only-digital", "only-player", "both"}
-})
-
 
 table.insert(settings,
 {
@@ -62,25 +42,27 @@ table.insert(settings,
 
 
 
--- Digitizer
+
+
 table.insert(settings,
 {
-    type = "string-setting",
-    order = "kc",
-    name = "qf-digitizer-blacklist",
+    type = "int-setting",
+    name = "qf-update-rate",
+    order = "kep",
     setting_type = "runtime-global",
-    default_value = "",
-    allow_blank = true
+    default_value = 7,
+    minimum_value = 2,
+    maximum_value = 1000
 })
 table.insert(settings,
 {
     type = "int-setting",
-    name = "qf-dedigitizer-speed",
-    order = "ke",
+    name = "qf-update-slots",
+    order = "ker",
     setting_type = "runtime-global",
-    default_value = 60,
+    default_value = 12,
     minimum_value = 1,
-    maximum_value = 100
+    maximum_value = 1000
 })
 
     

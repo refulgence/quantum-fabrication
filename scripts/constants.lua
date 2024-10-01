@@ -31,3 +31,11 @@ RECIPE_FLOW_TABLE_WIDTH = 840
 RECIPE_FLOW_ITEM_GROUP_BUTTON_HEIGHT = 75
 RECIPE_FLOW_ITEM_GROUP_MAX_NUMBER_OF_COLUMNS = 8
 SUBGROUP_TABLE_COLUMNS = 20
+
+Update_rate = {}
+Update_rate["revivals"] = {rate = 11, slots = 12}
+Update_rate["destroys"] = {rate = 8, slots = 5}
+Update_rate["entities"] = {rate = 67, slots = 6}
+Update_rate["requests"] = {rate = 87, slots = 4}
+
+MIN_TEMPERATURE = 5000

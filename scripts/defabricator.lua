@@ -10,7 +10,7 @@ function instant_defabrication(entity, player_index)
     if recipe then
         fabricate_recipe({products = recipe.ingredients, ingredients = recipe.products}, player_inventory)
     end
-    entity.destroy({raise_destroy = true})
+    return entity.destroy({raise_destroy = true})
 end
 
 ---comment

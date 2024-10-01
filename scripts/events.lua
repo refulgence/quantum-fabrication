@@ -1,17 +1,6 @@
 require "scripts/defabricator"
 
 
-UPDATE_RATE = 67
-UPDATE_SLOTS = 6
-
-GHOST_UPDATE_RATE = 73
-GHOST_UPDATE_SLOTS = 12
-
-REVIVAL_UPDATE_RATE = 7
-REVIVAL_UPDATE_SLOTS = 12
-
-MIN_TEMPERATURE = 500
-
 function on_init()
     global.fabricator_inventory = {}
     global.fabricator_inventory["item"] = {}
@@ -26,8 +15,7 @@ function on_init()
     global.dictionary = {}
     global.dictionary_helper = {}
     global.tracked_entities = {}
-    global.tracked_requests = {construction = {}, modules = {}, upgrades = {}}
-    global.tracked_revivals = {}
+    global.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
     process_data()
 end
 
@@ -43,34 +31,6 @@ end
 
 
 
-function create_tracked_revival(entity, player_index)
-    local entity_data = {
-        entity = entity,
-        lag_id = math.random(0, REVIVAL_UPDATE_SLOTS - 1),
-        player_index = player_index,
-    }
-    global.tracked_revivals[entity.unit_number] = entity_data
-end
-
-function remove_tracked_revival(entity)
-    global.tracked_revivals[entity.unit_number] = nil
-end
-
-function update_tracked_revivals(event)
-    local smoothing = event.tick % REVIVAL_UPDATE_SLOTS
-    for _, entity_data in pairs(global.tracked_revivals) do
-        if entity_data.lag_id == smoothing then
-            update_revival(entity_data)
-        end
-    end
-end
-
-function update_revival(entity_data)
-    remove_tracked_revival(entity_data.entity)
-    if not instant_fabrication(entity_data.entity, entity_data.player_index) then create_tracked_request({entity = entity_data.entity, player_index = entity_data.player_index, request_type = "construction"}) end
-end
-
-
 
 
 function create_tracked_entity(entity)
@@ -78,7 +38,7 @@ function create_tracked_entity(entity)
     local entity_data = {
         entity = entity,
         name = entity.name,
-        lag_id = math.random(0, UPDATE_SLOTS - 1),
+        lag_id = math.random(0, Update_rate["entities"].slots - 1),
     }
     local position = entity.position
     local surface = entity.surface
@@ -135,7 +95,7 @@ function remove_tracked_entity(entity)
 end
 
 function update_tracked_entities(event)
-    local smoothing = event.tick % UPDATE_SLOTS
+    local smoothing = event.tick % Update_rate["entities"].slots
     for entity_name, entities in pairs(global.tracked_entities) do
         if entity_name ~= "dedigitizer-reactor" then
             for entity_id, entity_data in pairs(entities) do
@@ -299,7 +259,7 @@ function create_tracked_request(request_table)
     local request_data = {
         entity = request_table.entity,
         player_index = request_table.player_index,
-        lag_id = math.random(0, GHOST_UPDATE_SLOTS - 1),
+        lag_id = math.random(0, Update_rate["requests"].slots - 1),
     }
     if request_table.request_type == "upgrades" then
         request_data.target = request_table.upgrade_target
@@ -309,13 +269,12 @@ function create_tracked_request(request_table)
     global.tracked_requests[request_table.request_type][request_table.entity.unit_number] = request_data
 end
 
-
-function remove_tracked_request(request_data, request_type, request_id)
+function remove_tracked_request(request_type, request_id)
     global.tracked_requests[request_type][request_id] = nil
 end
 
 function update_tracked_requests(event)
-    local smoothing = event.tick % GHOST_UPDATE_SLOTS
+    local smoothing = event.tick % Update_rate["requests"].slots
     for request_type, requests in pairs(global.tracked_requests) do
         for request_id, request_data in pairs(requests) do
             if request_data.lag_id == smoothing then
@@ -325,26 +284,46 @@ function update_tracked_requests(event)
     end
 end
 
-function update_request(request_data, request_type, request_id)
-    local entity = request_data.entity
-    if not entity or not entity.valid then remove_tracked_request(entity, request_type, request_id) return end
-    local player_index = request_data.player_index
-    local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
-    if not player_inventory then game.print("Player inventory error?") return end
-
-    if request_type == "upgrades" then
-        if instant_upgrade(entity, request_data.target, player_index) then remove_tracked_request(request_data, request_type, request_id) end
-    elseif request_type == "construction" then
-        if instant_fabrication(entity, player_index) then remove_tracked_request(request_data, request_type, request_id) end
-    elseif request_type == "modules" then
-        local modules = request_data.item_request_proxy.item_requests
-        if not modules then remove_tracked_request(request_data, request_type, request_id) end
-        if add_modules(entity.entity, modules, player_inventory) then remove_tracked_request(request_data, request_type, request_id) end
+function update_tracked_revivals(event)
+    local smoothing = event.tick % Update_rate["revivals"].slots
+    for request_id, request_data in pairs(global.tracked_requests["revivals"]) do
+        if request_data.lag_id == smoothing then
+            update_request(request_data, "revivals", request_id)
+        end
     end
 end
 
+function update_tracked_destroys(event)
+    local smoothing = event.tick % Update_rate["destroys"].slots
+    for request_id, request_data in pairs(global.tracked_requests["destroys"]) do
+        if request_data.lag_id == smoothing then
+            update_request(request_data, "destroys", request_id)
+        end
+    end
+end
 
+function update_request(request_data, request_type, request_id)
+    local entity = request_data.entity
+    if not entity or not entity.valid then remove_tracked_request(request_type, request_id) return end
+    local player_index = request_data.player_index
 
+    if request_type == "revivals" then
+        remove_tracked_request(request_type, request_id)
+        if not instant_fabrication(entity, player_index) then create_tracked_request({entity = entity, player_index = player_index, request_type = "construction"}) end
+    elseif request_type == "destroys" then
+        if instant_defabrication(entity, player_index) then remove_tracked_request(request_type, request_id) end
+    elseif request_type == "upgrades" then
+        if instant_upgrade(entity, request_data.target, player_index) then remove_tracked_request(request_type, request_id) end
+    elseif request_type == "construction" then
+        if instant_fabrication(entity, player_index) then remove_tracked_request(request_type, request_id) end
+    elseif request_type == "modules" then
+        local modules = request_data.item_request_proxy.item_requests
+        local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
+        if not player_inventory then game.print("Player inventory error?") return end
+        if not modules then remove_tracked_request(request_type, request_id) end
+        if add_modules(entity.entity, modules, player_inventory) then remove_tracked_request(request_type, request_id) end
+    end
+end
 
 
 
@@ -368,8 +347,7 @@ end
 function on_created_player(event)
     if event.created_entity and event.created_entity.valid then
         if event.created_entity.type == "entity-ghost" then
-            create_tracked_revival(event.created_entity, event.player_index)
-            --if not instant_fabrication(event.created_entity, event.player_index) then create_tracked_request({entity = event.created_entity, player_index = event.player_index, request_type = "construction"}) end
+            create_tracked_request({entity = event.created_entity, player_index = event.player_index, request_type = "revivals"})
         end
         on_created(event)
     end
@@ -396,7 +374,7 @@ function on_pre_mined(event)
                     local item_name = global.prototypes_data[entity.name].item_name
                     if is_placeable(item_name) then
                         if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
-                        instant_defabrication(entity, player_index)
+                        create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
                     end
                 end
             end
@@ -489,10 +467,10 @@ function on_research_changed(event)
     Research_finished = true
 end
 
-
-script.on_nth_tick(REVIVAL_UPDATE_RATE, update_tracked_revivals)
-script.on_nth_tick(UPDATE_RATE, update_tracked_entities)
-script.on_nth_tick(GHOST_UPDATE_RATE, update_tracked_requests)
+script.on_nth_tick(Update_rate["destroys"].rate, update_tracked_destroys)
+script.on_nth_tick(Update_rate["revivals"].rate, update_tracked_revivals)
+script.on_nth_tick(Update_rate["entities"].rate, update_tracked_entities)
+script.on_nth_tick(Update_rate["requests"].rate, update_tracked_requests)
 script.on_nth_tick(300, update_tracked_dedigitizer_reactors)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_changed)

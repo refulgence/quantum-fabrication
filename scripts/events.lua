@@ -50,14 +50,21 @@ function create_tracked_entity(entity)
         name = entity.name,
         lag_id = math.random(0, UPDATE_SLOTS - 1),
     }
+    local position = entity.position
+    local surface = entity.surface
+    local force = entity.force
 
     if entity.name == "digitizer-chest" then
         entity_data.inventory = entity.get_inventory(defines.inventory.chest)
+        local pseudo_fluid_container = surface.create_entity{
+            name = "digitizer-chest-fluid",
+            position = position,
+            force = force
+        }
+        pseudo_fluid_container.destructible = false
+        pseudo_fluid_container.operable = false
+        entity_data.container_fluid = pseudo_fluid_container
     elseif entity.name == "dedigitizer-reactor" then
-        local position = entity.position
-        local surface = entity.surface
-        local force = entity.force
-
         local pseudo_container = surface.create_entity{
             name = "dedigitizer-reactor-container",
             position = position,
@@ -88,7 +95,9 @@ end
 
 function remove_tracked_entity(entity)
     local entity_data = global.tracked_entities[entity.name][entity.unit_number]
-    if entity.name == "dedigitizer-reactor" then
+    if entity.name == "digitizer-chest" then
+        entity_data.container_fluid.destroy()
+    elseif entity.name == "dedigitizer-reactor" then
         entity_data.container.destroy()
         entity_data.container_fluid.destroy()
     end
@@ -123,6 +132,12 @@ function update_entity(entity_data, entity_id)
                 add_to_storage({name = name, count = count, type = "item"})
             end
             inventory.clear()
+        end
+        if entity_data.container_fluid and entity_data.container_fluid.get_fluid_contents() then
+            for name, count in pairs(entity_data.container_fluid.get_fluid_contents()) do
+                add_to_storage({name = name, count = count, type = "fluid"})
+            end
+            entity_data.container_fluid.clear_fluid_inside()
         end
         return
     end

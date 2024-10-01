@@ -7,6 +7,9 @@ UPDATE_SLOTS = 6
 GHOST_UPDATE_RATE = 73
 GHOST_UPDATE_SLOTS = 12
 
+REVIVAL_UPDATE_RATE = 7
+REVIVAL_UPDATE_SLOTS = 12
+
 MIN_TEMPERATURE = 500
 
 function on_init()
@@ -24,6 +27,7 @@ function on_init()
     global.dictionary_helper = {}
     global.tracked_entities = {}
     global.tracked_requests = {construction = {}, modules = {}, upgrades = {}}
+    global.tracked_revivals = {}
     process_data()
 end
 
@@ -39,6 +43,32 @@ end
 
 
 
+function create_tracked_revival(entity, player_index)
+    local entity_data = {
+        entity = entity,
+        lag_id = math.random(0, REVIVAL_UPDATE_SLOTS - 1),
+        player_index = player_index,
+    }
+    global.tracked_revivals[entity.unit_number] = entity_data
+end
+
+function remove_tracked_revival(entity)
+    global.tracked_revivals[entity.unit_number] = nil
+end
+
+function update_tracked_revivals(event)
+    local smoothing = event.tick % REVIVAL_UPDATE_SLOTS
+    for _, entity_data in pairs(global.tracked_revivals) do
+        if entity_data.lag_id == smoothing then
+            update_revival(entity_data)
+        end
+    end
+end
+
+function update_revival(entity_data)
+    remove_tracked_revival(entity_data.entity)
+    if not instant_fabrication(entity_data.entity, entity_data.player_index) then create_tracked_request({entity = entity_data.entity, player_index = entity_data.player_index, request_type = "construction"}) end
+end
 
 
 
@@ -338,7 +368,8 @@ end
 function on_created_player(event)
     if event.created_entity and event.created_entity.valid then
         if event.created_entity.type == "entity-ghost" then
-            if not instant_fabrication(event.created_entity, event.player_index) then create_tracked_request({entity = event.created_entity, player_index = event.player_index, request_type = "construction"}) end
+            create_tracked_revival(event.created_entity, event.player_index)
+            --if not instant_fabrication(event.created_entity, event.player_index) then create_tracked_request({entity = event.created_entity, player_index = event.player_index, request_type = "construction"}) end
         end
         on_created(event)
     end
@@ -459,7 +490,7 @@ function on_research_changed(event)
 end
 
 
-
+script.on_nth_tick(REVIVAL_UPDATE_RATE, update_tracked_revivals)
 script.on_nth_tick(UPDATE_RATE, update_tracked_entities)
 script.on_nth_tick(GHOST_UPDATE_RATE, update_tracked_requests)
 script.on_nth_tick(300, update_tracked_dedigitizer_reactors)

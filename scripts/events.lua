@@ -377,6 +377,7 @@ function on_pre_mined(event)
                 end
             end
         end
+        on_destroyed(event)
     end
 end
 

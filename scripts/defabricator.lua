@@ -38,7 +38,7 @@ function instant_deforestation(entity, player_index)
     if entity.prototype.loot then process_loot(entity.prototype.loot, player_inventory) end
     if entity.prototype.mineable_properties and entity.prototype.mineable_properties.products then process_mining(entity.prototype.mineable_properties, player_inventory) end
     if entity.prototype.type == "item-entity" then add_to_player_inventory(player_inventory, {name = entity.stack.name, amount = entity.stack.count, type = "item"}) end
-    entity.destroy()
+    entity.destroy({raise_destroy = true})
 end
 
 ---comment

@@ -62,10 +62,9 @@ end
 ---@param player_inventory LuaInventory
 ---@return table | nil
 function get_craftable_recipe(item_name, player_inventory)
-    --if Directly_chosen[item_name] then return Directly_chosen[item_name] end
     local recipes = global.product_craft_data[item_name]
     if not recipes then game.print("no recipes for " .. item_name .. ", this shouldn't happen") return nil end
-    for i, recipe in ipairs(recipes) do
+    for _, recipe in ipairs(recipes) do
         if is_recipe_enabled(recipe.recipe_name) and is_recipe_craftable(global.unpacked_recipes[recipe.recipe_name], player_inventory) and not recipe.blacklisted then
             return global.unpacked_recipes[recipe.recipe_name]
         end

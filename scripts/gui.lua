@@ -419,16 +419,18 @@ function build_tooltip(player, item_name, recipe_name)
 
     local ingredients = global.unpacked_recipes[recipe_name].ingredients
     local products = global.unpacked_recipes[recipe_name].products
-    local item_data = global.product_info[item_name]
 
     local item_name_frame = tooltip_tab_content.add{type = "frame", direction = "horizontal", style = "tooltip_title_frame_light"}
     local item_name_label = item_name_frame.add{type = "label", caption = global.unpacked_recipes[recipe_name].localised_name}
     item_name_label.style.font = "heading-2"
     item_name_label.style.font_color = {0.0, 0.0, 0.0}
 
-    item_description_label_caption = {"?", global.product_info[item_name].localised_description, ""}
+    item_description_label_caption = {"?", global.prototypes_data[item_name].localised_description, ""}
     local item_description_label = tooltip_tab_content.add{type = "label", caption = item_description_label_caption}
     item_description_label.style.left_padding = 6
+    item_description_label.style.width = STORAGE_FLOW_SIZE.width - 24
+    item_description_label.style.single_line = false
+    item_description_label.style.bottom_padding = 6
 
     --local recipe_name_frame = tooltip_tab_content.add{type = "frame", direction = "horizontal"}
     --local recipe_name_label = recipe_name_frame.add{type = "label", caption = "Recine name"}

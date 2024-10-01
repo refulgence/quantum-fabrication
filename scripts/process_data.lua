@@ -7,8 +7,8 @@ function process_data()
 end
 
 function reprocess_recipes()
-    process_recipes()
     process_entities()
+    process_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
@@ -69,14 +69,10 @@ function process_item_group_order()
     local subgroup_order = {}
     local item_groups = game.item_group_prototypes
     local item_subgroups = game.item_subgroup_prototypes
-
-
     for _, group in pairs(item_groups) do
         group_order[#group_order+1] = {name = group.name, order = group.order}
     end
     table.sort(group_order, function(a, b) if a.order == b.order then return a.name < b.name end return a.order < b.order end)
-
-
     local subgroup_count = {}
     for _, subgroup in pairs(item_subgroups) do
         local group = subgroup.group
@@ -87,7 +83,6 @@ function process_item_group_order()
     for _, group in pairs(subgroup_order) do
         table.sort(group, function(a, b) if a.order == b.order then return a.name < b.name end return a.order < b.order end)
     end
-    
     global.item_group_order = group_order
     global.item_subgroup_order = subgroup_order
 end
@@ -124,13 +119,15 @@ function process_recipes()
                                 localised_name = recipe.localised_name,
                                 localised_description = recipe.localised_description}
                         end
-                        if not global.product_info[product.name] then
-                            global.product_info[product.name] = {
+                        if not global.prototypes_data[product.name] then
+                            global.prototypes_data[product.name] = {
                                 name = product.name,
                                 type = product.type,
                                 localised_name = prototype.localised_name,
                                 localised_description = prototype.localised_description,
-                                order = prototype.order}
+                                order = prototype.order,
+                                item_name = "error"
+                            }
                         end
                         if not global.product_craft_data[product.name] then global.product_craft_data[product.name] = {} end
                         global.product_craft_data[product.name][#global.product_craft_data[product.name] + 1] = {

@@ -94,7 +94,7 @@ function get_filtered_data(player, filter)
     
     if type(filter) == "string" then
         for name, recipe in pairs(recipes) do
-            if is_recipe_enabled(name) then
+            if global.unpacked_recipes[name].enabled then
                 local localised_name
                 if not global.dictionary or not global.dictionary[player.index] or not global.dictionary[player.index][name] then
                     --game.print("dictionary error for" .. name)
@@ -121,7 +121,7 @@ function get_filtered_data(player, filter)
         end
     else
         for name, recipe in pairs(recipes) do
-            if is_recipe_enabled(name) then
+            if global.unpacked_recipes[name].enabled then
                 if filter[name] then
                     add_entry(recipe)
                 end

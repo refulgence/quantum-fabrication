@@ -15,6 +15,7 @@ function on_init()
     global.fabricator_inventory["fluid"] = {}
     global.unpacked_recipes = {}
     global.placeable = {}
+    global.recipe = {}
     global.modules = {}
     global.ingredient = {}
     global.ingredient_filter = {}
@@ -303,7 +304,11 @@ end
 
 
 script.on_nth_tick(338, function(event)
-    if Research_finished then process_ingredient_filter() Research_finished = false end
+    if Research_finished then
+        process_ingredient_filter()
+        process_recipe_enablement()
+        Research_finished = false
+    end
 end)
 
 

@@ -40,10 +40,11 @@ end
 ---@return table | nil
 function get_decraftable_recipe(item_name, player_inventory)
     local recipes = global.product_craft_data[item_name]
+    local unpacked_recipes = global.unpacked_recipes
     if not recipes then return nil end
-    for _, recipe in ipairs(recipes) do
-        if is_recipe_enabled(recipe.recipe_name) and is_recipe_craftable({ingredients = global.unpacked_recipes[recipe.recipe_name].products}, player_inventory) then
-            return global.unpacked_recipes[recipe.recipe_name]
+    for i = 1, recipes[1].number_of_recipes do
+        if unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_craftable({ingredients = unpacked_recipes[recipes[i].recipe_name].products}, player_inventory) then
+            return unpacked_recipes[recipes[i].recipe_name]
         end
     end
     return nil
@@ -57,20 +58,14 @@ end
 function get_craftable_recipe(item_name, player_inventory)
     local recipes = global.product_craft_data[item_name]
     if not recipes then game.print("no recipes for " .. item_name .. ", this shouldn't happen") return nil end
-    for _, recipe in ipairs(recipes) do
-        if is_recipe_enabled(recipe.recipe_name) and is_recipe_craftable(global.unpacked_recipes[recipe.recipe_name], player_inventory) and not recipe.blacklisted then
-            return global.unpacked_recipes[recipe.recipe_name]
+    for i = 1, recipes[1].number_of_recipes do
+        if global.unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_craftable(global.unpacked_recipes[recipes[i].recipe_name], player_inventory) and not recipes[i].blacklisted then
+            return global.unpacked_recipes[recipes[i].recipe_name]
         end
     end
     return nil
 end
 
----comment
----@param recipe_name string
----@return boolean
-function is_recipe_enabled(recipe_name)
-    return game.forces["player"].recipes[recipe_name].enabled
-end
 
 ---comment
 ---@param recipe table

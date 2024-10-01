@@ -37,6 +37,11 @@ function process_entities()
     end
 end
 
+function process_recipe_enablement()
+    for _, recipe in pairs(global.unpacked_recipes) do
+        recipe.enabled = game.forces["player"].recipes[recipe.name].enabled
+    end
+end
 
 function testing_cheat()
     for material, _ in pairs(global.ingredient) do
@@ -117,7 +122,9 @@ function process_recipes()
                                 products = recipe.products,
                                 ingredients = recipe.ingredients,
                                 localised_name = recipe.localised_name,
-                                localised_description = recipe.localised_description}
+                                localised_description = recipe.localised_description,
+                                enabled = recipe.enabled
+                            }
                         end
                         if not global.prototypes_data[product.name] then
                             global.prototypes_data[product.name] = {
@@ -135,7 +142,9 @@ function process_recipes()
                             priority = 1,
                             suitability = 0,
                             selected_priority = 0,
-                            blacklisted = false}
+                            blacklisted = false,
+                            number_of_recipes = 1
+                        }
                         if not seen[product.name] then
                             seen[product.name] = true
                             duplicate_recipes[product.name] = {}
@@ -157,7 +166,7 @@ function erase_non_duplicates(recipes)
     global.duplicate_recipes = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     for product, recipe_names in pairs(recipes) do
-        if #recipe_names > 1 and not Actual_non_duplicates[product] then
+        if #recipe_names > 1 then
             global.duplicate_recipes[product] = recipe_names
         end
     end
@@ -201,6 +210,7 @@ function calculate_default_priority()
         suitability[product_min_s] = suitability[product_min_s] + 1
         for key, recipe in pairs(global.product_craft_data[product]) do
             global.product_craft_data[product][key].suitability = suitability[recipe.recipe_name]
+            global.product_craft_data[product][key].number_of_recipes = #recipe_names
         end
         table.sort(global.product_craft_data[product], function(a, b) return a.suitability > b.suitability end)
     end
@@ -219,14 +229,14 @@ end
 function get_fabricating_recipe(product)
     if Directly_chosen[product] then return Directly_chosen[product] end
     for _, recipe in pairs(global.product_craft_data[product]) do
-        if is_recipe_enabled(recipe.recipe_name) then return recipe end
+        if game.forces["player"].recipes[recipe.recipe_name].enabled then return recipe end
     end
 end
 
 -- Which recipe to use for unpacking?
 function get_unpacking_recipe(product)
     for _, recipe in pairs(global.product_craft_data[product]) do
-        if is_recipe_enabled(recipe.recipe_name) then return global.preprocessed_recipes[recipe.recipe_name] end
+        if game.forces["player"].recipes[recipe.recipe_name].enabled then return global.preprocessed_recipes[recipe.recipe_name] end
     end
     return global.preprocessed_recipes[global.product_craft_data[product][1].recipe_name]
 end
@@ -275,7 +285,7 @@ end
 -- Count how many recipes are using an ingredient to be used for filter purposes in Recipe GUI
 function process_ingredient_filter()
     for _, recipe in pairs(global.unpacked_recipes) do
-        if is_recipe_enabled(recipe.name) then
+        if game.forces["player"].recipes[recipe.name].enabled then
             for _, ingredient in pairs(recipe.ingredients) do
                 if not global.ingredient_filter[ingredient.name] then global.ingredient_filter[ingredient.name] = {count = 0, recipes = {}} end
                 global.ingredient_filter[ingredient.name].count = global.ingredient_filter[ingredient.name].count + 1

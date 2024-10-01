@@ -1,17 +1,11 @@
-
-
 function update_dedigitizer_reactor_gui(player, entity)
     local main_frame = player.gui.relative.dedigitizer_reactor_gui
     if not main_frame then return end
-
     local choose_item_button = main_frame.choose_item_flow.choose_item_button
     local choose_fluid_button = main_frame.choose_fluid_flow.choose_fluid_button
-
     local item_transfer_status = global.tracked_entities[entity.name][entity.unit_number].item_transfer_status
     local fluid_transfer_status = global.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
-
     local temperature = entity.temperature > MIN_TEMPERATURE
-
     local item_transfer_caption
     if not temperature then
         item_transfer_caption = {"qf-dedigitizer.low-temperature"}
@@ -32,8 +26,6 @@ function update_dedigitizer_reactor_gui(player, entity)
     if item_transfer_status == "active" then
         main_frame.item_transfer_status_label_2.caption = {"qf-dedigitizer.transferring-item", 5, choose_item_button.elem_value}
     end
-
-
     local fluid_transfer_caption
     if  not temperature then
         fluid_transfer_caption = {"qf-dedigitizer.low-temperature"}
@@ -54,9 +46,7 @@ function update_dedigitizer_reactor_gui(player, entity)
     if fluid_transfer_status == "active" then
         main_frame.fluid_transfer_status_label_2.caption = {"qf-dedigitizer.transferring-fluid", 3000, choose_fluid_button.elem_value}
     end
-
 end
-
 
 
 function create_dedigitizer_reactor_gui(player, entity)
@@ -75,9 +65,7 @@ function create_dedigitizer_reactor_gui(player, entity)
     local current_fluid_filter = global.tracked_entities[entity.name][entity.unit_number].fluid_filter
     local item_transfer_status = global.tracked_entities[entity.name][entity.unit_number].item_transfer_status
     local fluid_transfer_status = global.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
-
     local energy_consumption = 0
-
     local choose_item_flow = main_frame.add{
         type = "flow",
         name = "choose_item_flow",
@@ -104,12 +92,10 @@ function create_dedigitizer_reactor_gui(player, entity)
             name = "item_transfer_status_label_2",
         }
     end
-    
     main_frame.add{
         type = "line",
         direction = "horizontal",
     }
-
     local choose_fluid_flow = main_frame.add{
         type = "flow",
         name = "choose_fluid_flow",
@@ -138,6 +124,3 @@ function create_dedigitizer_reactor_gui(player, entity)
     end
     update_dedigitizer_reactor_gui(player, entity)
 end
-
-
-

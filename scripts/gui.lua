@@ -1,8 +1,3 @@
-
-
-
-
-
 ---comment
 ---@param player LuaPlayer
 function toggle_fabricator_gui(player)
@@ -56,8 +51,6 @@ function build_fabricator_gui(player)
 end
 
 
-
-
 ---comment
 ---@param player LuaPlayer
 function build_storage_gui(player)
@@ -76,8 +69,6 @@ function build_storage_gui(player)
     local placeables_tab = tabbed_pane.add{type = "tab", name = "placeables_tab", caption = "Placeables"}
     local others_tab = tabbed_pane.add{type = "tab", name = "others_tab", caption = "Others"}
     local tooltip_tab = tabbed_pane.add{type = "tab", name = "tooltip_tab", caption = "Tooltip"}
-
-
 
     local materials_tab_content = build_materials_tab(player)
     local placeables_tab_content = build_placeables_tab(player)
@@ -148,7 +139,6 @@ function build_materials_tab(player)
 end
 
 
-
 ---comment
 ---@param player LuaPlayer
 ---@return LuaGuiElement
@@ -216,6 +206,7 @@ function build_placeables_tab(player)
     return placeables_tab_content
 end
 
+
 ---comment
 ---@param player LuaPlayer
 ---@return LuaGuiElement
@@ -274,9 +265,6 @@ function build_others_tab(player)
     end
     return others_tab_content
 end
-
-
-
 
 
 ---comment
@@ -346,6 +334,7 @@ function build_recipe_gui(player)
 
 end
 
+
 ---comment
 ---@param player LuaPlayer
 function build_recipe_item_list_gui(player)
@@ -390,7 +379,6 @@ function build_recipe_item_list_gui(player)
     end
 
 end
-
 
 
 ---comment
@@ -507,7 +495,7 @@ function build_tooltip(player, item_name, recipe_name)
 
 end
 
-
+-- do i even need so many
 function int_to_str_si(n)
     if     n <= 99999 then
         return tostring(n)

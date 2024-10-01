@@ -1,4 +1,3 @@
-
 function on_gui_hover(event)
     local player = game.get_player(event.player_index)
     if not player then return end
@@ -11,7 +10,6 @@ function on_gui_hover(event)
         show_tooltip(player)
     end
 end
-
 
 function on_gui_leave(event)
     local player = game.get_player(event.player_index)
@@ -53,9 +51,6 @@ function on_gui_text_changed(event)
     end
 end
 
-
-
-
 function on_gui_opened(event)
     if event.gui_type ~= defines.gui_type.entity or not event.entity or event.entity.name ~= "dedigitizer-reactor" then return end
     local player = game.get_player(event.player_index)
@@ -77,19 +72,16 @@ function on_gui_closed(event)
     end
 end
 
-
 function on_gui_click(event)
     local player = game.get_player(event.player_index)
     if not player then return end
     local element = event.element
     local element_tags = element.tags
-
     if element_tags.button_type == "item_group_selector" then
         local previous_selection = element.parent[global.player_gui[player.index].item_group_selection .. "_button"]
         if previous_selection then previous_selection.toggled = false end
         global.player_gui[player.index].item_group_selection = element_tags.group_name
         element.toggled = true
-        --refresh_gui(player)
         build_recipe_item_list_gui(player)
         return
     end
@@ -118,7 +110,6 @@ function on_gui_selected_tab_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
     local element = event.element
-
     if element.name == "tabbed_pane" then
         global.player_gui[event.player_index].selected_tab_index = element.selected_tab_index
     end
@@ -128,6 +119,20 @@ function on_gui_selection_state_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
     local element = event.element
+end
+
+---comment
+---@param event any
+function on_fabricator_gui_toggle_event(event)
+    local player = game.get_player(event.player_index)
+    if not player or not player.valid then return end
+    toggle_fabricator_gui(player)
+end
+
+function on_shortcut(event)
+    if event.prototype_name == "qf-fabricator-gui" then
+        on_fabricator_gui_toggle_event(event)
+    end
 end
 
 

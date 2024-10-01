@@ -164,7 +164,6 @@ end
 -- only leave recipes that *could* be duplicates. we'll be checking if they are *actually* duplicates (as in, enabled at the same time) later
 function erase_non_duplicates(recipes)
     global.duplicate_recipes = {}
-    if not Actual_non_duplicates then Actual_non_duplicates = {} end
     for product, recipe_names in pairs(recipes) do
         if #recipe_names > 1 then
             global.duplicate_recipes[product] = recipe_names

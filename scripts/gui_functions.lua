@@ -44,33 +44,6 @@ function get_craft_data(player)
     end
 end
 
----comment
----@param recipe table
----@param player_inventory LuaInventory | nil
----@return int
-function how_many_can_craft(recipe, player_inventory)
-    local result
-    for _, ingredient in pairs(recipe.ingredients) do
-        if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
-        local available = 0
-        if ingredient.type == "item" and player_inventory then
-            available = player_inventory.get_item_count(ingredient.name) + global.fabricator_inventory[ingredient.type][ingredient.name]
-        else
-            available = global.fabricator_inventory[ingredient.type][ingredient.name]
-        end
-        if available < ingredient.amount then
-            return 0
-        else
-            if not result then
-                result = math.floor(available / ingredient.amount)
-            else
-                result = math.min(result, math.floor(available / ingredient.amount))
-            end
-        end
-    end
-    return result
-end
-
 
 ---@param player LuaPlayer
 ---@param filter string | table if table, then we allows only recipes in that table; if stringe then we'll compare it to localised_name
@@ -91,7 +64,7 @@ function get_filtered_data(player, filter)
             localised_description = recipe.localised_description
         })
     end
-    
+
     if type(filter) == "string" then
         for name, recipe in pairs(recipes) do
             if global.unpacked_recipes[name].enabled then
@@ -151,11 +124,6 @@ function apply_gui_filter(player, filter, reset_searchbar, reset_materials)
 end
 
 
-function refresh_gui(player)
-    build_storage_gui(player)
-    build_recipe_gui(player)
-end
-
 function show_tooltip(player)
     if not player.gui.screen.qf_fabricator_inventory_frame then return end
     local storage_flow = player.gui.screen.qf_fabricator_inventory_frame.main_content_flow.storage_flow
@@ -170,5 +138,3 @@ function hide_tooltip(player)
     storage_flow.storage_frame.visible = true
     storage_flow.tooltip_flow.visible = false
 end
-
-

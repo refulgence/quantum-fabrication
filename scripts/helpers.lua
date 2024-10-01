@@ -65,7 +65,6 @@ function get_craftable_recipe(item_name, player_inventory)
     return nil
 end
 
-
 ---comment
 ---@param recipe table
 ---@param player_inventory LuaInventory
@@ -99,3 +98,111 @@ function is_recipe_decraftable(recipe)
     return true
 end
 
+
+---comment
+---@param recipe table
+---@param player_inventory LuaInventory | nil
+---@return int
+function how_many_can_craft(recipe, player_inventory)
+    local result
+    for _, ingredient in pairs(recipe.ingredients) do
+        if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
+        local available = 0
+        if ingredient.type == "item" and player_inventory then
+            available = player_inventory.get_item_count(ingredient.name) + global.fabricator_inventory[ingredient.type][ingredient.name]
+        else
+            available = global.fabricator_inventory[ingredient.type][ingredient.name]
+        end
+        if available < ingredient.amount then
+            return 0
+        else
+            if not result then
+                result = math.floor(available / ingredient.amount)
+            else
+                result = math.min(result, math.floor(available / ingredient.amount))
+            end
+        end
+    end
+    return result
+end
+
+
+---comment
+---@param player_inventory LuaInventory
+---@param item table
+function add_to_player_inventory(player_inventory, item)
+    if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
+    if is_placeable(item.name) or is_module(item.name) or global.ingredient[item.name] or item.type == "fluid" then
+        add_to_storage(item, true)
+    else
+        local inserted = player_inventory.insert(item)
+        if item.amount - inserted > 0 then add_to_storage({name = item.name, amount = item.amount - inserted, type = item.type}, false) end
+    end
+end
+
+
+---comment
+---@param item table
+---@param try_defabricate boolean
+function add_to_storage(item, try_defabricate)
+    if not item then return end
+    if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
+    global.fabricator_inventory[item.type][item.name] = global.fabricator_inventory[item.type][item.name] + (item.count or item.amount)
+    if try_defabricate then decraft(item) end
+end
+
+
+---comment
+---@param item table
+function remove_from_storage(item)
+    if not item then return end
+    global.fabricator_inventory[item.type][item.name] = global.fabricator_inventory[item.type][item.name] - (item.count or item.amount)
+end
+
+
+---comment
+---@param item table
+---@param target_inventory LuaInventory | LuaEntity
+---@return table
+function pull_from_storage(item, target_inventory)
+    if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
+    local available = global.fabricator_inventory[item.type][item.name]
+    local to_be_provided = item.count or item.amount
+    local status = {empty_storage = false, full_inventory = false}
+    if available == 0 then
+        status.empty_storage = true
+        return status
+    end
+    if available < to_be_provided then
+        to_be_provided = available
+        status.empty_storage = true
+    end
+    if item.type == "item" then
+        local inserted = target_inventory.insert({name = item.name, count = to_be_provided, type = item.type})
+        remove_from_storage({type = item.type, name = item.name, count = inserted})
+        if inserted < to_be_provided then
+            status.full_inventory = true
+        end
+    end
+    if item.type == "fluid" then
+        local current_fluid = target_inventory.get_fluid_contents()
+        for name, amount in pairs(current_fluid) do
+            if name == item.name then
+                local inserted = target_inventory.insert_fluid{name = item.name, amount = to_be_provided}
+                remove_from_storage({type = item.type, name = item.name, amount = inserted})
+                if inserted < to_be_provided then
+                    status.full_inventory = true
+                end
+                return status
+            else
+                add_to_storage({name = name, amount = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid"}, false)
+            end
+        end
+        local inserted = target_inventory.insert_fluid{name = item.name, amount = to_be_provided}
+        remove_from_storage({type = item.type, name = item.name, amount = inserted})
+        if inserted < to_be_provided then
+            status.full_inventory = true
+        end
+    end
+    return status
+end

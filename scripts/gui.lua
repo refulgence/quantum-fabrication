@@ -440,10 +440,7 @@ function build_tooltip(player, item_name, recipe_name)
     local main_ingredient_label = recipe_frame.add{type = "label", caption = {"qf-inventory.ingredinets"}}
     main_ingredient_label.style.font = "heading-3"
 
-    local column_count = 1
-    if #ingredients > 16 then
-        column_count = 2
-    end
+    local column_count = 2
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
     for _, ingredient in pairs(ingredients) do
@@ -496,11 +493,9 @@ function build_tooltip(player, item_name, recipe_name)
         local product_caption = {"", icon, localised_name}
         local amount = product.amount
         local product_label = product_label_flow.add{type = "label", caption = product_caption}
-        product_label.style.width = 145
 
         local amount_label = product_label_flow.add{type = "label", caption = "x" .. amount}
         amount_label.style.horizontal_align = "right"
-        amount_label.style.width = 60
     end
 
     local filler_2 = tooltip_frame.add{type = "empty-widget"}

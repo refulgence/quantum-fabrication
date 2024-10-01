@@ -246,6 +246,7 @@ function unpack_recipe_neo(recipe)
     end
     global.unpacked_recipes[recipe.name] = recipe
     global.unpacked_recipes[recipe.name].ingredients = deduplicate_ingredients_neo(new_ingredients)
+    table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
     return global.unpacked_recipes[recipe.name]
 end
 

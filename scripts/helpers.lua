@@ -10,12 +10,11 @@ function merge_tables(t1, t2)
 end
 
 ---comment
----@param item_name string | table
+---@param item_name string
 ---@return boolean
 function is_placeable(item_name)
     if global.placeable[item_name] ~= nil then return global.placeable[item_name] end
     local item_prototype = game.item_prototypes[item_name]
-    --if item_prototype and item_prototype.place_result and item_prototype.place_result.type ~= "logistic-robot" and item_prototype.place_result.type ~= "construction-robot" and item_prototype.place_result.type ~= "unit" and item_prototype.place_result.type ~= "spider-vehicle" and item_prototype.place_result.type ~= "car" then
     if item_prototype and item_prototype.place_result and item_prototype.place_result.create_ghost_on_death and not item_prototype.place_result.has_flag("hidden") then
         global.placeable[item_name] = true
         return true
@@ -28,8 +27,10 @@ end
 ---@param item_name string
 ---@return boolean
 function is_module(item_name)
+    if global.modules[item_name] ~= nil then return global.modules[item_name] end
     local item_prototype = game.item_prototypes[item_name]
-    return item_prototype and item_prototype.type == "module"
+    global.modules[item_name] = item_prototype and item_prototype.type == "module"
+    return global.modules[item_name]
 end
 
 

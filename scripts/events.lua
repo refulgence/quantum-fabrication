@@ -15,6 +15,7 @@ function on_init()
     global.fabricator_inventory["fluid"] = {}
     global.unpacked_recipes = {}
     global.placeable = {}
+    global.modules = {}
     global.ingredient = {}
     global.ingredient_filter = {}
     global.player_gui = {}

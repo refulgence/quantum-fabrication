@@ -9,6 +9,25 @@ function merge_tables(t1, t2)
     return t1
 end
 
+-- do i even need so many
+function int_to_str_si(n)
+    if     n <= 99999 then
+        return tostring(n)
+    elseif n <= 999999 then
+        return tostring(math.floor(n / 100) / 10) .. "k"
+    elseif n <= 999999999 then
+        return tostring(math.floor(n / 100000) / 10) .. "M"
+    elseif n <= 999999999999 then
+        return tostring(math.floor(n / 100000000) / 10) .. "G"
+    elseif n <= 999999999999999 then
+        return tostring(math.floor(n / 100000000000) / 10) .. "T"
+    elseif n <= 999999999999999999 then
+        return tostring(math.floor(n / 100000000000000) / 10) .. "P"
+    else
+        return tostring(math.floor(n / 100000000000000000) / 10) .. "E"
+    end
+end
+
 ---comment
 ---@param item_name string
 ---@return boolean

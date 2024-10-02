@@ -154,6 +154,7 @@ function process_inventory(entity, player_inventory)
     local max_index = entity.get_max_inventory_index()
     if not max_index then return end
     for i = 1, max_index do
+        ---@diagnostic disable-next-line: param-type-mismatch
         local inventory = entity.get_inventory(i)
         if inventory and not inventory.is_empty() and inventory.get_contents() then
             for name, count in pairs(inventory.get_contents()) do

@@ -100,9 +100,17 @@ function on_gui_click(event)
         toggle_fabricator_gui(player)
         return
     end
-    -- Has to be the last one
+    if element.name == "qf_options_button" then
+        toggle_options_gui(player)
+        return
+    end
+    if element.name == "qf_options_close_button" then
+        toggle_options_gui(player)
+        return
+    end
     if element.name == "qf_close_button" then
         toggle_fabricator_gui(player)
+        return
     end
 end
 
@@ -129,9 +137,11 @@ function on_fabricator_gui_toggle_event(event)
     toggle_fabricator_gui(player)
 end
 
-function on_shortcut(event)
-    if event.prototype_name == "qf-fabricator-gui" then
-        on_fabricator_gui_toggle_event(event)
+function on_fabricator_gui_search_event(event)
+    local player = game.get_player(event.player_index)
+    if not player then return end
+    if player.gui.screen.qf_fabricator_inventory_frame and not player.gui.screen.qf_fabricator_options_frame then
+        player.gui.screen.qf_fabricator_inventory_frame.titlebar.qf_search.focus()
     end
 end
 

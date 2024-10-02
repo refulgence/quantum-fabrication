@@ -2,12 +2,46 @@
 ---@param player LuaPlayer
 function toggle_fabricator_gui(player)
     local main_frame = player.gui.screen.qf_fabricator_inventory_frame
+    local options_frame = player.gui.screen.qf_fabricator_options_frame
     if Research_finished then process_ingredient_filter() Research_finished = false end
     if main_frame == nil then
         build_fabricator_gui(player)
     else
         main_frame.destroy()
+        if options_frame then options_frame.destroy() end
     end
+end
+
+---comment
+---@param player LuaPlayer
+function toggle_options_gui(player)
+    local main_frame = player.gui.screen.qf_fabricator_options_frame
+    if main_frame == nil then
+        build_options_gui(player)
+    else
+        main_frame.destroy()
+    end
+end
+
+
+OPTIONS_FRAME = {}
+OPTIONS_FRAME.size = {500, 500}
+
+
+function build_options_gui(player)
+    local main_frame = player.gui.screen.add{type = "frame", name = "qf_fabricator_options_frame", direction = "vertical"}
+    main_frame.style.size = OPTIONS_FRAME.size
+    main_frame.auto_center = true
+
+    -- Titlebar
+    local titlebar = main_frame.add{type = "flow", name = "titlebar", direction = "horizontal"}
+    titlebar.add{type = "label", caption = {"qf-inventory.options-title"}, style = "frame_title"}
+    titlebar.add{type="empty-widget", name="dragspace_filler", style="draggable_space", ignored_by_interaction=true}
+    titlebar.dragspace_filler.style.height = DRAGSPACE_FILLER_HEIGHT
+    titlebar.dragspace_filler.style.horizontally_stretchable = true
+    titlebar.drag_target = main_frame
+    titlebar.add{type = "sprite-button", name = "qf_options_close_button", style = "close_button", sprite="utility/close_white", hovered_sprite="utility/close_black", clicked_sprite="utility/close_black"}
+
 end
 
 ---comment
@@ -31,7 +65,10 @@ function build_fabricator_gui(player)
 
     local searchbar = titlebar.add{name = "qf_search", type = "textfield", style = "titlebar_search_textfield", clear_and_focus_on_right_click = true}
     searchbar.style.width = SEARCHBAR_WIDTH
+    local options_button = titlebar.add{type = "sprite-button", name = "qf_options_button", style = "frame_action_button", sprite="qf-setting-icon-white", hovered_sprite="qf-setting-icon", clicked_sprite="qf-setting-icon"}
     titlebar.add{type = "sprite-button", name = "qf_close_button", style = "close_button", sprite="utility/close_white", hovered_sprite="utility/close_black", clicked_sprite="utility/close_black"}
+
+    
 
     -- Main content
     local main_content = main_frame.add{type = "flow", name = "main_content_flow", direction = "horizontal"}

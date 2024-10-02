@@ -109,8 +109,9 @@ script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 
 
+script.on_event("qf-fabricator-gui-search", on_fabricator_gui_search_event)
 script.on_event("qf-fabricator-gui", on_fabricator_gui_toggle_event)
-script.on_event(defines.events.on_lua_shortcut, on_shortcut)
+--script.on_event(defines.events.on_lua_shortcut, on_shortcut)
 
 script.on_event(defines.events.on_player_created, on_player_created)
 

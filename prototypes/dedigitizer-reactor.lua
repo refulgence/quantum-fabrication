@@ -1,5 +1,5 @@
 
-
+local reactor_tint = {r = 1.0, g = 0.9, b = 1.0}
 local entity = table.deepcopy(data.raw["reactor"]["nuclear-reactor"])
 entity.name = "dedigitizer-reactor"
 entity.minable = {mining_time = 0.2, result = "dedigitizer-reactor"}
@@ -14,6 +14,16 @@ entity.connection_patches_connected = nil
 entity.connection_patches_disconnected = nil
 entity.heat_connection_patches_connected = nil
 entity.heat_connection_patches_disconnected = nil
+entity.icon = nil
+entity.icons = {{
+  icon  = "__base__/graphics/icons/nuclear-reactor.png",
+  icon_size = 64,
+  icon_mipmaps = 4,
+  tint = reactor_tint,
+}}
+entity.picture.layers[1].tint = reactor_tint
+entity.picture.layers[1].hr_version.tint = reactor_tint
+
 
 local container_entity = {
     type = "container",
@@ -29,7 +39,7 @@ local container_entity = {
 		collision_mask = {},
 		selectable_in_game = false,
     collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
-    inventory_size = 48,
+    inventory_size = 3,
 }
 
 local fluid_container_entity = {
@@ -246,12 +256,16 @@ local fluid_container_entity = {
 local item = {
     type = "item",
     name = "dedigitizer-reactor",
-    icon = "__base__/graphics/icons/nuclear-reactor.png",
-    icon_size = 64, icon_mipmaps = 4,
     subgroup = "energy",
     order = "f[nuclear-energy]-a[reactor]",
     place_result = "dedigitizer-reactor",
-    stack_size = 10
+    stack_size = 10,
+    icons = {{
+      icon  = "__base__/graphics/icons/nuclear-reactor.png",
+      icon_size = 64,
+      icon_mipmaps = 4,
+      tint = reactor_tint,
+    }},
   }
 
 local recipe =   {

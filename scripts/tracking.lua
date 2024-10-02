@@ -50,6 +50,7 @@ end
 
 function remove_tracked_entity(entity)
     local entity_data = global.tracked_entities[entity.name][entity.unit_number]
+    if not entity_data then game.print("Entity data not found for " .. entity.name .. " " .. entity.unit_number) return end
     if entity.name == "digitizer-chest" then
         entity_data.container_fluid.destroy()
     elseif entity.name == "dedigitizer-reactor" then
@@ -118,7 +119,7 @@ function update_entity(entity_data, entity_id)
         if entity_data.entity.temperature > MIN_TEMPERATURE then
             if item_filter and item_filter ~= "" then
                 local stack_size = game.item_prototypes[item_filter].stack_size
-                transfer_status = pull_from_storage({name = item_filter, type = "item", count = stack_size * 5}, entity_data.inventory)
+                transfer_status = pull_from_storage({name = item_filter, type = "item", count = stack_size}, entity_data.inventory)
                 if transfer_status.empty_storage then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "empty storage"
                     energy_consumption = energy_consumption + 10
@@ -165,7 +166,7 @@ function update_entity(entity_data, entity_id)
     remove_corrupted_memory(entity_data, entity_id)
 end
 
-
+-- TODO: code it
 function remove_corrupted_memory(entity_data, entity_id)
     game.print("Removing corrupted memory for " .. entity_data.entity.name .. " " .. entity_id)
     global.tracked_entities[entity_data.name][entity_data.unit_number] = nil

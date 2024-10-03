@@ -43,19 +43,7 @@ function process_recipe_enablement()
     end
 end
 
-function testing_cheat()
-    for material, _ in pairs(global.ingredient) do
-        local type = item_type_check(material)
-        if type == "item" or type == "both" then
-            if not global.fabricator_inventory["item"][material] then global.fabricator_inventory["item"][material] = 0 end
-            global.fabricator_inventory["item"][material] = global.fabricator_inventory["item"][material] + math.random(1000, 1000000000)
-        end
-        if type == "fluid" or type == "both" then
-            if not global.fabricator_inventory["fluid"][material] then global.fabricator_inventory["fluid"][material] = 0 end
-            global.fabricator_inventory["fluid"][material] = global.fabricator_inventory["fluid"][material] + math.random(1000, 1000000000)
-        end
-    end
-end
+
 
 function item_type_check(item)
     local type
@@ -104,6 +92,8 @@ function process_recipes()
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
                 if is_placeable(product.name) then
+                    -- Skip if this product/recipe pair is blacklisted
+                    if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst
                     if product.probability == 1 and not product.catalyst_amount then
                         local prototype
@@ -151,6 +141,7 @@ function process_recipes()
                         end
                         table.insert(duplicate_recipes[product.name], recipe.name)
                     end
+                    ::continue::
                 end
             end
         end
@@ -165,7 +156,7 @@ end
 function erase_non_duplicates(recipes)
     global.duplicate_recipes = {}
     for product, recipe_names in pairs(recipes) do
-        if #recipe_names > 1 then
+        if #recipe_names > 1 and not Actual_non_duplicates[product] then
             global.duplicate_recipes[product] = recipe_names
         end
     end

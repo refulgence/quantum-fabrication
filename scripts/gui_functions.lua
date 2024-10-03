@@ -40,7 +40,15 @@ function get_craft_data(player)
         local in_inventory = 0
         if item_type_check(recipe.placeable_product) == "item" then in_inventory = player_inventory.get_item_count(recipe.placeable_product) or 0 end
         local in_storage = global.fabricator_inventory["item"][recipe.placeable_product] or 0
-        Craft_data[player.index][recipe.name] = how_many_can_craft(recipe, player_inventory) + in_inventory + in_storage
+        if global.player_gui[player.index].options.calculate_numbers then
+            Craft_data[player.index][recipe.name] = how_many_can_craft(recipe, player_inventory) + in_inventory + in_storage
+        else
+            if is_recipe_craftable(recipe, player_inventory) then
+                Craft_data[player.index][recipe.name] = 1
+            else
+                Craft_data[player.index][recipe.name] = 0
+            end
+        end
     end
 end
 

@@ -14,6 +14,7 @@ function on_init()
     global.dictionary_helper = {}
     global.tracked_entities = {}
     global.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
+    if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
 end
 
@@ -83,20 +84,77 @@ end
 
 function on_player_created(event)
     fill_dictionary(event.player_index)
-    global.player_gui[event.player_index] = {item_group_selection = 1, selected_tab_index = 1}
+    global.player_gui[event.player_index] = {item_group_selection = 1, selected_tab_index = 1, options = {calculate_numbers = true, mark_red = true, sort_ingredients = 1}}
 end
 
+
+
+function sort_ingredients(player_index)
+    for _, recipe in pairs(global.unpacked_recipes) do
+        table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return global.dictionary[player_index][a.name] < global.dictionary[player_index][b.name] end)
+    end
+end
+
+
+
+function post_research_recheck()
+    process_ingredient_filter()
+    process_recipe_enablement()
+end
 
 function on_research_changed(event)
     Research_finished = true
 end
 script.on_nth_tick(338, function(event)
     if Research_finished then
-        process_ingredient_filter()
-        process_recipe_enablement()
+        post_research_recheck()
         Research_finished = false
     end
 end)
+
+function on_console_command(command)
+    local player_index = command.player_index
+    local name = command.name
+    if name == "qf_hesoyam" then
+        debug_storage(250000, false)
+        game.print("CHEAT: Fabricator inventory updated")
+    elseif name == "qf_hesoyam_harder" then
+        debug_storage(250000000, true)
+        game.print("CHEAT: Fabricator inventory updated with a lot of stuff")
+    elseif name == "qf_clear_storage" then
+        global.fabricator_inventory = {item = {}, fluid = {}}
+        game.print("CHEAT(?): Fabricator inventory cleared")
+    elseif name == "qf_sort_by_abc" then
+        sort_ingredients(player_index)
+        game.print("Ingredients are sorted in alphabetical order (according to the current player's locale)")
+    end
+end
+
+
+function debug_storage(amount, everything)
+    if not everything then
+        for material, _ in pairs(global.ingredient) do
+            local type = item_type_check(material)
+            if not global.fabricator_inventory[type][material] then global.fabricator_inventory[type][material] = 0 end
+            add_to_storage({name = material, amount = amount, type = type}, false)
+        end
+    else
+        for _, item in pairs(game.item_prototypes) do
+            if not global.fabricator_inventory["item"][item.name] then global.fabricator_inventory["item"][item.name] = 0 end
+            add_to_storage({name = item.name, amount = amount, type = "item"}, false)
+        end
+        for _, fluid in pairs(game.fluid_prototypes) do
+            if not global.fabricator_inventory["fluid"][fluid.name] then global.fabricator_inventory["fluid"][fluid.name] = 0 end
+            add_to_storage({name = fluid.name, amount = amount, type = "fluid"}, false)
+        end
+    end
+end
+
+
+commands.add_command("qf_hesoyam", nil, on_console_command)
+commands.add_command("qf_hesoyam_harder", nil, on_console_command)
+commands.add_command("qf_clear_storage", nil, on_console_command)
+commands.add_command("qf_sort_by_abc", nil, on_console_command)
 
 script.on_nth_tick(Update_rate["destroys"].rate, update_tracked_destroys)
 script.on_nth_tick(Update_rate["revivals"].rate, update_tracked_revivals)
@@ -108,9 +166,8 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_c
 script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 
-
+script.on_event("qf-fabricator-gui-search", on_fabricator_gui_search_event)
 script.on_event("qf-fabricator-gui", on_fabricator_gui_toggle_event)
-script.on_event(defines.events.on_lua_shortcut, on_shortcut)
 
 script.on_event(defines.events.on_player_created, on_player_created)
 

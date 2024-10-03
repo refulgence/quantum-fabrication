@@ -143,7 +143,8 @@ end
 
 function on_gui_checked_state_changed(event)
     local element = event.element
-    if not player or not element then return end
+    local player_index = event.player_index
+    if not player_index or not element then return end
 
     if element.name == "qf_calculate_craftable_numbers" then
         global.player_gui[event.player_index].options.calculate_numbers = element.state

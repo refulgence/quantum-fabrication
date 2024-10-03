@@ -84,7 +84,7 @@ end
 
 function on_player_created(event)
     fill_dictionary(event.player_index)
-    global.player_gui[event.player_index] = {item_group_selection = 1, selected_tab_index = 1, options = {calculate_numbers = true, mark_red = true, sort_ingredients = 0}}
+    global.player_gui[event.player_index] = {item_group_selection = 1, selected_tab_index = 1, options = {calculate_numbers = true, mark_red = true, sort_ingredients = 1}}
 end
 
 

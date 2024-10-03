@@ -4,6 +4,6 @@
   "title": "Quantum Fabricator",
   "author": "Tename",
   "factorio_version": "1.1",
-  "dependencies": ["base >= 1.1"],
+  "dependencies": ["base >= 1.1", "flib >= 0.14.2"],
   "description": "Say goodbye to malls and handcrafting! With this mod active all entities you place are magically created out of ingredients available in the quantum fabricator, and destroyed entities are magically disassembled and sent to the quantum fabricator."
 }

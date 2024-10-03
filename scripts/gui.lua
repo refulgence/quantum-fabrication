@@ -78,7 +78,7 @@ function build_options_gui(player)
     local sort_option_flow = general_flow.add{type = "flow", direction = "horizontal"}
     sort_option_flow.add{type = "label", caption = {"qf-options.pref-sorting"}}
     sort_option_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
-    local drop_down = sort_option_flow.add{type = "drop-down", name = "qf_sort_by", items = {{"qf-options.pref-sorting-abc"}, {"qf-options.pref-sorting-available"}}, selected_index = global.player_gui[player.index].options.sort_by}
+    local drop_down = sort_option_flow.add{type = "drop-down", name = "qf_sort_by", items = {{"qf-optionspref-sorting-item-name"}, {"qf-options.pref-sorting-abc"}, {"qf-options.pref-sorting-available"}}, selected_index = global.player_gui[player.index].options.sort_by}
     drop_down.style.width = 150
 
     general_flow.add{type = "line", direction = "horizontal"}
@@ -148,7 +148,9 @@ function build_fabricator_gui(player)
 
     -- Current data
     sort_tab_lists()
-    get_craft_data(player)
+    if global.player_gui[player.index].options.calculate_numbers or global.player_gui[player.index].options.mark_red then
+        get_craft_data(player)
+    end
     get_filtered_data(player, "")
 
 
@@ -480,7 +482,9 @@ function build_recipe_item_list_gui(player)
             for _, item in pairs(filter[current_selection][subgroup.name]) do
                 local item_button = subgroup_table.add{type = "sprite-button", sprite = "item/" .. item.item_name, tooltip = item.localised_name, style = "slot_button"}
                 item_button.style.padding = 0
-                item_button.number = Craft_data[player.index][item.item_name]
+                if global.player_gui[player.index].options.calculate_numbers then
+                    item_button.number = Craft_data[player.index][item.item_name]
+                end
                 item_button.raise_hover_events = true
                 item_button.tags = {button_type = "take_out_ghost", item_name = item.item_name, hover_type = "recipe", recipe_name = item.recipe_name}
             end

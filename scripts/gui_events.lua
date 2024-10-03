@@ -83,36 +83,29 @@ function on_gui_click(event)
         global.player_gui[player.index].item_group_selection = element_tags.group_name
         element.toggled = true
         build_recipe_item_list_gui(player)
-        return
-    end
-    if element_tags.button_type == "recipe_usage_search" then
+    elseif element_tags.button_type == "recipe_usage_search" then
         apply_gui_filter(player, global.ingredient_filter[element_tags.item_name].recipes, true, false)
-        return
-    end
-    if element.name == "qf_reset_button" then
+    elseif element.name == "qf_reset_button" then
         apply_gui_filter(player, "", true, true)
-        return
-    end
-    if element_tags.button_type == "take_out_ghost" then
+    elseif element_tags.button_type == "recipe_priority_selector" then
+
+    elseif element_tags.button_type == "take_out_ghost" then
         player.clear_cursor()
         player.cursor_ghost = element_tags.item_name
         --Directly_chosen[element_tags.recipe_name] = element_tags.recipe_name
         toggle_fabricator_gui(player)
-        return
-    end
-    if element.name == "qf_options_button" then
+    elseif element.name == "qf_options_button" then
         toggle_options_gui(player)
-        return
-    end
-    if element.name == "qf_options_close_button" then
+    elseif element.name == "process_recipes_button" then
+        game.print("Recipes rechecked, information is up to date")
+        post_research_recheck()
+    elseif element.name == "qf_options_close_button" then
         toggle_options_gui(player)
-        return
-    end
-    if element.name == "qf_close_button" then
+    elseif element.name == "qf_close_button" then
         toggle_fabricator_gui(player)
-        return
     end
 end
+
 
 function on_gui_selected_tab_changed(event)
     local player = game.get_player(event.player_index)
@@ -127,6 +120,9 @@ function on_gui_selection_state_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
     local element = event.element
+    if element.name == "qf_sort_by" then
+        global.player_gui[event.player_index].options.sort_ingredients = element.selected_index
+    end
 end
 
 ---comment
@@ -145,7 +141,22 @@ function on_fabricator_gui_search_event(event)
     end
 end
 
+function on_gui_checked_state_changed(event)
+    local element = event.element
+    if not player or not element then return end
 
+    if element.name == "qf_calculate_craftable_numbers" then
+        global.player_gui[event.player_index].options.calculate_numbers = element.state
+    elseif element.name == "qf_mark_red" then
+        global.player_gui[event.player_index].options.mark_red = element.state
+    end
+
+end
+
+
+
+
+script.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
 script.on_event(defines.events.on_gui_hover, on_gui_hover)
 script.on_event(defines.events.on_gui_leave, on_gui_leave)
 script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)

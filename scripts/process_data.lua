@@ -43,19 +43,7 @@ function process_recipe_enablement()
     end
 end
 
-function testing_cheat()
-    for material, _ in pairs(global.ingredient) do
-        local type = item_type_check(material)
-        if type == "item" or type == "both" then
-            if not global.fabricator_inventory["item"][material] then global.fabricator_inventory["item"][material] = 0 end
-            global.fabricator_inventory["item"][material] = global.fabricator_inventory["item"][material] + math.random(1000, 1000000000)
-        end
-        if type == "fluid" or type == "both" then
-            if not global.fabricator_inventory["fluid"][material] then global.fabricator_inventory["fluid"][material] = 0 end
-            global.fabricator_inventory["fluid"][material] = global.fabricator_inventory["fluid"][material] + math.random(1000, 1000000000)
-        end
-    end
-end
+
 
 function item_type_check(item)
     local type

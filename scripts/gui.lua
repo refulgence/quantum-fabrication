@@ -3,7 +3,7 @@
 function toggle_fabricator_gui(player)
     local main_frame = player.gui.screen.qf_fabricator_inventory_frame
     local options_frame = player.gui.screen.qf_fabricator_options_frame
-    if Research_finished then process_ingredient_filter() Research_finished = false end
+    if Research_finished then post_research_recheck() Research_finished = false end
     if main_frame == nil then
         build_fabricator_gui(player)
     else
@@ -57,9 +57,7 @@ function build_options_gui(player)
     duplicate_flow.style.width = (OPTIONS_FRAME.width - 24) / 2 - 12
     duplicate_flow.style.left_padding = 8
 
-    -- General section    
-
-
+    -- General section 
     local general_section_title = general_flow.add{type = "label", caption = {"qf-options.pref-title"}}
     general_section_title.style.font = "heading-3"
 
@@ -91,8 +89,7 @@ function build_options_gui(player)
     debug_section_title.style.font = "heading-3"
     general_flow.add{type = "label", caption = {"qf-options.debug-caption"}, tooltip = {"qf-options.debug-caption-tooltip"}}.style.single_line = false
 
-    local process_recipes = general_flow.add{type = "button", name = "process_recipes", caption = {"qf-options.debug-reprocess-recipes"}, tooltip = {"qf-options.debug-reprocess-recipes-tooltip"}}
-
+    general_flow.add{type = "button", name = "process_recipes_button", caption = {"qf-options.debug-reprocess-recipes"}, tooltip = {"qf-options.debug-reprocess-recipes-tooltip"}}
 
     -- Duplicate section
     local duplicate_flow_title = duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling"}}
@@ -110,18 +107,13 @@ function build_options_gui(player)
         local duplicate_product_label = duplicate_product_flow.add{type = "label", caption = {"", "[item="..product.."] ", game.item_prototypes[product].localised_name}}
         duplicate_product_label.style.height = 40
         duplicate_product_label.style.vertical_align = "center"
-
         duplicate_product_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
-
         local duplicate_product_table = duplicate_product_flow.add{type = "table", column_count = 4}
-
-
         for _, recipe in pairs(recipes) do
             local recipe_button = duplicate_product_table.add{type = "sprite-button", sprite = "item/" .. product, elem_tooltip = {type = "recipe", name = recipe}, style = "slot_button"}
+            recipe_button.tags = {recipe_name = recipe, item_name = product, button_type = "recipe_priority_selector"}
         end
     end
-
-
 end
 
 ---comment

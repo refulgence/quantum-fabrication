@@ -262,14 +262,7 @@ function build_placeables_tab(player)
     storage_scroll_pane.style.size = TABBED_PANE_CONTENT_SIZE
     storage_scroll_pane.vertical_scroll_policy = "auto-and-reserve-space"
 
-    local items_list = global.fabricator_inventory["item"]
-    local sorted_list = {}
-    for name, count in pairs(items_list) do
-        if count > 0 and (is_placeable(name) or is_module(name)) then
-            sorted_list[#sorted_list + 1] = {name = name, count = count}
-        end
-    end
-    table.sort(sorted_list, function(a, b) return a.count > b.count end)
+    local sorted_list = Sorted_lists["Placeables"]
     for _, item in pairs(sorted_list) do
         local item_entry = storage_scroll_pane.add{type = "flow", direction = "horizontal"}
 
@@ -330,20 +323,7 @@ function build_others_tab(player)
     storage_scroll_pane.style.size = TABBED_PANE_CONTENT_SIZE
     storage_scroll_pane.vertical_scroll_policy = "auto-and-reserve-space"
 
-    local items_list = global.fabricator_inventory["item"]
-    local fluids_list = global.fabricator_inventory["fluid"]
-    local sorted_list = {}
-    for name, count in pairs(items_list) do
-        if count > 0 and not is_placeable(name) and not is_module(name) and not global.ingredient[name] then
-            sorted_list[#sorted_list + 1] = {name = name, count = count, type = "item"}
-        end
-    end
-    for name, count in pairs(fluids_list) do
-        if count > 0 and not global.ingredient[name] then
-            sorted_list[#sorted_list + 1] = {name = name, count = count, type = "fluid"}
-        end
-    end
-    table.sort(sorted_list, function(a, b) return a.count > b.count end)
+    local sorted_list = Sorted_lists["Others"]
 
     local others_tab_label_1 = storage_scroll_pane.add{type="label", caption = {"qf-inventory.others-tab-caption-1"}}
     others_tab_label_1.style.font = "default-bold"

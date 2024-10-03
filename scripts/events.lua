@@ -150,6 +150,14 @@ function debug_storage(amount, everything)
     end
 end
 
+function on_lua_shortcut(event)
+    local player = game.get_player(event.player_index)
+    if not player then return end
+    if event.prototype_name == "qf-fabricator-gui" then
+        toggle_fabricator_gui(player)
+    end
+end
+
 
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
@@ -168,6 +176,7 @@ script.on_configuration_changed(on_config_changed)
 
 script.on_event("qf-fabricator-gui-search", on_fabricator_gui_search_event)
 script.on_event("qf-fabricator-gui", on_fabricator_gui_toggle_event)
+script.on_event(defines.events.on_lua_shortcut, on_lua_shortcut)
 
 script.on_event(defines.events.on_player_created, on_player_created)
 

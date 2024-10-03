@@ -3,6 +3,7 @@ require "prototypes/styles"
 require "prototypes/digitizer-chest"
 require "prototypes/digitizer-combinator"
 require "prototypes/dedigitizer-reactor"
+require "prototypes/shortcuts"
 
 data:extend{{
 	type = "sprite",

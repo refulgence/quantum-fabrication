@@ -91,7 +91,14 @@ function on_gui_click(event)
     elseif element.name == "filter_reset_button" then
         apply_gui_filter(player, "", true, true)
     elseif element_tags.button_type == "recipe_priority_selector" then
-
+        if event.button == defines.mouse_button_type.left then
+            prioritise_recipe(element_tags)
+        elseif event.button == defines.mouse_button_type.right then
+            blacklist_recipe(element_tags)
+        end
+        table.sort(global.product_craft_data[element_tags.item_name], function(a, b) return a.suitability > b.suitability end)
+        update_duplicate_handling_buttons(player, element.parent, element_tags.item_name)
+        --{recipe_name = recipe, item_name = product, button_type = "recipe_priority_selector"}
     elseif element_tags.button_type == "take_out_ghost" then
         player.clear_cursor()
         player.cursor_ghost = element_tags.item_name
@@ -110,6 +117,59 @@ function on_gui_click(event)
         toggle_qf_gui(player)
     end
 end
+
+function prioritise_recipe(tags)
+    local item_name = tags.item_name
+    local recipe_name = tags.recipe_name
+    for _, recipe in pairs(global.product_craft_data[item_name]) do
+        if recipe.recipe_name == recipe_name then
+            if recipe.prioritised then
+                recipe.prioritised = false
+                recipe.suitability = recipe.suitability - 10
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
+            elseif recipe.blacklisted then
+                recipe.prioritised = true
+                recipe.blacklisted = false
+                recipe.suitability = recipe.suitability + 20
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
+            else
+                recipe.prioritised = true
+                recipe.suitability = recipe.suitability + 10
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
+            end
+        else
+            if recipe.prioritised then
+                recipe.prioritised = false
+                recipe.suitability = recipe.suitability - 10
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
+            end
+        end
+    end
+end
+
+function blacklist_recipe(tags)
+    local item_name = tags.item_name
+    local recipe_name = tags.recipe_name
+    for _, recipe in pairs(global.product_craft_data[item_name]) do
+        if recipe.recipe_name == recipe_name then
+            if recipe.blacklisted then
+                recipe.blacklisted = false
+                recipe.suitability = recipe.suitability + 10
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
+            elseif recipe.prioritised then
+                recipe.blacklisted = true
+                recipe.prioritised = false
+                recipe.suitability = recipe.suitability - 20
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
+            else
+                recipe.blacklisted = true
+                recipe.suitability = recipe.suitability - 10
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
+            end
+        end
+    end
+end
+
 
 
 function on_gui_selected_tab_changed(event)

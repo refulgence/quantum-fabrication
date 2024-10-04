@@ -113,7 +113,8 @@ function process_recipes()
                                 ingredients = recipe.ingredients,
                                 localised_name = recipe.localised_name,
                                 localised_description = recipe.localised_description,
-                                enabled = recipe.enabled
+                                enabled = recipe.enabled,
+                                priority_style = "slot_button"
                             }
                         end
                         if not global.prototypes_data[product.name] then
@@ -129,9 +130,8 @@ function process_recipes()
                         if not global.product_craft_data[product.name] then global.product_craft_data[product.name] = {} end
                         global.product_craft_data[product.name][#global.product_craft_data[product.name] + 1] = {
                             recipe_name = recipe.name,
-                            priority = 1,
                             suitability = 0,
-                            selected_priority = 0,
+                            prioritised = false,
                             blacklisted = false,
                             number_of_recipes = 1
                         }

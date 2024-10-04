@@ -84,7 +84,17 @@ end
 
 function on_player_created(event)
     fill_dictionary(event.player_index)
-    global.player_gui[event.player_index] = {item_group_selection = 1, selected_tab_index = 1, options = {calculate_numbers = true, mark_red = true, sort_ingredients = 1}}
+    global.player_gui[event.player_index] = {
+        item_group_selection = 1,
+        selected_tab_index = 1,
+        show_storage = false,
+        fabricator_gui_position = nil,
+        options = {
+            calculate_numbers = true,
+            mark_red = true,
+            sort_ingredients = 1
+        }
+    }
 end
 
 
@@ -94,7 +104,6 @@ function sort_ingredients(player_index)
         table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return global.dictionary[player_index][a.name] < global.dictionary[player_index][b.name] end)
     end
 end
-
 
 
 function post_research_recheck()
@@ -150,6 +159,14 @@ function debug_storage(amount, everything)
     end
 end
 
+function on_lua_shortcut(event)
+    local player = game.get_player(event.player_index)
+    if not player then return end
+    if event.prototype_name == "qf-fabricator-gui" then
+        toggle_qf_gui(player)
+    end
+end
+
 
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
@@ -167,7 +184,8 @@ script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 
 script.on_event("qf-fabricator-gui-search", on_fabricator_gui_search_event)
-script.on_event("qf-fabricator-gui", on_fabricator_gui_toggle_event)
+script.on_event("qf-fabricator-gui-toggle", on_fabricator_gui_toggle_event)
+script.on_event(defines.events.on_lua_shortcut, on_lua_shortcut)
 
 script.on_event(defines.events.on_player_created, on_player_created)
 

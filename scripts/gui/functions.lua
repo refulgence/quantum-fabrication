@@ -1,3 +1,76 @@
+
+
+---comment
+---@param player LuaPlayer
+function toggle_qf_gui(player)
+    local main_frame = player.gui.screen.qf_fabricator_frame
+    if Research_finished then post_research_recheck() Research_finished = false end
+    if main_frame == nil then
+        build_main_gui(player)
+    else
+        global.player_gui[player.index].fabricator_gui_position = main_frame.location
+        main_frame.destroy()
+        if player.gui.screen.qf_fabricator_options_frame then player.gui.screen.qf_fabricator_options_frame.destroy() end
+        if player.gui.screen.qf_recipe_tooltip then player.gui.screen.qf_recipe_tooltip.destroy() end
+    end
+end
+
+
+---comment
+---@param player LuaPlayer
+function toggle_storage_gui(player)
+    local main_frame = player.gui.screen.qf_fabricator_frame
+    if not main_frame then return end
+    global.player_gui[player.index].show_storage = not global.player_gui[player.index].show_storage
+    if global.player_gui[player.index].show_storage then
+        --main_frame.style.size = {width = QF_GUI.main_frame.width, height = QF_GUI.main_frame.height}
+        if not main_frame.main_content_flow.storage_flow.storage_flow then build_main_storage_gui(player, main_frame.main_content_flow.storage_flow) end
+        main_frame.main_content_flow.storage_flow.visible = true
+    else
+        --main_frame.style.size = {width = QF_GUI.main_frame.min_width, height = QF_GUI.main_frame.min_height}
+        main_frame.main_content_flow.storage_flow.visible = false
+    end
+end
+
+---comment
+---@param player LuaPlayer
+function toggle_options_gui(player)
+    if player.gui.screen.qf_fabricator_options_frame == nil then
+        build_options_gui(player)
+    else
+        player.gui.screen.qf_fabricator_options_frame.destroy()
+    end
+end
+
+
+---comment
+---@param player LuaPlayer
+---@param button_index table
+function auto_position_tooltip(player, button_index)
+    -- Step 1: get coordinates of Recipe's frame
+    local main_frame = player.gui.screen.qf_fabricator_frame
+    local tooltip_frame = player.gui.screen.qf_recipe_tooltip
+    if not main_frame or not tooltip_frame then return end
+    local x = main_frame.location.x
+    local y = main_frame.location.y
+    -- Step 2: adjust for padding and borders
+    x = x + QF_GUI.default.padding * 2
+    y = y + QF_GUI.default.padding + QF_GUI.titlebar.height + (Filtered_data[player.index].size / QF_GUI.recipe_frame.item_group_table.max_number_of_columns) * QF_GUI.recipe_frame.item_group_table.button_height + 10
+    -- This should bring up to top left corner of table gui
+    -- Step 3: adjust for tooltip that's currenty being hovered up
+    x = x + button_index.x * 40 + 15
+    y = y + button_index.y * 40 + 15 + 40
+    -- Step 4: adjusting for screen resolution
+    if x + tooltip_frame.tags.width > player.display_resolution.width then
+        x = x - tooltip_frame.tags.width - 15 - 15 - 40
+    end
+    if y + tooltip_frame.tags.heigth > player.display_resolution.height then
+        y = player.display_resolution.height - tooltip_frame.tags.heigth
+    end
+    tooltip_frame.location = {x = x, y = y}
+end
+
+
 ---comment
 function sort_tab_lists()
     Sorted_lists = {}
@@ -20,7 +93,7 @@ function sort_tab_lists()
             end
         end
     end
-    table.sort(sorted_materials, function(a, b) if a.count == b.count then return a.name > b.name end return a.count > b.count end)
+    table.sort(sorted_materials, function(a, b) if a.count == b.count then return a.name < b.name end return a.count > b.count end)
     table.sort(sorted_placeables, function(a, b) if a.count == b.count then return a.name < b.name end return a.count < b.count end)
     table.sort(sorted_others, function(a, b) if a.count == b.count then return a.name < b.name end return a.count < b.count end)
     Sorted_lists["Materials"] = sorted_materials
@@ -122,27 +195,9 @@ end
 ---@param reset_searchbar boolean
 function apply_gui_filter(player, filter, reset_searchbar, reset_materials)
     get_filtered_data(player, filter)
-    if reset_searchbar then player.gui.screen.qf_fabricator_inventory_frame.titlebar.qf_search.text = "" end
-    if reset_materials then
-        build_storage_gui(player)
-        build_recipe_gui(player)
-    else
-        build_recipe_gui(player)
+    if reset_searchbar then player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.titlebar_flow.searchbar.text = "" end
+    if reset_materials and global.player_gui[player.index].show_storage then
+        build_main_storage_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.storage_flow)
     end
-end
-
-
-function show_tooltip(player)
-    if not player.gui.screen.qf_fabricator_inventory_frame then return end
-    local storage_flow = player.gui.screen.qf_fabricator_inventory_frame.main_content_flow.storage_flow
-    storage_flow.storage_frame.visible = false
-    storage_flow.tooltip_flow.visible = true
-end
-
-
-function hide_tooltip(player)
-    if not player.gui.screen.qf_fabricator_inventory_frame then return end
-    local storage_flow = player.gui.screen.qf_fabricator_inventory_frame.main_content_flow.storage_flow
-    storage_flow.storage_frame.visible = true
-    storage_flow.tooltip_flow.visible = false
+    build_main_recipe_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow)
 end

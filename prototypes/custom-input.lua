@@ -2,13 +2,8 @@ data:extend(
 {
 	{
 		type = "custom-input",
-		name = "qf-fabricator-gui",
+		name = "qf-fabricator-gui-toggle",
 		key_sequence = "V"
-	},
-	{
-		type = "custom-input",
-		name = "qf-storage-gui",
-		key_sequence = "ALT + V"
 	},
 	{
 		type = "custom-input",

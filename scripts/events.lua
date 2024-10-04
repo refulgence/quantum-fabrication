@@ -99,9 +99,15 @@ end
 
 
 
-function sort_ingredients(player_index)
+function sort_ingredients(player_index, sort_type)
     for _, recipe in pairs(global.unpacked_recipes) do
-        table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return global.dictionary[player_index][a.name] < global.dictionary[player_index][b.name] end)
+        if sort_type == "item_name" then
+            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
+        elseif sort_type == "amount" then
+            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.amount < b.amount end)
+        elseif sort_type == "localised_name" then
+            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return global.dictionary[player_index][a.name] < global.dictionary[player_index][b.name] end)
+        end
     end
 end
 
@@ -133,9 +139,6 @@ function on_console_command(command)
     elseif name == "qf_clear_storage" then
         global.fabricator_inventory = {item = {}, fluid = {}}
         game.print("CHEAT(?): Fabricator inventory cleared")
-    elseif name == "qf_sort_by_abc" then
-        sort_ingredients(player_index)
-        game.print("Ingredients are sorted in alphabetical order (according to the current player's locale)")
     end
 end
 
@@ -171,7 +174,6 @@ end
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
-commands.add_command("qf_sort_by_abc", nil, on_console_command)
 
 script.on_nth_tick(Update_rate["destroys"].rate, update_tracked_destroys)
 script.on_nth_tick(Update_rate["revivals"].rate, update_tracked_revivals)

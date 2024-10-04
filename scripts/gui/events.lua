@@ -187,6 +187,13 @@ function on_gui_selection_state_changed(event)
     local element = event.element
     if element.name == "qf_sort_by" then
         global.player_gui[event.player_index].options.sort_ingredients = element.selected_index
+        if element.selected_index == 1 then
+            sort_ingredients(event.player_index, "item_name")
+        elseif element.selected_index == 2 then
+            sort_ingredients(event.player_index, "localised_name")
+        elseif element.selected_index == 3 then
+            sort_ingredients(event.player_index, "amount")
+        end
     end
 end
 

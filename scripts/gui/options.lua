@@ -54,6 +54,7 @@ function build_options_gui(player)
     sort_option_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
     local drop_down = sort_option_flow.add{type = "drop-down", name = "qf_sort_by", items = {{"qf-options.pref-sorting-item-name"}, {"qf-options.pref-sorting-abc"}, {"qf-options.pref-sorting-available"}}, selected_index = global.player_gui[player.index].options.sort_by}
     drop_down.style.width = 150
+    drop_down.selected_index = global.player_gui[player.index].options.sort_ingredients
 
     general_flow.add{type = "line", direction = "horizontal"}
 

@@ -54,6 +54,7 @@ function build_options_gui(player)
     sort_option_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
     local drop_down = sort_option_flow.add{type = "drop-down", name = "qf_sort_by", items = {{"qf-options.pref-sorting-item-name"}, {"qf-options.pref-sorting-abc"}, {"qf-options.pref-sorting-available"}}, selected_index = global.player_gui[player.index].options.sort_by}
     drop_down.style.width = 150
+    drop_down.selected_index = global.player_gui[player.index].options.sort_ingredients
 
     general_flow.add{type = "line", direction = "horizontal"}
 
@@ -84,8 +85,17 @@ function build_options_gui(player)
         duplicate_product_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
         local duplicate_product_table = duplicate_product_flow.add{type = "table", column_count = 4}
         for _, recipe in pairs(recipes) do
-            local recipe_button = duplicate_product_table.add{type = "sprite-button", sprite = "item/" .. product, elem_tooltip = {type = "recipe", name = recipe}, style = "slot_button"}
+            local recipe_button = duplicate_product_table.add{type = "sprite-button", sprite = "item/" .. product, elem_tooltip = {type = "recipe", name = recipe}, style = global.unpacked_recipes[recipe].priority_style}
             recipe_button.tags = {recipe_name = recipe, item_name = product, button_type = "recipe_priority_selector"}
         end
+    end
+end
+
+
+function update_duplicate_handling_buttons(player, parent, product_name)
+    parent.clear()
+    for _, recipe in pairs(global.duplicate_recipes[product_name]) do
+        local recipe_button = parent.add{type = "sprite-button", sprite = "item/" .. product_name, elem_tooltip = {type = "recipe", name = recipe}, style = global.unpacked_recipes[recipe].priority_style}
+        recipe_button.tags = {recipe_name = recipe, item_name = product_name, button_type = "recipe_priority_selector"}
     end
 end

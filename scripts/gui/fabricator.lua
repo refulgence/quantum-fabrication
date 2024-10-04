@@ -274,10 +274,16 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     x_index = 1
                     y_index = y_index + 1
                 end
+                local style = "slot_button"
+                if Craft_data[player.index][item.item_name] == 0 then
+                    if global.player_gui[player.index].options.mark_red then
+                        style = "flib_slot_button_red"
+                    end
+                end
                 local item_button = subgroup_table.add{
                     type = "sprite-button",
                     sprite = "item/" .. item.item_name,
-                    style = "slot_button"
+                    style = style
                 }
                 item_button.style.padding = 0
                 if global.player_gui[player.index].options.calculate_numbers then

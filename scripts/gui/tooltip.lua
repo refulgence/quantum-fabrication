@@ -9,6 +9,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         name = "qf_recipe_tooltip",
         direction = "vertical",
     }
+    tooltip_frame.style.padding = 4
 
     local ingredients = global.unpacked_recipes[recipe_name].ingredients
     local products = global.unpacked_recipes[recipe_name].products

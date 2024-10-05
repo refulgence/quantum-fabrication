@@ -99,7 +99,7 @@ function build_titlebar(player, titlebar_flow_parent)
         hovered_sprite = "qf-toggle-storage-icon",
         clicked_sprite = "qf-toggle-storage-icon",
         style = "frame_action_button",
-        tooltip = {"qf-inventory.toggle-storage"},
+        tooltip = {"qf-inventory.toggle-storage-button-tooltip"},
     }
     toggle_storage_button.toggled = global.player_gui[player.index].show_storage
     toggle_storage_button.auto_toggle = true
@@ -275,7 +275,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     y_index = y_index + 1
                 end
                 local style = "slot_button"
-                if Craft_data[player.index][item.item_name] == 0 then
+                if Craft_data[player.index][item.recipe_name] == 0 then
                     if global.player_gui[player.index].options.mark_red then
                         style = "flib_slot_button_red"
                     end
@@ -287,7 +287,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                 }
                 item_button.style.padding = 0
                 if global.player_gui[player.index].options.calculate_numbers then
-                    item_button.number = Craft_data[player.index][item.item_name]
+                    item_button.number = Craft_data[player.index][item.recipe_name]
                 end
                 item_button.raise_hover_events = true
                 item_button.tags = {

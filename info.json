@@ -1,9 +1,9 @@
 {
   "name": "quantum-fabricator",
   "version": "1.0.0",
-  "title": "Quantum Fabricator",
+  "title": "Quantum Fabrication",
   "author": "Tename",
   "factorio_version": "1.1",
   "dependencies": ["base >= 1.1", "flib >= 0.14.2"],
-  "description": "Say goodbye to malls and handcrafting! With this mod active all entities you place are magically created out of ingredients available in the quantum fabricator, and destroyed entities are magically disassembled and sent to the quantum fabricator."
+  "description": "Say goodbye to construction robots and malls! Thanks to magical powers of quantum fabrication all ghost entities you place are automatically constructed from available materials and deconstructing buildings will fully refund their cost in materials. Read the mod portal page for more info."
 }

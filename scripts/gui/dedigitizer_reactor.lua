@@ -17,7 +17,6 @@ function create_dedigitizer_reactor_gui(player, entity)
     local current_fluid_filter = global.tracked_entities[entity.name][entity.unit_number].fluid_filter
     local item_transfer_status = global.tracked_entities[entity.name][entity.unit_number].item_transfer_status
     local fluid_transfer_status = global.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
-    local energy_consumption = 0
     local choose_item_flow = main_frame.add{
         type = "flow",
         name = "choose_item_flow",

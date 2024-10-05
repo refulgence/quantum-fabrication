@@ -281,7 +281,13 @@ local recipe =   {
       {"copper-plate", 500}
     },
     result = "dedigitizer-reactor",
-    requester_paste_multiplier = 1
+    requester_paste_multiplier = 1,
+    icons = {{
+      icon  = "__base__/graphics/icons/nuclear-reactor.png",
+      icon_size = 64,
+      icon_mipmaps = 4,
+      tint = reactor_tint,
+    }},
   }
 
 local technology = {

@@ -121,6 +121,13 @@ pyalienlife["autocraft blacklist"] = {
     }
 }
 
+pyalienlife["recipe blackliste"] = {
+    ["nuclear-reactor-mox-mk01-uncraft"] = true,
+    ["nuclear-reactor-mox-mk02-uncraft"] = true,
+    ["nuclear-reactor-mox-mk03-uncraft"] = true,
+    ["nuclear-reactor-mox-mk04-uncraft"] = true,
+}
+
 if not Actual_non_duplicates then Actual_non_duplicates = {} end
 Actual_non_duplicates = merge_tables(Actual_non_duplicates, pyalienlife["non duplicates"])
 
@@ -129,3 +136,6 @@ Unpacking_blacklist = merge_tables(Unpacking_blacklist, pyalienlife["unpacking b
 
 if not Autocraft_blacklist then Autocraft_blacklist = {} end
 Autocraft_blacklist = merge_tables(Autocraft_blacklist, pyalienlife["autocraft blacklist"])
+
+if not Recipe_blacklist then Recipe_blacklist = {} end
+Recipe_blacklist = merge_tables(Recipe_blacklist, pyalienlife["recipe blackliste"])

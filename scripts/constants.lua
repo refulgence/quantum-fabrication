@@ -25,6 +25,8 @@ QF_GUI.main_frame.width = QF_GUI.storage_frame.width + QF_GUI.recipe_frame.width
 QF_GUI.main_frame.height = QF_GUI.storage_frame.height + QF_GUI.default.padding * 2 + QF_GUI.titlebar.height
 QF_GUI.main_frame.min_width = QF_GUI.main_frame.width - QF_GUI.storage_frame.width - QF_GUI.default.padding
 QF_GUI.main_frame.min_height = QF_GUI.main_frame.height
+QF_GUI.options_frame = {}
+QF_GUI.options_frame.width = 800
 
 QF_GUI.tabbed_pane = {}
 QF_GUI.tabbed_pane.width = QF_GUI.storage_frame.width - QF_GUI.default.padding * 4 + 40
@@ -35,46 +37,18 @@ QF_GUI.tabbed_pane.count_width = 100
 QF_GUI.tabbed_pane.button_width = 200
 QF_GUI.tabbed_pane.recipe_usage_width = 200
 
-
-
-DEFAULT_PADDING = 12
-DRAGSPACE_FILLER_HEIGHT = 28
-TABBED_PANE_HEIGHT = 36
-
-STORAGE_FLOW_SIZE = {width = 580, height = 988}
-RECIPE_FLOW_SIZE = {width = 840, height = STORAGE_FLOW_SIZE.height}
-MAIN_FRAME_SIZE = {width = STORAGE_FLOW_SIZE.width + RECIPE_FLOW_SIZE.width + DEFAULT_PADDING * 3, height = STORAGE_FLOW_SIZE.height + DEFAULT_PADDING * 2 + DRAGSPACE_FILLER_HEIGHT}
-TOOLTIP_CONTENT_SIZE = {width = STORAGE_FLOW_SIZE.width - DEFAULT_PADDING, height = STORAGE_FLOW_SIZE.height - DEFAULT_PADDING * 2}
-
-TABBED_PANE_CONTENT_SIZE = {width = STORAGE_FLOW_SIZE.width - DEFAULT_PADDING * 4 + 40, height = STORAGE_FLOW_SIZE.height - DEFAULT_PADDING * 4 - TABBED_PANE_HEIGHT + 20}
-
-SEARCHBAR_WIDTH = 200
-
-TABBED_PANE_TAB_SIZE = {}
-TABBED_PANE_TAB_SIZE["button"] = {width = 20, height = 20}
-
-TABBED_PANE_TAB_WIDTH = {}
-TABBED_PANE_TAB_WIDTH["item name"] = 200
-TABBED_PANE_TAB_WIDTH["fluid name"] = TABBED_PANE_TAB_WIDTH["item name"]
-TABBED_PANE_TAB_WIDTH["recipe name"] = TABBED_PANE_TAB_WIDTH["item name"]
-TABBED_PANE_TAB_WIDTH["entity name"] = TABBED_PANE_TAB_WIDTH["item name"]
-
-TABBED_PANE_TAB_WIDTH["item count"] = 100
-TABBED_PANE_TAB_WIDTH["fluid count"] = TABBED_PANE_TAB_WIDTH["item count"]
-
-TABBED_PANE_TAB_WIDTH["button"] = 200
-
-TABBED_PANE_TAB_WIDTH["item recipe usage"] = 200
-
-RECIPE_FLOW_TABLE_WIDTH = 840
-RECIPE_FLOW_ITEM_GROUP_BUTTON_HEIGHT = 75
-RECIPE_FLOW_ITEM_GROUP_MAX_NUMBER_OF_COLUMNS = 8
-SUBGROUP_TABLE_COLUMNS = 20
-
 Update_rate = {}
-Update_rate["revivals"] = {rate = 11, slots = 12}
-Update_rate["destroys"] = {rate = 8, slots = 5}
-Update_rate["entities"] = {rate = 67, slots = 6}
-Update_rate["requests"] = {rate = 87, slots = 4}
+Update_rate.revivals = {rate = 11, slots = 12}
+Update_rate.destroys = {rate = 8, slots = 5}
+Update_rate.entities = {rate = 67, slots = 6}
+Update_rate.requests = {rate = 87, slots = 4}
+Update_rate.reactors = 60
 
-MIN_TEMPERATURE = 5000
+Reactor_constants = {}
+Reactor_constants.idle_cost = 4
+Reactor_constants.active_cost = 20
+Reactor_constants.full_inventory_cost = 32
+Reactor_constants.empty_storage_cost = 4
+Reactor_constants.min_temperature = 5000
+Reactor_constants.item_transfer_rate = 10
+Reactor_constants.fluid_transfer_rate = 1000

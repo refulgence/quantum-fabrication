@@ -10,8 +10,6 @@ function build_main_storage_gui(player, storage_flow_parent)
         name = "storage_flow",
         direction = "vertical"
     }
-    --storage_flow.style.size = STORAGE_FLOW_SIZE
-    --storage_flow.style.top_padding = 12
 
     local storage_titlebar = storage_flow.add{
         type = "flow",

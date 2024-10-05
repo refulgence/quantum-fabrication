@@ -97,8 +97,7 @@ function on_gui_click(event)
             blacklist_recipe(element_tags)
         end
         table.sort(global.product_craft_data[element_tags.item_name], function(a, b) return a.suitability > b.suitability end)
-        update_duplicate_handling_buttons(player, element.parent, element_tags.item_name)
-        --{recipe_name = recipe, item_name = product, button_type = "recipe_priority_selector"}
+        update_duplicate_handling_buttons(element.parent, element_tags.item_name)
     elseif element_tags.button_type == "take_out_ghost" then
         player.clear_cursor()
         player.cursor_ghost = element_tags.item_name

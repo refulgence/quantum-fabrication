@@ -88,7 +88,7 @@ function process_recipes()
     global.product_craft_data = {}
     for _, recipe in pairs(game.forces["player"].recipes) do
         -- Skip if hidden
-        if not recipe.hidden then
+        if not recipe.hidden and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
                 if is_placeable(product.name) then

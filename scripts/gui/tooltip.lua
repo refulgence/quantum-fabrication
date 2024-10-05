@@ -31,7 +31,6 @@ function build_main_tooltip(player, item_name, recipe_name)
         type = "label",
         caption = item_description_label_caption}
     item_description_label.style.left_padding = 6
-    --item_description_label.style.width = STORAGE_FLOW_SIZE.width - 24
     item_description_label.style.single_line = false
     item_description_label.style.bottom_padding = 6
 
@@ -113,6 +112,18 @@ function build_main_tooltip(player, item_name, recipe_name)
         local amount_label = product_label_flow.add{type = "label", caption = "x" .. amount}
         amount_label.style.horizontal_align = "right"
     end
+
+
+    if global.duplicate_recipes[recipe_name] then
+        local duplicate_label_caption = {"qf-inventory.tooltip-dupe"}
+        if global.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_green" then
+            duplicate_label_caption = {"qf-inventory.tooltip-dupe-prioritised"}
+        elseif global.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_red" then
+            duplicate_label_caption = {"qf-inventory.tooltip-dupe-blacklisted"}
+        end
+        local duplicate_label = tooltip_frame.add{type = "label", caption = duplicate_label_caption}
+    end
+
 
     local label_height_approximate = 28
 

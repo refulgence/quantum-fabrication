@@ -38,6 +38,7 @@ function create_dedigitizer_reactor_gui(player, entity)
         type = "label",
         name = "item_transfer_status_label",
     }
+    item_transfer_status_label.style.single_line = false
     if item_transfer_status == "active" then
         local item_transfer_status_label_2 = main_frame.add{
             type = "label",
@@ -68,6 +69,7 @@ function create_dedigitizer_reactor_gui(player, entity)
         type = "label",
         name = "fluid_transfer_status_label",
     }
+    fluid_transfer_status_label.style.single_line = false
     if fluid_transfer_status == "active" then
         local fluid_transfer_status_label_2 = main_frame.add{
             type = "label",
@@ -88,7 +90,7 @@ function update_dedigitizer_reactor_gui(player, entity)
     local choose_fluid_button = main_frame.choose_fluid_flow.choose_fluid_button
     local item_transfer_status = global.tracked_entities[entity.name][entity.unit_number].item_transfer_status
     local fluid_transfer_status = global.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
-    local temperature = entity.temperature > MIN_TEMPERATURE
+    local temperature = entity.temperature > Reactor_constants.fluid_transfer_rate
     local item_transfer_caption
     if not temperature then
         item_transfer_caption = {"qf-dedigitizer.low-temperature"}
@@ -107,7 +109,7 @@ function update_dedigitizer_reactor_gui(player, entity)
     end
     main_frame.item_transfer_status_label.caption = item_transfer_caption
     if item_transfer_status == "active" then
-        main_frame.item_transfer_status_label_2.caption = {"qf-dedigitizer.transferring-item", 5, choose_item_button.elem_value}
+        main_frame.item_transfer_status_label_2.caption = {"qf-dedigitizer.transferring-item", Reactor_constants.item_transfer_rate, choose_item_button.elem_value}
     end
     local fluid_transfer_caption
     if  not temperature then
@@ -127,6 +129,6 @@ function update_dedigitizer_reactor_gui(player, entity)
     end
     main_frame.fluid_transfer_status_label.caption = fluid_transfer_caption
     if fluid_transfer_status == "active" then
-        main_frame.fluid_transfer_status_label_2.caption = {"qf-dedigitizer.transferring-fluid", 3000, choose_fluid_button.elem_value}
+        main_frame.fluid_transfer_status_label_2.caption = {"qf-dedigitizer.transferring-fluid", Reactor_constants.fluid_transfer_rate, choose_fluid_button.elem_value}
     end
 end

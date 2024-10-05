@@ -3,7 +3,7 @@ function create_tracked_entity(entity)
     local entity_data = {
         entity = entity,
         name = entity.name,
-        lag_id = math.random(0, Update_rate["entities"].slots - 1),
+        lag_id = math.random(0, Update_rate.entities.slots - 1),
     }
     local position = entity.position
     local surface = entity.surface
@@ -61,7 +61,7 @@ function remove_tracked_entity(entity)
 end
 
 function update_tracked_entities(event)
-    local smoothing = event.tick % Update_rate["entities"].slots
+    local smoothing = event.tick % Update_rate.entities.slots
     for entity_name, entities in pairs(global.tracked_entities) do
         if entity_name ~= "dedigitizer-reactor" then
             for entity_id, entity_data in pairs(entities) do
@@ -111,44 +111,43 @@ function update_entity(entity_data, entity_id)
         return
     end
     if entity_data.entity.name == "dedigitizer-reactor" then
-        local energy_consumption = 10
+        local energy_consumption = Reactor_constants.idle_cost
         local item_filter = entity_data.item_filter
         local fluid_filter = entity_data.fluid_filter
         local transfer_status
 
-        if entity_data.entity.temperature > MIN_TEMPERATURE then
+        if entity_data.entity.temperature > Reactor_constants.min_temperature then
             if item_filter and item_filter ~= "" then
-                local stack_size = game.item_prototypes[item_filter].stack_size
-                transfer_status = pull_from_storage({name = item_filter, type = "item", count = stack_size}, entity_data.inventory)
+                transfer_status = pull_from_storage({name = item_filter, type = "item", count = Reactor_constants.item_transfer_rate}, entity_data.inventory)
                 if transfer_status.empty_storage then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "empty storage"
-                    energy_consumption = energy_consumption + 10
+                    energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
                 end
                 if transfer_status.full_inventory and not transfer_status.empty_storage then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "full inventory"
-                    energy_consumption = energy_consumption + 80
+                    energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
                 end
                 if not transfer_status.empty_storage and not transfer_status.full_inventory then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "active"
-                    energy_consumption = energy_consumption + 50
+                    energy_consumption = energy_consumption + Reactor_constants.active_cost
                 end
             else
                 global.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "inactive"
             end
     
             if fluid_filter and fluid_filter ~= "" then
-                transfer_status = pull_from_storage({name = fluid_filter, type = "fluid", amount = 2000}, entity_data.container_fluid)
+                transfer_status = pull_from_storage({name = fluid_filter, type = "fluid", amount = Reactor_constants.fluid_transfer_rate}, entity_data.container_fluid)
                 if transfer_status.empty_storage then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "empty storage"
-                    energy_consumption = energy_consumption + 10
+                    energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
                 end
                 if transfer_status.full_inventory and not transfer_status.empty_storage then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "full inventory"
-                    energy_consumption = energy_consumption + 80
+                    energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
                 end
                 if not transfer_status.empty_storage and not transfer_status.full_inventory then
                     global.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "active"
-                    energy_consumption = energy_consumption + 50
+                    energy_consumption = energy_consumption + Reactor_constants.active_cost
                 end
             else
                 global.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "inactive"
@@ -178,7 +177,7 @@ function create_tracked_request(request_table)
     local request_data = {
         entity = request_table.entity,
         player_index = request_table.player_index,
-        lag_id = math.random(0, Update_rate["requests"].slots - 1),
+        lag_id = math.random(0, Update_rate.requests.slots - 1),
     }
     if request_table.request_type == "upgrades" then
         request_data.target = request_table.upgrade_target
@@ -193,7 +192,7 @@ function remove_tracked_request(request_type, request_id)
 end
 
 function update_tracked_requests(event)
-    local smoothing = event.tick % Update_rate["requests"].slots
+    local smoothing = event.tick % Update_rate.requests.slots
     for request_type, requests in pairs(global.tracked_requests) do
         for request_id, request_data in pairs(requests) do
             if request_data.lag_id == smoothing then
@@ -204,7 +203,7 @@ function update_tracked_requests(event)
 end
 
 function update_tracked_revivals(event)
-    local smoothing = event.tick % Update_rate["revivals"].slots
+    local smoothing = event.tick % Update_rate.revivals.slots
     for request_id, request_data in pairs(global.tracked_requests["revivals"]) do
         if request_data.lag_id == smoothing then
             update_request(request_data, "revivals", request_id)
@@ -213,7 +212,7 @@ function update_tracked_revivals(event)
 end
 
 function update_tracked_destroys(event)
-    local smoothing = event.tick % Update_rate["destroys"].slots
+    local smoothing = event.tick % Update_rate.destroys.slots
     for request_id, request_data in pairs(global.tracked_requests["destroys"]) do
         if request_data.lag_id == smoothing then
             update_request(request_data, "destroys", request_id)

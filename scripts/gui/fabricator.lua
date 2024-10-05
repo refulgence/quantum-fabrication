@@ -203,7 +203,8 @@ function build_main_recipe_gui(player, recipe_frame_parent)
             direction = "vertical",
             style = "inside_deep_frame"
         }
-        error_frame.style.size = RECIPE_FLOW_SIZE
+        error_frame.style.width = QF_GUI.recipe_frame.width
+        error_frame.style.height = QF_GUI.recipe_frame.height
         error_frame.style.vertically_stretchable = true
         error_frame.style.horizontally_stretchable = true
         local error_label = error_frame.add{
@@ -231,8 +232,8 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
         name = "recipe_item_scroll_pane",
         direction = "vertical"
     }
-    recipe_item_scroll_pane.style.width = RECIPE_FLOW_SIZE.width
-    recipe_item_scroll_pane.style.natural_height = RECIPE_FLOW_SIZE.height - (75 * Filtered_data[player.index].size) - 10
+    recipe_item_scroll_pane.style.width = QF_GUI.recipe_frame.width
+    recipe_item_scroll_pane.style.natural_height = QF_GUI.recipe_frame.height - (75 * Filtered_data[player.index].size) - 10
     recipe_item_scroll_pane.style.vertically_stretchable = true
     recipe_item_scroll_pane.style.vertically_squashable = true
     recipe_item_scroll_pane.style.horizontally_squashable = true
@@ -250,7 +251,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     recipe_item_frame.style.vertically_squashable = true
     recipe_item_frame.style.horizontally_squashable = true
     recipe_item_frame.style.horizontally_stretchable = true
-    recipe_item_frame.style.natural_height = RECIPE_FLOW_SIZE.height - (75 * Filtered_data[player.index].size) - 10
+    recipe_item_frame.style.natural_height = QF_GUI.recipe_frame.height - (75 * Filtered_data[player.index].size) - 10
     --recipe_item_frame.style.vertical_spacing = 4
     recipe_item_frame.style.margin = 10
 

@@ -114,7 +114,7 @@ function build_main_tooltip(player, item_name, recipe_name)
     end
 
 
-    if global.duplicate_recipes[recipe_name] then
+    if global.duplicate_recipes[item_name] then
         local duplicate_label_caption = {"qf-inventory.tooltip-dupe"}
         if global.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_green" then
             duplicate_label_caption = {"qf-inventory.tooltip-dupe-prioritised"}

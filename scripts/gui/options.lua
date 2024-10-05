@@ -1,6 +1,7 @@
 function build_options_gui(player)
     local main_frame = player.gui.screen.add{type = "frame", name = "qf_fabricator_options_frame", direction = "vertical"}
     main_frame.style.width = QF_GUI.options_frame.width
+    main_frame.style.maximal_height = QF_GUI.options_frame.max_height
     main_frame.auto_center = true
 
     -- Titlebar
@@ -45,10 +46,10 @@ function build_options_gui(player)
     general_flow.add{type = "line", direction = "horizontal"}
 
     local sort_option_flow = general_flow.add{type = "flow", direction = "horizontal"}
-    sort_option_flow.add{type = "label", caption = {"qf-options.pref-sorting"}}
+    sort_option_flow.add{type = "label", caption = {"qf-options.pref-sorting"}, tooltip = {"qf-options.pref-sorting-tooltip"}}
     sort_option_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
     local drop_down = sort_option_flow.add{type = "drop-down", name = "qf_sort_by", items = {{"qf-options.pref-sorting-item-name"}, {"qf-options.pref-sorting-abc"}, {"qf-options.pref-sorting-available"}}, selected_index = global.player_gui[player.index].options.sort_by}
-    drop_down.style.width = 150
+    drop_down.style.width = 160
     drop_down.selected_index = global.player_gui[player.index].options.sort_ingredients
 
     general_flow.add{type = "line", direction = "horizontal"}
@@ -74,6 +75,7 @@ function build_options_gui(player)
         local duplicate_product_flow = duplicate_main_pane.add{type = "flow", direction = "horizontal"}
         local duplicate_product_label = duplicate_product_flow.add{type = "label", caption = {"", "[item="..product.."] ", game.item_prototypes[product].localised_name}}
         duplicate_product_label.style.height = 40
+        duplicate_product_label.style.left_padding = 8
         duplicate_product_label.style.vertical_align = "center"
         duplicate_product_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
         local duplicate_product_table = duplicate_product_flow.add{type = "table", column_count = 4}

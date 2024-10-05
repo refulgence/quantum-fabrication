@@ -2,6 +2,8 @@
 
 
 function on_init()
+    flib_dictionary.on_init()
+    build_dictionaries()
     global.fabricator_inventory = {item = {}, fluid = {}}
     global.unpacked_recipes = {}
     global.placeable = {}
@@ -10,8 +12,6 @@ function on_init()
     global.ingredient = {}
     global.ingredient_filter = {}
     global.player_gui = {}
-    global.dictionary = {}
-    global.dictionary_helper = {}
     global.tracked_entities = {}
     global.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
@@ -19,10 +19,9 @@ function on_init()
 end
 
 function on_config_changed()
+    flib_dictionary.on_configuration_changed()
+    build_dictionaries()
     process_data()
-    for _, player in pairs(game.players) do
-        fill_dictionary(player.index)
-    end
 end
 
 function on_mod_settings_changed()
@@ -60,7 +59,6 @@ function on_pre_mined(event)
                 end
             end
         end
-        on_destroyed(event)
     end
 end
 
@@ -83,7 +81,6 @@ end
 
 
 function on_player_created(event)
-    fill_dictionary(event.player_index)
     global.player_gui[event.player_index] = {
         item_group_selection = 1,
         selected_tab_index = 1,
@@ -106,7 +103,7 @@ function sort_ingredients(player_index, sort_type)
         elseif sort_type == "amount" then
             table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.amount < b.amount end)
         elseif sort_type == "localised_name" then
-            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return global.dictionary[player_index][a.name] < global.dictionary[player_index][b.name] end)
+            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
         end
     end
 end
@@ -203,6 +200,7 @@ script.on_event(defines.events.on_marked_for_upgrade, on_upgrade)
 
 script.on_event(defines.events.on_entity_died, on_destroyed)
 script.on_event(defines.events.script_raised_destroy, on_destroyed)
+script.on_event(defines.events.on_player_mined_entity, on_destroyed)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_pre_mined)
 script.on_event(defines.events.on_marked_for_deconstruction, on_pre_mined)

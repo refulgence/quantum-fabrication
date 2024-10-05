@@ -27,6 +27,7 @@ QF_GUI.main_frame.min_width = QF_GUI.main_frame.width - QF_GUI.storage_frame.wid
 QF_GUI.main_frame.min_height = QF_GUI.main_frame.height
 QF_GUI.options_frame = {}
 QF_GUI.options_frame.width = 800
+QF_GUI.options_frame.max_height = 900
 
 QF_GUI.tabbed_pane = {}
 QF_GUI.tabbed_pane.width = QF_GUI.storage_frame.width - QF_GUI.default.padding * 4 + 40

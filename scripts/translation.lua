@@ -1,45 +1,55 @@
+flib_dictionary = require("__flib__.dictionary-lite")
+
 ---comment
 ---@param player_index int
-function fill_dictionary(player_index)
-    global.dictionary[player_index] = {}
-    global.dictionary_helper[player_index] = {}
-    local items = game.item_prototypes
-    local fluids = game.fluid_prototypes
-    for _, item in pairs(items) do
-        translate(game.players[player_index], item.name, item.localised_name)
+---@param name string
+---@param type string
+function get_translation(player_index, name, type)
+    if not flib_dictionary.get_all(player_index) then return end
+    local language = global.__flib.dictionary.player_languages[player_index]
+    if type == "unknown" then
+        if global.__flib.dictionary.translated[language]["item"][name] then
+            return global.__flib.dictionary.translated[language]["item"][name]
+        else
+            return global.__flib.dictionary.translated[language]["fluid"][name]
+        end
     end
-    for _, fluid in pairs(fluids) do
-        translate(game.players[player_index], fluid.name, fluid.localised_name)
-    end
-end
-
-
----comment
----@param player LuaPlayer
----@param item_name string
----@param localised_string LocalisedString
-function translate(player, item_name, localised_string)
-    local id = player.request_translation(localised_string)
-    if not id then return end
-    global.dictionary_helper[player.index][id] = item_name
+    return global.__flib.dictionary.translated[language][type][name]
 end
 
 
 ---comment
 ---@param event any
 function on_string_translated(event)
-    local player_index = event.player_index
-    local id = event.id
-    local result = event.result
-    local translated = event.translated
-    if not player_index or not id then return end
-    local item_name = global.dictionary_helper[player_index][id]
-    if not item_name then return end
-    if not translated then result = "Couldn't translated" end
-    global.dictionary[player_index][item_name] = result
+    flib_dictionary.on_string_translated(event)
 end
 
 
-script.on_event(defines.events.on_string_translated, function(event)
-    on_string_translated(event)
-end)
+
+
+
+
+function build_dictionaries()
+  for type, prototypes in pairs({
+    fluid = game.fluid_prototypes,
+    item = game.item_prototypes,
+    recipe = game.recipe_prototypes,
+  }) do
+    flib_dictionary.new(type)
+    for name, prototype in pairs(prototypes) do
+      flib_dictionary.add(type, name, { "?", prototype.localised_name, name })
+    end
+  end
+end
+
+function on_player_joined_game(event)
+    flib_dictionary.on_player_joined_game(event)
+end
+
+function on_tick(event)
+    flib_dictionary.on_tick(event)
+end
+
+script.on_event(defines.events.on_string_translated, on_string_translated)
+script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
+script.on_event(defines.events.on_tick, on_tick)

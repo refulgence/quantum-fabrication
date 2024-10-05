@@ -149,27 +149,15 @@ function get_filtered_data(player, filter)
     if type(filter) == "string" then
         for name, recipe in pairs(recipes) do
             if global.unpacked_recipes[name].enabled then
-                local localised_name
-                if not global.dictionary or not global.dictionary[player.index] or not global.dictionary[player.index][name] then
-                    --game.print("dictionary error for" .. name)
-                    localised_name = "error"
-                else
-                    localised_name = string.lower(global.dictionary[player.index][name])
-                end
-                if filter == "" or string.find(localised_name, filter) then
+                local localised_name = get_translation(player.index, name, "recipe")
+                if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
                     add_entry(recipe)
                 end
             end
         end
         for _, material in pairs(Sorted_lists["Materials"]) do
-            local localised_name
-            if not global.dictionary or not global.dictionary[player.index] or not global.dictionary[player.index][material.name] then
-                --game.print("dictionary error for" .. material.name)
-                localised_name = "error"
-            else
-                localised_name = string.lower(global.dictionary[player.index][material.name])
-            end
-            if filter == "" or string.find(localised_name, filter) then
+            local localised_name = get_translation(player.index, material.name, "unknown")
+            if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
                 Filtered_data[player.index].materials[material.name] = true
             end
         end

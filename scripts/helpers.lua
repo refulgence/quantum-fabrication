@@ -142,7 +142,7 @@ function how_many_can_craft(recipe, player_inventory)
             end
         end
     end
-    return result
+    return result or 0
 end
 
 

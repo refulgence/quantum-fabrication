@@ -195,9 +195,9 @@ function calculate_default_priority()
                 end
             end
         end
-        suitability[max_ingredients] = suitability[max_ingredients] + 1
-        suitability[min_products] = suitability[min_products] + 1
-        suitability[product_min_s] = suitability[product_min_s] + 1
+        if max_ingredients then suitability[max_ingredients] = suitability[max_ingredients] + 1 end
+        if min_products then suitability[min_products] = suitability[min_products] + 1 end
+        if product_min_s then suitability[product_min_s] = suitability[product_min_s] + 1 end
         for key, recipe in pairs(global.product_craft_data[product]) do
             global.product_craft_data[product][key].suitability = suitability[recipe.recipe_name]
             global.product_craft_data[product][key].number_of_recipes = #recipe_names

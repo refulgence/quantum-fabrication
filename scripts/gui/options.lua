@@ -60,6 +60,11 @@ function build_options_gui(player)
     general_flow.add{type = "label", caption = {"qf-options.debug-caption"}, tooltip = {"qf-options.debug-caption-tooltip"}}.style.single_line = false
 
     general_flow.add{type = "button", name = "process_recipes_button", caption = {"qf-options.debug-reprocess-recipes"}, tooltip = {"qf-options.debug-reprocess-recipes-tooltip"}}
+    general_flow.add{type = "button", name = "update_module_requests_button", caption = {"qf-options.debug-update_module_requests"}, tooltip = {"qf-options.debug-update_module_requests-tooltip"}}
+    local auto_recheck_item_reques_proxies_flow = general_flow.add{type = "flow", direction = "horizontal"}
+    auto_recheck_item_reques_proxies_flow.add{type = "label", caption = {"qf-options.debug-auto-recheck-item-request-proxy"}}
+    auto_recheck_item_reques_proxies_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
+    auto_recheck_item_reques_proxies_flow.add{type = "checkbox", name = "qf_auto_recheck_item_request_proxies", state = global.options.auto_recheck_item_request_proxies}
 
     -- Duplicate section
     local duplicate_flow_title = duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling"}}

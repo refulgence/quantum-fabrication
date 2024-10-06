@@ -44,6 +44,7 @@ Update_rate.destroys = {rate = 8, slots = 5}
 Update_rate.entities = {rate = 67, slots = 6}
 Update_rate.requests = {rate = 87, slots = 4}
 Update_rate.reactors = 60
+Update_rate.item_request_proxy_recheck = 244
 
 Reactor_constants = {}
 Reactor_constants.idle_cost = 4

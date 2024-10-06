@@ -103,21 +103,21 @@ function process_modules(entity, module, amount, inventory, inventory_type)
         if not global.fabricator_inventory.item[module] then global.fabricator_inventory.item[module] = 0 end
         if global.fabricator_inventory.item[module] > 0 then
             if global.fabricator_inventory.item[module] >= amount then
-                insert_modules(entity, {name = module, count = amount}, inventory, "digital storage")
+                return amount - insert_modules(entity, {name = module, count = amount}, inventory, "digital storage")
             else
-                insert_modules(entity, {name = module, count = global.fabricator_inventory.item[module]},  inventory, "digital storage")
+                return amount - insert_modules(entity, {name = module, count = global.fabricator_inventory.item[module]},  inventory, "digital storage")
             end
         end
     else
         if inventory.get_item_count(module) > 0 then
             if inventory.get_item_count(module) >= amount then
-                insert_modules(entity, {name = module, count = amount}, inventory, "player")
+                return amount - insert_modules(entity, {name = module, count = amount}, inventory, "player")
             else
-                insert_modules(entity, {name = module, count = inventory.get_item_count(module)}, inventory, "player")
+                return amount - insert_modules(entity, {name = module, count = inventory.get_item_count(module)}, inventory, "player")
             end
         end
     end
-    return amount - inventory.get_item_count(module)
+    return amount
 end
 
 
@@ -134,7 +134,7 @@ function insert_modules(entity, modules, inventory, inventory_type)
     else
         inventory.remove({name = modules.name, count = modules.count})
     end
-    module_inventory.insert(modules)
+    return module_inventory.insert(modules)
 end
 
 

@@ -114,6 +114,9 @@ function on_gui_click(event)
         toggle_storage_gui(player)
     elseif element.name == "qf_close_button" then
         toggle_qf_gui(player)
+    elseif element.name == "update_module_requests_button" then
+        update_lost_module_requests(player)
+        game.print("Updating item request proxy tracking")
     end
 end
 
@@ -220,6 +223,8 @@ function on_gui_checked_state_changed(event)
         global.player_gui[event.player_index].options.calculate_numbers = element.state
     elseif element.name == "qf_mark_red" then
         global.player_gui[event.player_index].options.mark_red = element.state
+    elseif element.name == "qf_auto_recheck_item_request_proxies" then
+        global.options.auto_recheck_item_request_proxies = element.state
     end
 end
 

@@ -12,6 +12,8 @@ function on_init()
     global.ingredient = {}
     global.ingredient_filter = {}
     global.player_gui = {}
+    global.options = {}
+    global.options.auto_recheck_item_request_proxies = false
     global.tracked_entities = {}
     global.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
@@ -136,6 +138,9 @@ function on_console_command(command)
     elseif name == "qf_clear_storage" then
         global.fabricator_inventory = {item = {}, fluid = {}}
         game.print("CHEAT(?): Fabricator inventory cleared")
+    elseif name == "qf_update_module_requests" then
+        update_lost_module_requests(game.players[player_index])
+        game.print("Updating item request proxy tracking")
     end
 end
 
@@ -167,7 +172,7 @@ function on_lua_shortcut(event)
     end
 end
 
-
+commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
@@ -177,6 +182,10 @@ script.on_nth_tick(Update_rate.revivals.rate, update_tracked_revivals)
 script.on_nth_tick(Update_rate.entities.rate, update_tracked_entities)
 script.on_nth_tick(Update_rate.requests.rate, update_tracked_requests)
 script.on_nth_tick(Update_rate.reactors, update_tracked_dedigitizer_reactors)
+
+script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)
+    if global.options.auto_recheck_item_request_proxies then update_lost_module_requests(game.connected_players[1]) end
+end)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_changed)
 script.on_init(on_init)

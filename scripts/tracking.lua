@@ -242,3 +242,14 @@ function update_request(request_data, request_type, request_id)
         if add_modules(entity, modules, player_inventory) then remove_tracked_request(request_type, request_id) request_data.item_request_proxy.destroy() end
     end
 end
+
+
+function update_lost_module_requests(player)
+    for _, surface in pairs(game.surfaces) do
+        for _, entity in pairs(surface.find_entities_filtered{name = "item-request-proxy"}) do
+            if not global.tracked_requests["modules"][entity.proxy_target.unit_number] or global.tracked_requests["modules"][entity.proxy_target.unit_number] ~= {} then
+                create_tracked_request({entity = entity.proxy_target, player_index = player.index, item_request_proxy = entity, request_type = "modules"})
+            end
+        end
+    end
+end

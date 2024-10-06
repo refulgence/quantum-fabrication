@@ -143,7 +143,10 @@ end
 ---@param player_index int
 function instant_defabrication(entity, player_index)
     local item_name = global.prototypes_data[entity.name].item_name
+    local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
+    if not player_inventory then return nil end
     add_to_storage({name = item_name, amount = 1, type = "item"}, true)
+    process_inventory(entity, player_inventory)
     return entity.destroy({raise_destroy = true})
 end
 

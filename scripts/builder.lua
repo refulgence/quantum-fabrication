@@ -76,11 +76,12 @@ end
 ---@param inventory LuaInventory
 function add_modules(entity, modules, inventory)
     local module_inventory = entity.get_module_inventory()
+    if not module_inventory then return nil end
     local satisfied = true
     if not module_inventory then return true end
     for module, amount in pairs(modules) do
-        local required = amount
-        required = process_modules(entity, module, amount, inventory, "player")
+        local required = amount - (module_inventory.get_contents()[module] or 0)
+        required = process_modules(entity, module, required, inventory, "player")
         if required == 0 then goto continue end
         required = process_modules(entity, module, required, inventory, "digital storage")
         if required > 0 then satisfied = false end

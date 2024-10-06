@@ -238,7 +238,7 @@ function update_request(request_data, request_type, request_id)
         local modules = request_data.item_request_proxy.item_requests
         local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
         if not player_inventory then game.print("Player inventory error?") return end
-        if not modules then remove_tracked_request(request_type, request_id) end
-        if add_modules(entity.entity, modules, player_inventory) then remove_tracked_request(request_type, request_id) end
+        if not modules then remove_tracked_request(request_type, request_id) request_data.item_request_proxy.destroy() end
+        if add_modules(entity, modules, player_inventory) then remove_tracked_request(request_type, request_id) request_data.item_request_proxy.destroy() end
     end
 end

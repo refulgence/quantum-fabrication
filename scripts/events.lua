@@ -51,6 +51,22 @@ function on_pre_mined(event)
     local player_index = event.player_index
     if entity and entity.valid and player_index then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
+            if global.prototypes_data[entity.name] then
+                local item_name = global.prototypes_data[entity.name].item_name
+                if is_placeable(item_name) then
+                    if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
+                    instant_defabrication(entity, player_index)
+                end
+            end
+        end
+    end
+end
+
+function on_deconstructed(event)
+    local entity = event.entity
+    local player_index = event.player_index
+    if entity and entity.valid and player_index then
+        if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" then
                 instant_deforestation(entity, player_index)
             elseif global.prototypes_data[entity.name] then
@@ -212,4 +228,4 @@ script.on_event(defines.events.script_raised_destroy, on_destroyed)
 script.on_event(defines.events.on_player_mined_entity, on_destroyed)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_pre_mined)
-script.on_event(defines.events.on_marked_for_deconstruction, on_pre_mined)
+script.on_event(defines.events.on_marked_for_deconstruction, on_deconstructed)

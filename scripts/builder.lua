@@ -42,7 +42,7 @@ function fabricate_recipe(recipe, player_inventory)
 
     end
     for _, product in pairs(recipe.products) do
-            add_to_player_inventory(player_inventory, {name = product.name, type = product.type, amount = product.amount})
+            add_to_storage({name = product.name, amount = product.amount, type = product.type}, false)
     end
 end
 
@@ -54,7 +54,7 @@ end
 function revive_ghost(entity, player_inventory, inventory_type)
     local entity_name = global.prototypes_data[entity.ghost_name].item_name
     local modules = entity.item_requests
-    _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
+    local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
         if inventory_type == "digital storage" then
             remove_from_storage({name = entity_name, count = 1, type = "item"})

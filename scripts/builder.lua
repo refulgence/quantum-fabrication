@@ -28,7 +28,7 @@ end
 function fabricate_recipe(recipe, player_inventory)
     for _, ingredient in pairs(recipe.ingredients) do
         local required = ingredient.amount
-        if player_inventory.get_item_count(ingredient.name) > 0 then
+        if ingredient.type == "item" and player_inventory.get_item_count(ingredient.name) > 0 then
             if player_inventory.get_item_count(ingredient.name) >= required then
                 player_inventory.remove({name = ingredient.name, count = required})
             else

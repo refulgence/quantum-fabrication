@@ -133,7 +133,7 @@ function prioritise_recipe(tags)
                 recipe.prioritised = true
                 recipe.blacklisted = false
                 recipe.suitability = recipe.suitability + 20
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
+                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_buflib_tton_green"
             else
                 recipe.prioritised = true
                 recipe.suitability = recipe.suitability + 10

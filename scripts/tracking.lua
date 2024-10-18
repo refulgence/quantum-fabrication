@@ -235,7 +235,7 @@ function update_request(request_data, request_type, request_id)
     elseif request_type == "construction" then
         if instant_fabrication(entity, player_index) then remove_tracked_request(request_type, request_id) end
     elseif request_type == "modules" then
-        if not request_data.item_request_proxy then remove_tracked_request(request_type, request_id) return end
+        if not request_data.item_request_proxy or not request_data.item_request_proxy.valid then remove_tracked_request(request_type, request_id) return end
         local modules = request_data.item_request_proxy.item_requests
         local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
         if not player_inventory then game.print("Player inventory error?") return end

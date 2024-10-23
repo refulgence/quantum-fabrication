@@ -7,9 +7,11 @@ function on_gui_leave(event)
     if not event.element then return end
     local element = event.element
     local element_tags = element.tags
-    game.print("Unhovered on tick: " .. event.tick)
     if element_tags.hover_type == "recipe" then
-        if player.gui.screen.qf_recipe_tooltip then player.gui.screen.qf_recipe_tooltip.visible = false end
+        storage.player_gui[event.player_index].tooltip_workaround = storage.player_gui[event.player_index].tooltip_workaround - 1
+        if storage.player_gui[event.player_index].tooltip_workaround <= 0 then
+            if player.gui.screen.qf_recipe_tooltip then player.gui.screen.qf_recipe_tooltip.visible = false end
+        end
     end
 end
 
@@ -19,8 +21,8 @@ function on_gui_hover(event)
     if not event.element then return end
     local element = event.element
     local element_tags = element.tags
-    game.print("Hovered on tick: " .. event.tick)
     if element_tags.hover_type == "recipe" then
+        storage.player_gui[event.player_index].tooltip_workaround = storage.player_gui[event.player_index].tooltip_workaround + 1
         build_main_tooltip(player, element_tags.item_name, element_tags.recipe_name)
         auto_position_tooltip(player, element_tags.index)
     end

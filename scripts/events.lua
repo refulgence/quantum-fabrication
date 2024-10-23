@@ -102,6 +102,7 @@ function on_player_created(event)
     storage.player_gui[event.player_index] = {
         item_group_selection = 1,
         selected_tab_index = 1,
+        tooltip_workaround = 0,
         show_storage = false,
         fabricator_gui_position = nil,
         options = {

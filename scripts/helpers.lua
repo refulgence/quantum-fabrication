@@ -9,6 +9,18 @@ function merge_tables(t1, t2)
     return t1
 end
 
+---Somehow the version from above worked fine in 1.1 but stopped working in 2.0. Curious.
+---@param t1 table
+---@param t2 table
+---@return table
+function merge_tables_no_index(t1, t2)
+    for k, v in pairs(t2) do
+        t1[#t1+1] = v
+    end
+    return t1
+end
+
+
 -- do i even need so many
 function int_to_str_si(n)
     if     n <= 99999 then

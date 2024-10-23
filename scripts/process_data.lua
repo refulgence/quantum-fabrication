@@ -96,12 +96,7 @@ function process_recipes()
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst
                     if product.probability == 1 and not product.ignored_by_productivity then
-                        local prototype
-                        if product.type == "item" then
-                            prototype = prototypes.item[product.name]
-                        else
-                            prototype = prototypes.fluid[product.name]
-                        end
+                        local prototype = prototypes.item[product.name]
                         if not storage.preprocessed_recipes[recipe.name] then
                             storage.preprocessed_recipes[recipe.name] = {
                                 name = recipe.name,
@@ -150,8 +145,6 @@ function process_recipes()
 end
 
 
-
-
 -- only leave recipes that *could* be duplicates. we'll be checking if they are *actually* duplicates (as in, enabled at the same time) later
 function erase_non_duplicates(recipes)
     storage.duplicate_recipes = {}
@@ -161,6 +154,7 @@ function erase_non_duplicates(recipes)
         end
     end
 end
+
 
 -- we test recipes by several factors to determine default priority
 function calculate_default_priority()
@@ -209,65 +203,95 @@ end
 
 -- go through all recipes and unpack them
 function process_unpacking()
-    for recipe, recipe_data in pairs(storage.preprocessed_recipes) do
-        unpack_recipe_neo(recipe_data)
+    local data = "Processing unpacking.\n"
+    helpers.write_file("Log.txt", data, true)
+    for _, recipe_data in pairs(storage.preprocessed_recipes) do
+        unpack_recipe(recipe_data)
     end
 end
 
--- Which recipe to use for fabricating?
--- no filter chosen = suitability, filter chosen = filter excluding blacklists, directly chosen = directly chosen
-function get_fabricating_recipe(product)
-    if Directly_chosen[product] then return Directly_chosen[product] end
-    for _, recipe in pairs(storage.product_craft_data[product]) do
-        if game.forces["player"].recipes[recipe.recipe_name].enabled then return recipe end
-    end
-end
 
 -- Which recipe to use for unpacking?
 function get_unpacking_recipe(product)
+    local data = "Getting unpacking recipe for " .. product .."\n"
+    helpers.write_file("Log.txt", data, true)
     for _, recipe in pairs(storage.product_craft_data[product]) do
-        if game.forces["player"].recipes[recipe.recipe_name].enabled then return storage.preprocessed_recipes[recipe.recipe_name] end
+        if game.forces["player"].recipes[recipe.recipe_name].enabled then
+            data = "Found a recipe, it's " .. recipe.recipe_name .."\n"
+            helpers.write_file("Log.txt", data, true)
+            return storage.preprocessed_recipes[recipe.recipe_name]
+        end
     end
+    data = "No recipes found, returning smth default.\n"
+    helpers.write_file("Log.txt", data, true)
     return storage.preprocessed_recipes[storage.product_craft_data[product][1].recipe_name]
 end
 
 
 ---@param recipe table
 ---@return table
-function unpack_recipe_neo(recipe)
+function unpack_recipe(recipe)
+    -- if this recipe is already unpacked, then simply return it
     if storage.unpacked_recipes[recipe.name] then return storage.unpacked_recipes[recipe.name] end
     local new_ingredients = {}
+
+    local data = "\n\nProcessing unpacking for recipe " .. recipe.name .."\n"
+    helpers.write_file("Log.txt", data, true)
+
     for _, ingredient in pairs(recipe.ingredients) do
         if is_placeable(ingredient.name) then
-            new_ingredients = merge_tables(new_ingredients, unpack_recipe_neo(get_unpacking_recipe(ingredient.name)).ingredients)
+            data = "- ingredient " .. ingredient.name .. " is placeable, proceeding to recursive unpacking.\n"
+            helpers.write_file("Log.txt", data, true)
+            new_ingredients = merge_tables_no_index(new_ingredients, unpack_recipe(get_unpacking_recipe(ingredient.name)).ingredients)
         else
             table.insert(new_ingredients, ingredient)
+            data = "- ingredient " .. ingredient.name .. " is not placeable, adding it to the list.\n"
+            helpers.write_file("Log.txt", data, true)
         end
     end
     storage.unpacked_recipes[recipe.name] = recipe
-    storage.unpacked_recipes[recipe.name].ingredients = deduplicate_ingredients_neo(new_ingredients)
+
+    data = "Processing recipe " .. recipe.name .. " with " .. #recipe.ingredients .. " ingredients.\n"
+    helpers.write_file("Log.txt", data, true)
+
+    storage.unpacked_recipes[recipe.name].ingredients = deduplicate_ingredients(new_ingredients)
     table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
     return storage.unpacked_recipes[recipe.name]
 end
 
 ---@param ingredients table
 ---@return table
-function deduplicate_ingredients_neo(ingredients)
+function deduplicate_ingredients(ingredients)
     local result = {}
     local result2 = {}
     local seen = {}
+
+    local data
+
     for _, ingredient in pairs(ingredients) do
         if not seen[ingredient.name] then
             table.insert(result, ingredient)
             seen[ingredient.name] = ingredient.amount
+            data = "Ingredient " .. ingredient.name .. " is not seen yet, current amount is " .. ingredient.amount .."\n"
         else
             seen[ingredient.name] = seen[ingredient.name] + ingredient.amount
+            data = "Ingredient " .. ingredient.name .. " is seen, current amount is " .. ingredient.amount .."\n"
         end
+        
+        helpers.write_file("Log.txt", data, true)
     end
+
+    data = "Finished 1st stage of processing.\n"
+    helpers.write_file("Log.txt", data, true)
+
     for _, ingredient in pairs(result) do
         if not storage.ingredient[ingredient.name] then storage.ingredient[ingredient.name] = true end
         local ingredient_table = {type = ingredient.type, name = ingredient.name, amount = seen[ingredient.name]}
         table.insert(result2, ingredient_table)
+
+        data = "Processing ingredient " .. ingredient.name .. " with amount " .. seen[ingredient.name] .. "\n"
+        helpers.write_file("Log.txt", data, true)
+
     end
     return result2
 end

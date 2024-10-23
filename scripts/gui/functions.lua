@@ -5,6 +5,7 @@
 function toggle_qf_gui(player)
     local main_frame = player.gui.screen.qf_fabricator_frame
     if Research_finished then post_research_recheck() Research_finished = false end
+    storage.player_gui[player.index].tooltip_workaround = 0
     if main_frame == nil then
         build_main_gui(player)
     else
@@ -68,6 +69,7 @@ function auto_position_tooltip(player, button_index)
         y = player.display_resolution.height - tooltip_frame.tags.heigth
     end
     tooltip_frame.location = {x = x, y = y}
+    tooltip_frame.bring_to_front()
 end
 
 

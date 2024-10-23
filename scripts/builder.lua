@@ -1,21 +1,29 @@
+local qs_utils = require("scripts/storage_utils")
+
 ---comment
----@param entity LuaEntity
+---@param entity LuaEntity Entity to fabricate
 ---@param player_index int
 function instant_fabrication(entity, player_index)
-    local item_name = storage.prototypes_data[entity.ghost_name].item_name
-    if not item_name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
+
+    local qs_item = {
+        name = storage.prototypes_data[entity.ghost_name].item_name,
+        count = 1,
+        type = "item",
+        quality = entity.quality
+    }
+    if not qs_item.name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
     if not player_inventory then game.print("player inventory not found for " .. player_index) return end
-    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
+    qs_utils.storage_item_check(qs_item)
 
-    if player_inventory.get_item_count(item_name) > 0 then
+    if player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality}) > 0 then
         return revive_ghost(entity, player_inventory, "player")
     end
-    if storage.fabricator_inventory.item[item_name] > 0 then
+    if storage.fabricator_inventory.item[qs_item.name][qs_item.quality] > 0 then
         return revive_ghost(entity, player_inventory, "digital storage")
     end
     -- Nothing? Guess we are fabricating
-    local recipe = get_craftable_recipe(item_name, player_inventory)
+    local recipe = qs_utils.get_craftable_recipe(qs_item, player_inventory)
     if not recipe then return false end
     fabricate_recipe(recipe, player_inventory)
     return revive_ghost(entity, player_inventory, "digital storage")

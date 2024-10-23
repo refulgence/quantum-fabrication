@@ -3,16 +3,22 @@
 ---@param item_name string
 ---@param recipe_name string
 function build_main_tooltip(player, item_name, recipe_name)
-    if player.gui.screen.qf_recipe_tooltip then player.gui.screen.qf_recipe_tooltip.destroy() end
-    local tooltip_frame = player.gui.screen.add{
-        type = "frame",
-        name = "qf_recipe_tooltip",
-        direction = "vertical",
-    }
-    tooltip_frame.style.padding = 4
 
-    local ingredients = global.unpacked_recipes[recipe_name].ingredients
-    local products = global.unpacked_recipes[recipe_name].products
+    local tooltip_frame = player.gui.screen.qf_recipe_tooltip
+    if tooltip_frame then
+        tooltip_frame.clear()
+        tooltip_frame.visible = true
+    else
+        tooltip_frame = player.gui.screen.add{
+            type = "frame",
+            name = "qf_recipe_tooltip",
+            direction = "vertical",
+        }
+    tooltip_frame.style.padding = 4
+    end
+
+    local ingredients = storage.unpacked_recipes[recipe_name].ingredients
+    local products = storage.unpacked_recipes[recipe_name].products
 
     local item_name_frame = tooltip_frame.add{
         type = "frame",
@@ -21,12 +27,12 @@ function build_main_tooltip(player, item_name, recipe_name)
     }
     local item_name_label = item_name_frame.add{
         type = "label",
-        caption = global.unpacked_recipes[recipe_name].localised_name
+        caption = storage.unpacked_recipes[recipe_name].localised_name
     }
     item_name_label.style.font = "heading-2"
     item_name_label.style.font_color = {0.0, 0.0, 0.0}
 
-    item_description_label_caption = {"?", global.prototypes_data[item_name].localised_description, ""}
+    item_description_label_caption = {"?", storage.prototypes_data[item_name].localised_description, ""}
     local item_description_label = tooltip_frame.add{
         type = "label",
         caption = item_description_label_caption}
@@ -41,7 +47,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         style = "inside_deep_frame"}
     recipe_frame.style.padding = 12
     local main_ingredient_label = recipe_frame.add{type = "label", caption = {"qf-inventory.ingredinets"}}
-    main_ingredient_label.style.font = "heading-3"
+    main_ingredient_label.style.font = "default-small-bold"
 
     QF_GUI.tooltip_frame = {}
     QF_GUI.tooltip_frame.ing_label_width = 145
@@ -61,12 +67,12 @@ function build_main_tooltip(player, item_name, recipe_name)
         local icon = "["..ingredient.type.."="..ingredient.name.."] "
         local localised_name
         if ingredient.type == "item" then
-            localised_name = game.item_prototypes[ingredient.name].localised_name
+            localised_name = prototypes.item[ingredient.name].localised_name
         else
-            localised_name = game.fluid_prototypes[ingredient.name].localised_name
+            localised_name = prototypes.fluid[ingredient.name].localised_name
         end
         local required = ingredient.amount
-        local available = global.fabricator_inventory[ingredient.type][ingredient.name] or 0
+        local available = storage.fabricator_inventory[ingredient.type][ingredient.name] or 0
         local ingredient_caption = {"", icon, localised_name}
         local font_color = {1.0, 1.0, 1.0}
         if available / required < 10 then
@@ -104,7 +110,7 @@ function build_main_tooltip(player, item_name, recipe_name)
     for _, product in pairs(products) do
         local product_label_flow = product_flow.add{type = "flow", direction = "horizontal"}
         local icon = "["..product.type.."="..product.name.."] "
-        local localised_name = game.item_prototypes[product.name].localised_name
+        local localised_name = prototypes.item[product.name].localised_name
         local product_caption = {"", icon, localised_name}
         local amount = product.amount
         local product_label = product_label_flow.add{type = "label", caption = product_caption}
@@ -114,11 +120,11 @@ function build_main_tooltip(player, item_name, recipe_name)
     end
 
 
-    if global.duplicate_recipes[item_name] then
+    if storage.duplicate_recipes[item_name] then
         local duplicate_label_caption = {"qf-inventory.tooltip-dupe"}
-        if global.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_green" then
+        if storage.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_green" then
             duplicate_label_caption = {"qf-inventory.tooltip-dupe-prioritised"}
-        elseif global.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_red" then
+        elseif storage.unpacked_recipes[recipe_name].priority_style == "flib_slot_button_red" then
             duplicate_label_caption = {"qf-inventory.tooltip-dupe-blacklisted"}
         end
         local duplicate_label = tooltip_frame.add{type = "label", caption = duplicate_label_caption}

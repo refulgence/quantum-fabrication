@@ -49,6 +49,7 @@ entity.picture =
     --circuit_connector_sprites = circuit_connector_definitions["chest"].sprites,
     --circuit_wire_max_distance = default_circuit_wire_max_distance
 
+  
     local fluid_container_entity = {
       type = "storage-tank",
       name = "digitizer-chest-fluid",
@@ -91,14 +92,14 @@ entity.picture =
             width = 1,
           },
         },
-      flags = {"placeable-neutral", "hidden", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
-      collision_mask = {},
+      hidden = true,
+      flags = {"placeable-neutral", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
+      collision_mask = {layers = {}},
       selectable_in_game = false,
-      collision_box = {{-0.3, -0.3}, {0.3, 0.3}},
+      collision_box = {{-1.3, -1.3}, {1.3, 1.3}},
       fluid_box =
       {
-        base_area = 10,
-        base_level = -1,
+        volume = 10000,
         pipe_covers = {
           north =
           {
@@ -245,13 +246,12 @@ entity.picture =
             }
           }
         },
-        height = 1,
         pipe_connections =
         {
-          { position = {0, -1}, type = "input" },
-          { position = {1, 0}, type = "input" },
-          { position = {0, 1}, type = "input" },
-          { position = {-1, 0}, type = "input" }
+          { position = {0, -1}, direction = 12},
+          { position = {1, 0}, direction = 8},
+          { position = {0, 1}, direction = 4},
+          { position = {-1, 0}, direction = 0}
         },
         hide_connection_info = false,
       },
@@ -259,6 +259,7 @@ entity.picture =
       window_bounding_box = {{-0.125, 0.6875}, {0.1875, 1.1875}},
       flow_length_in_ticks = 360,
     }
+
 
 local item = {
     type = "item",
@@ -275,15 +276,15 @@ local recipe = {
     type = "recipe",
     name = "digitizer-chest",
     enabled = false,
-    ingredients = {{"steel-plate", 12}, {"advanced-circuit", 8}},
-    result = "digitizer-chest"
+    ingredients = {{type = "item", name = "steel-plate", amount = 12}, {type = "item", name = "advanced-circuit", amount = 8}},
+    results = {{type = "item", name = "digitizer-chest", amount = 1}}
   }
 
 local technology = {
     type = "technology",
     name = "matter-digitization",
     icon_size = 256, icon_mipmaps = 4,
-    icon = "__base__/graphics/technology/advanced-electronics.png",
+    icon = "__base__/graphics/technology/advanced-circuit.png",
     effects =
     {
       {
@@ -291,7 +292,7 @@ local technology = {
         recipe = "digitizer-chest"
       },
     },
-    prerequisites = {"steel-processing", "advanced-electronics"},
+    prerequisites = {"steel-processing", "advanced-circuit"},
     unit =
     {
       count = 250,

@@ -6,8 +6,8 @@ function build_main_gui(player)
         name = "qf_fabricator_frame",
         direction = "vertical"
     }
-    if global.player_gui[player.index].fabricator_gui_position then
-        main_frame.location = global.player_gui[player.index].fabricator_gui_position
+    if storage.player_gui[player.index].fabricator_gui_position then
+        main_frame.location = storage.player_gui[player.index].fabricator_gui_position
     else
         main_frame.auto_center = true
     end
@@ -37,14 +37,14 @@ function build_main_gui(player)
 
     -- Recipe GUI
     sort_tab_lists()
-    if global.player_gui[player.index].options.calculate_numbers or global.player_gui[player.index].options.mark_red then
+    if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
         get_craft_data(player)
     end
     get_filtered_data(player, "")
 
     build_main_recipe_gui(player, recipe_flow)
 
-    if global.player_gui[player.index].show_storage then
+    if storage.player_gui[player.index].show_storage then
         build_main_storage_gui(player, storage_flow)
         storage_flow.visible = true
     else
@@ -88,7 +88,6 @@ function build_titlebar(player, titlebar_flow_parent)
     local searchbar = titlebar_flow.add{
         type = "textfield",
         name = "searchbar",
-        style = "titlebar_search_textfield",
         clear_and_focus_on_right_click = true
     }
     searchbar.style.width = QF_GUI.searchbar.width
@@ -101,7 +100,7 @@ function build_titlebar(player, titlebar_flow_parent)
         style = "frame_action_button",
         tooltip = {"qf-inventory.toggle-storage-button-tooltip"},
     }
-    toggle_storage_button.toggled = global.player_gui[player.index].show_storage
+    toggle_storage_button.toggled = storage.player_gui[player.index].show_storage
     toggle_storage_button.auto_toggle = true
     titlebar_flow.add{
         type = "sprite-button",
@@ -116,7 +115,7 @@ function build_titlebar(player, titlebar_flow_parent)
         type = "sprite-button",
         name = "qf_close_button",
         style = "close_button",
-        sprite="utility/close_white",
+        sprite="utility/close",
         hovered_sprite="utility/close_black",
         clicked_sprite="utility/close_black"
     }
@@ -138,7 +137,7 @@ function build_main_recipe_gui(player, recipe_frame_parent)
     }
     recipe_frame.style.size = {width = QF_GUI.recipe_frame.width, height = QF_GUI.recipe_frame.height}
 
-    if not global.item_group_order then process_item_group_order() end
+    if not storage.item_group_order then process_item_group_order() end
 
     local size = Filtered_data[player.index].size
     local filter = Filtered_data[player.index].content
@@ -171,7 +170,7 @@ function build_main_recipe_gui(player, recipe_frame_parent)
     
         
         local fallback
-        for _, group in pairs(global.item_group_order) do
+        for _, group in pairs(storage.item_group_order) do
             if filter[group.name] then
                 if not fallback then fallback = group.name end
                 local group_button = group_table.add{
@@ -187,12 +186,12 @@ function build_main_recipe_gui(player, recipe_frame_parent)
                 group_button.tooltip = {"item-group-name." .. group.name}
             end
         end
-        local current_selection = global.player_gui[player.index].item_group_selection
+        local current_selection = storage.player_gui[player.index].item_group_selection
         if group_table[current_selection .. "_button"] then
             group_table[current_selection .. "_button"].toggled = true
         else
             group_table[fallback .. "_button"].toggled = true
-            global.player_gui[player.index].item_group_selection = fallback
+            storage.player_gui[player.index].item_group_selection = fallback
         end
 
         build_main_recipe_item_list_gui(player, recipe_frame)
@@ -255,11 +254,11 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     --recipe_item_frame.style.vertical_spacing = 4
     recipe_item_frame.style.margin = 10
 
-    local current_selection = global.player_gui[player.index].item_group_selection
+    local current_selection = storage.player_gui[player.index].item_group_selection
     local filter = Filtered_data[player.index].content
 
     local y_index = 0
-    for _, subgroup in pairs(global.item_subgroup_order[current_selection]) do
+    for _, subgroup in pairs(storage.item_subgroup_order[current_selection]) do
         if filter and filter[current_selection] and filter[current_selection][subgroup.name] then
             y_index = y_index + 1
             local subgroup_table = recipe_item_frame.add{
@@ -277,7 +276,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                 end
                 local style = "slot_button"
                 if Craft_data[player.index][item.recipe_name] == 0 then
-                    if global.player_gui[player.index].options.mark_red then
+                    if storage.player_gui[player.index].options.mark_red then
                         style = "flib_slot_button_red"
                     end
                 end
@@ -287,7 +286,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     style = style
                 }
                 item_button.style.padding = 0
-                if global.player_gui[player.index].options.calculate_numbers then
+                if storage.player_gui[player.index].options.calculate_numbers then
                     item_button.number = Craft_data[player.index][item.recipe_name]
                 end
                 item_button.raise_hover_events = true

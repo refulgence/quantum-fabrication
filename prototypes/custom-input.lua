@@ -8,6 +8,7 @@ data:extend(
 	{
 		type = "custom-input",
 		name = "qf-fabricator-gui-search",
-		key_sequence = "CONTROL + F"
+		key_sequence = "",
+        linked_game_control = "focus-search"
 	}
 })

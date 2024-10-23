@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "title": "Quantum Fabrication",
   "author": "Tename",
-  "factorio_version": "1.1",
+  "factorio_version": "2.0",
   "dependencies": ["base >= 1.1", "flib >= 0.14.2"],
   "description": "Say goodbye to construction robots and malls! Thanks to magical powers of quantum fabrication all ghost entities you place are automatically constructed from available materials and deconstructing buildings will fully refund their cost in materials. Read the mod portal page for more info."
 }

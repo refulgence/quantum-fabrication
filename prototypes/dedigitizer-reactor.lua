@@ -22,7 +22,6 @@ entity.icons = {{
   tint = reactor_tint,
 }}
 entity.picture.layers[1].tint = reactor_tint
-entity.picture.layers[1].hr_version.tint = reactor_tint
 
 
 local container_entity = {
@@ -35,8 +34,9 @@ local container_entity = {
 			height = 1,
 			width = 1,
 		},
-    flags = {"placeable-neutral", "hidden", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
-		collision_mask = {},
+    hidden = true,
+    flags = {"placeable-neutral", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
+		collision_mask = {layers = {}},
 		selectable_in_game = false,
     collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
     inventory_size = 3,
@@ -84,14 +84,14 @@ local fluid_container_entity = {
         width = 1,
       },
     },
-  flags = {"placeable-neutral", "hidden", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
-  collision_mask = {},
+  hidden = true,
+  flags = {"placeable-neutral", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
+  collision_mask = {layers = {}},
   selectable_in_game = false,
-  collision_box = {{-2.3, -2.3}, {2.3, 2.3}},
+  collision_box = {{-3.3, -3.3}, {3.3, 3.3}},
   fluid_box =
   {
-    base_area = 10,
-    base_level = 2,
+    volume = 10000,
     pipe_covers = {
       north =
       {
@@ -238,13 +238,12 @@ local fluid_container_entity = {
         }
       }
     },
-    height = 1,
     pipe_connections =
     {
-      { position = {0, -3}, type = "output" },
-      { position = {3, 0}, type = "output" },
-      { position = {0, 3}, type = "output" },
-      { position = {-3, 0}, type = "output" }
+      { position = {0, -3}, direction = 12},
+      { position = {3, 0}, direction = 8},
+      { position = {0, 3}, direction = 4},
+      { position = {-3, 0}, direction = 0}
     },
     hide_connection_info = false,
   },
@@ -275,12 +274,12 @@ local recipe =   {
     enabled = false,
     ingredients =
     {
-      {"concrete", 500},
-      {"steel-plate", 500},
-      {"advanced-circuit", 500},
-      {"copper-plate", 500}
+      {type = "item", name = "concrete", amount = 800},
+      {type = "item", name = "steel-plate", amount = 800},
+      {type = "item", name = "advanced-circuit", amount = 800},
+      {type = "item", name = "copper-plate", amount = 800}
     },
-    result = "dedigitizer-reactor",
+    results = {{type = "item", name = "dedigitizer-reactor", amount = 1}},
     requester_paste_multiplier = 1,
     icons = {{
       icon  = "__base__/graphics/icons/nuclear-reactor.png",
@@ -302,7 +301,7 @@ local technology = {
         recipe = "dedigitizer-reactor"
       }
     },
-    prerequisites = {"uranium-processing", "matter-digitization","advanced-electronics-2"},
+    prerequisites = {"uranium-processing", "matter-digitization","processing-unit"},
     unit =
     {
       ingredients =

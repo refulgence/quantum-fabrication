@@ -13,10 +13,10 @@ function create_dedigitizer_reactor_gui(player, entity)
     }
     main_frame.style.width = 300
 
-    local current_item_filter = global.tracked_entities[entity.name][entity.unit_number].item_filter
-    local current_fluid_filter = global.tracked_entities[entity.name][entity.unit_number].fluid_filter
-    local item_transfer_status = global.tracked_entities[entity.name][entity.unit_number].item_transfer_status
-    local fluid_transfer_status = global.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
+    local current_item_filter = storage.tracked_entities[entity.name][entity.unit_number].item_filter
+    local current_fluid_filter = storage.tracked_entities[entity.name][entity.unit_number].fluid_filter
+    local item_transfer_status = storage.tracked_entities[entity.name][entity.unit_number].item_transfer_status
+    local fluid_transfer_status = storage.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
     local choose_item_flow = main_frame.add{
         type = "flow",
         name = "choose_item_flow",
@@ -87,8 +87,8 @@ function update_dedigitizer_reactor_gui(player, entity)
     if not main_frame then return end
     local choose_item_button = main_frame.choose_item_flow.choose_item_button
     local choose_fluid_button = main_frame.choose_fluid_flow.choose_fluid_button
-    local item_transfer_status = global.tracked_entities[entity.name][entity.unit_number].item_transfer_status
-    local fluid_transfer_status = global.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
+    local item_transfer_status = storage.tracked_entities[entity.name][entity.unit_number].item_transfer_status
+    local fluid_transfer_status = storage.tracked_entities[entity.name][entity.unit_number].fluid_transfer_status
     local temperature = entity.temperature > Reactor_constants.fluid_transfer_rate
     local item_transfer_caption
     if not temperature then

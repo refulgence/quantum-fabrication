@@ -1,14 +1,5 @@
-function on_gui_hover(event)
-    local player = game.get_player(event.player_index)
-    if not player then return end
-    if not event.element then return end
-    local element = event.element
-    local element_tags = element.tags
-    if element_tags.hover_type == "recipe" then
-        build_main_tooltip(player, element_tags.item_name, element_tags.recipe_name)
-        auto_position_tooltip(player, element_tags.index)
-    end
-end
+
+
 
 function on_gui_leave(event)
     local player = game.get_player(event.player_index)
@@ -16,10 +7,25 @@ function on_gui_leave(event)
     if not event.element then return end
     local element = event.element
     local element_tags = element.tags
+    game.print("Unhovered on tick: " .. event.tick)
     if element_tags.hover_type == "recipe" then
-        if player.gui.screen.qf_recipe_tooltip then player.gui.screen.qf_recipe_tooltip.destroy() end
+        if player.gui.screen.qf_recipe_tooltip then player.gui.screen.qf_recipe_tooltip.visible = false end
     end
 end
+
+function on_gui_hover(event)
+    local player = game.get_player(event.player_index)
+    if not player then return end
+    if not event.element then return end
+    local element = event.element
+    local element_tags = element.tags
+    game.print("Hovered on tick: " .. event.tick)
+    if element_tags.hover_type == "recipe" then
+        build_main_tooltip(player, element_tags.item_name, element_tags.recipe_name)
+        auto_position_tooltip(player, element_tags.index)
+    end
+end
+
 
 
 function on_gui_elem_changed(event)
@@ -28,13 +34,13 @@ function on_gui_elem_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
     if element.name == "choose_item_button" then
-        global.tracked_entities["dedigitizer-reactor"][unit_id].item_filter = element.elem_value
-        update_dedigitizer_reactor_gui(player, global.tracked_entities["dedigitizer-reactor"][unit_id].entity)
+        storage.tracked_entities["dedigitizer-reactor"][unit_id].item_filter = element.elem_value
+        update_dedigitizer_reactor_gui(player, storage.tracked_entities["dedigitizer-reactor"][unit_id].entity)
         return
     end
     if element.name == "choose_fluid_button" then
-        global.tracked_entities["dedigitizer-reactor"][unit_id].fluid_filter = element.elem_value
-        update_dedigitizer_reactor_gui(player, global.tracked_entities["dedigitizer-reactor"][unit_id].entity)
+        storage.tracked_entities["dedigitizer-reactor"][unit_id].fluid_filter = element.elem_value
+        update_dedigitizer_reactor_gui(player, storage.tracked_entities["dedigitizer-reactor"][unit_id].entity)
         return
     end
 end
@@ -81,13 +87,13 @@ function on_gui_click(event)
     local element = event.element
     local element_tags = element.tags
     if element_tags.button_type == "item_group_selector" then
-        local previous_selection = element.parent[global.player_gui[player.index].item_group_selection .. "_button"]
+        local previous_selection = element.parent[storage.player_gui[player.index].item_group_selection .. "_button"]
         if previous_selection then previous_selection.toggled = false end
-        global.player_gui[player.index].item_group_selection = element_tags.group_name
+        storage.player_gui[player.index].item_group_selection = element_tags.group_name
         element.toggled = true
         build_main_recipe_item_list_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.recipe_flow)
     elseif element_tags.button_type == "recipe_usage_search" then
-        apply_gui_filter(player, global.ingredient_filter[element_tags.item_name].recipes, true, false)
+        apply_gui_filter(player, storage.ingredient_filter[element_tags.item_name].recipes, true, false)
     elseif element.name == "filter_reset_button" then
         apply_gui_filter(player, "", true, true)
     elseif element_tags.button_type == "recipe_priority_selector" then
@@ -96,7 +102,7 @@ function on_gui_click(event)
         elseif event.button == defines.mouse_button_type.right then
             blacklist_recipe(element_tags)
         end
-        table.sort(global.product_craft_data[element_tags.item_name], function(a, b) return a.suitability > b.suitability end)
+        table.sort(storage.product_craft_data[element_tags.item_name], function(a, b) return a.suitability > b.suitability end)
         update_duplicate_handling_buttons(element.parent, element_tags.item_name)
     elseif element_tags.button_type == "take_out_ghost" then
         player.clear_cursor()
@@ -123,27 +129,27 @@ end
 function prioritise_recipe(tags)
     local item_name = tags.item_name
     local recipe_name = tags.recipe_name
-    for _, recipe in pairs(global.product_craft_data[item_name]) do
+    for _, recipe in pairs(storage.product_craft_data[item_name]) do
         if recipe.recipe_name == recipe_name then
             if recipe.prioritised then
                 recipe.prioritised = false
                 recipe.suitability = recipe.suitability - 10
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
             elseif recipe.blacklisted then
                 recipe.prioritised = true
                 recipe.blacklisted = false
                 recipe.suitability = recipe.suitability + 20
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_buflib_tton_green"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_buflib_tton_green"
             else
                 recipe.prioritised = true
                 recipe.suitability = recipe.suitability + 10
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
             end
         else
             if recipe.prioritised then
                 recipe.prioritised = false
                 recipe.suitability = recipe.suitability - 10
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
             end
         end
     end
@@ -152,21 +158,21 @@ end
 function blacklist_recipe(tags)
     local item_name = tags.item_name
     local recipe_name = tags.recipe_name
-    for _, recipe in pairs(global.product_craft_data[item_name]) do
+    for _, recipe in pairs(storage.product_craft_data[item_name]) do
         if recipe.recipe_name == recipe_name then
             if recipe.blacklisted then
                 recipe.blacklisted = false
                 recipe.suitability = recipe.suitability + 10
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
             elseif recipe.prioritised then
                 recipe.blacklisted = true
                 recipe.prioritised = false
                 recipe.suitability = recipe.suitability - 20
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
             else
                 recipe.blacklisted = true
                 recipe.suitability = recipe.suitability - 10
-                global.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
+                storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
             end
         end
     end
@@ -179,7 +185,7 @@ function on_gui_selected_tab_changed(event)
     if not player then return end
     local element = event.element
     if element.name == "tabbed_pane" then
-        global.player_gui[event.player_index].selected_tab_index = element.selected_tab_index
+        storage.player_gui[event.player_index].selected_tab_index = element.selected_tab_index
     end
 end
 
@@ -188,7 +194,7 @@ function on_gui_selection_state_changed(event)
     if not player then return end
     local element = event.element
     if element.name == "qf_sort_by" then
-        global.player_gui[event.player_index].options.sort_ingredients = element.selected_index
+        storage.player_gui[event.player_index].options.sort_ingredients = element.selected_index
         if element.selected_index == 1 then
             sort_ingredients(event.player_index, "item_name")
         elseif element.selected_index == 2 then
@@ -220,11 +226,11 @@ function on_gui_checked_state_changed(event)
     local player_index = event.player_index
     if not player_index or not element then return end
     if element.name == "qf_calculate_craftable_numbers" then
-        global.player_gui[event.player_index].options.calculate_numbers = element.state
+        storage.player_gui[event.player_index].options.calculate_numbers = element.state
     elseif element.name == "qf_mark_red" then
-        global.player_gui[event.player_index].options.mark_red = element.state
+        storage.player_gui[event.player_index].options.mark_red = element.state
     elseif element.name == "qf_auto_recheck_item_request_proxies" then
-        global.options.auto_recheck_item_request_proxies = element.state
+        storage.options.auto_recheck_item_request_proxies = element.state
     end
 end
 
@@ -232,8 +238,8 @@ end
 
 
 script.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
-script.on_event(defines.events.on_gui_hover, on_gui_hover)
 script.on_event(defines.events.on_gui_leave, on_gui_leave)
+script.on_event(defines.events.on_gui_hover, on_gui_hover)
 script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)
 script.on_event(defines.events.on_gui_click, on_gui_click)
 script.on_event(defines.events.on_gui_selected_tab_changed, on_gui_selected_tab_changed)

@@ -4,18 +4,18 @@
 function on_init()
     flib_dictionary.on_init()
     build_dictionaries()
-    global.fabricator_inventory = {item = {}, fluid = {}}
-    global.unpacked_recipes = {}
-    global.placeable = {}
-    global.recipe = {}
-    global.modules = {}
-    global.ingredient = {}
-    global.ingredient_filter = {}
-    global.player_gui = {}
-    global.options = {}
-    global.options.auto_recheck_item_request_proxies = false
-    global.tracked_entities = {}
-    global.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
+    storage.fabricator_inventory = {item = {}, fluid = {}}
+    storage.unpacked_recipes = {}
+    storage.placeable = {}
+    storage.recipe = {}
+    storage.modules = {}
+    storage.ingredient = {}
+    storage.ingredient_filter = {}
+    storage.player_gui = {}
+    storage.options = {}
+    storage.options.auto_recheck_item_request_proxies = false
+    storage.tracked_entities = {}
+    storage.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
 end
@@ -31,16 +31,16 @@ end
 
 
 function on_created_player(event)
-    if event.created_entity and event.created_entity.valid then
-        if event.created_entity.type == "entity-ghost" then
-            create_tracked_request({entity = event.created_entity, player_index = event.player_index, request_type = "revivals"})
+    if event.entity and event.entity.valid then
+        if event.entity.type == "entity-ghost" then
+            create_tracked_request({entity = event.entity, player_index = event.player_index, request_type = "revivals"})
         end
         on_created(event)
     end
 end
 
 function on_created(event)
-    local entity = event.created_entity or event.entity
+    local entity = event.entity or event.entity
     if entity and entity.valid then
         if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then create_tracked_entity(entity) end
     end
@@ -51,10 +51,10 @@ function on_pre_mined(event)
     local player_index = event.player_index
     if entity and entity.valid and player_index then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
-            if global.prototypes_data[entity.name] then
-                local item_name = global.prototypes_data[entity.name].item_name
+            if storage.prototypes_data[entity.name] then
+                local item_name = storage.prototypes_data[entity.name].item_name
                 if is_placeable(item_name) then
-                    if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
+                    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
                     instant_defabrication(entity, player_index)
                 end
             end
@@ -69,10 +69,10 @@ function on_deconstructed(event)
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" then
                 instant_deforestation(entity, player_index)
-            elseif global.prototypes_data[entity.name] then
-                local item_name = global.prototypes_data[entity.name].item_name
+            elseif storage.prototypes_data[entity.name] then
+                local item_name = storage.prototypes_data[entity.name].item_name
                 if is_placeable(item_name) then
-                    if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
+                    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
                     create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
                 end
             end
@@ -99,7 +99,7 @@ end
 
 
 function on_player_created(event)
-    global.player_gui[event.player_index] = {
+    storage.player_gui[event.player_index] = {
         item_group_selection = 1,
         selected_tab_index = 1,
         show_storage = false,
@@ -115,13 +115,13 @@ end
 
 
 function sort_ingredients(player_index, sort_type)
-    for _, recipe in pairs(global.unpacked_recipes) do
+    for _, recipe in pairs(storage.unpacked_recipes) do
         if sort_type == "item_name" then
-            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
+            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
         elseif sort_type == "amount" then
-            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.amount < b.amount end)
+            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.amount < b.amount end)
         elseif sort_type == "localised_name" then
-            table.sort(global.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
         end
     end
 end
@@ -152,7 +152,7 @@ function on_console_command(command)
         debug_storage(250000000, true)
         game.print("CHEAT: Fabricator inventory updated with a lot of stuff")
     elseif name == "qf_clear_storage" then
-        global.fabricator_inventory = {item = {}, fluid = {}}
+        storage.fabricator_inventory = {item = {}, fluid = {}}
         game.print("CHEAT(?): Fabricator inventory cleared")
     elseif name == "qf_update_module_requests" then
         update_lost_module_requests(game.players[player_index])
@@ -163,18 +163,18 @@ end
 
 function debug_storage(amount, everything)
     if not everything then
-        for material, _ in pairs(global.ingredient) do
+        for material, _ in pairs(storage.ingredient) do
             local type = item_type_check(material)
-            if not global.fabricator_inventory[type][material] then global.fabricator_inventory[type][material] = 0 end
+            if not storage.fabricator_inventory[type][material] then storage.fabricator_inventory[type][material] = 0 end
             add_to_storage({name = material, amount = amount, type = type}, false)
         end
     else
-        for _, item in pairs(game.item_prototypes) do
-            if not global.fabricator_inventory["item"][item.name] then global.fabricator_inventory["item"][item.name] = 0 end
+        for _, item in pairs(prototypes.item) do
+            if not storage.fabricator_inventory["item"][item.name] then storage.fabricator_inventory["item"][item.name] = 0 end
             add_to_storage({name = item.name, amount = amount, type = "item"}, false)
         end
-        for _, fluid in pairs(game.fluid_prototypes) do
-            if not global.fabricator_inventory["fluid"][fluid.name] then global.fabricator_inventory["fluid"][fluid.name] = 0 end
+        for _, fluid in pairs(prototypes.fluid) do
+            if not storage.fabricator_inventory["fluid"][fluid.name] then storage.fabricator_inventory["fluid"][fluid.name] = 0 end
             add_to_storage({name = fluid.name, amount = amount, type = "fluid"}, false)
         end
     end
@@ -200,7 +200,7 @@ script.on_nth_tick(Update_rate.requests.rate, update_tracked_requests)
 script.on_nth_tick(Update_rate.reactors, update_tracked_dedigitizer_reactors)
 
 script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)
-    if global.options.auto_recheck_item_request_proxies then update_lost_module_requests(game.connected_players[1]) end
+    if storage.options.auto_recheck_item_request_proxies then update_lost_module_requests(game.connected_players[1]) end
 end)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_changed)

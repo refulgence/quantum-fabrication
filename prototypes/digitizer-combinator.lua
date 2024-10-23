@@ -63,10 +63,10 @@ local item =  {
     enabled = false,
     ingredients =
     {
-      {"copper-cable", 5},
-      {"electronic-circuit", 2}
+      {type = "item", name = "copper-cable", amount = 5},
+      {type = "item", name = "electronic-circuit", amount = 2}
     },
-    result = "digitizer-combinator"
+    results = {{type = "item", name = "digitizer-combinator", amount = 1}}
   }
 
   local technology = {

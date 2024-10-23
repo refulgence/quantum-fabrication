@@ -2,16 +2,16 @@
 ---@param entity LuaEntity
 ---@param player_index int
 function instant_fabrication(entity, player_index)
-    local item_name = global.prototypes_data[entity.ghost_name].item_name
+    local item_name = storage.prototypes_data[entity.ghost_name].item_name
     if not item_name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
     if not player_inventory then game.print("player inventory not found for " .. player_index) return end
-    if not global.fabricator_inventory.item[item_name] then global.fabricator_inventory.item[item_name] = 0 end
+    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
 
     if player_inventory.get_item_count(item_name) > 0 then
         return revive_ghost(entity, player_inventory, "player")
     end
-    if global.fabricator_inventory.item[item_name] > 0 then
+    if storage.fabricator_inventory.item[item_name] > 0 then
         return revive_ghost(entity, player_inventory, "digital storage")
     end
     -- Nothing? Guess we are fabricating
@@ -52,7 +52,7 @@ end
 ---@param player_inventory LuaInventory
 ---@param inventory_type string
 function revive_ghost(entity, player_inventory, inventory_type)
-    local entity_name = global.prototypes_data[entity.ghost_name].item_name
+    local entity_name = storage.prototypes_data[entity.ghost_name].item_name
     local modules = entity.item_requests
     local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
@@ -100,12 +100,12 @@ end
 ---@return int
 function process_modules(entity, module, amount, inventory, inventory_type)
     if inventory_type == "digital storage" then
-        if not global.fabricator_inventory.item[module] then global.fabricator_inventory.item[module] = 0 end
-        if global.fabricator_inventory.item[module] > 0 then
-            if global.fabricator_inventory.item[module] >= amount then
+        if not storage.fabricator_inventory.item[module] then storage.fabricator_inventory.item[module] = 0 end
+        if storage.fabricator_inventory.item[module] > 0 then
+            if storage.fabricator_inventory.item[module] >= amount then
                 return amount - insert_modules(entity, {name = module, count = amount}, inventory, "digital storage")
             else
-                return amount - insert_modules(entity, {name = module, count = global.fabricator_inventory.item[module]},  inventory, "digital storage")
+                return amount - insert_modules(entity, {name = module, count = storage.fabricator_inventory.item[module]},  inventory, "digital storage")
             end
         end
     else
@@ -142,7 +142,7 @@ end
 ---@param entity LuaEntity
 ---@param player_index int
 function instant_defabrication(entity, player_index)
-    local item_name = global.prototypes_data[entity.name].item_name
+    local item_name = storage.prototypes_data[entity.name].item_name
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
     if not player_inventory then return nil end
     add_to_storage({name = item_name, amount = 1, type = "item"}, true)

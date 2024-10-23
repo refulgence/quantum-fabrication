@@ -48,7 +48,7 @@ function build_main_storage_gui(player, storage_flow_parent)
     tabbed_pane.add_tab(placeables_tab, placeables_tab_content)
     tabbed_pane.add_tab(others_tab, others_tab_content)
 
-    tabbed_pane.selected_tab_index = global.player_gui[player.index].selected_tab_index
+    tabbed_pane.selected_tab_index = storage.player_gui[player.index].selected_tab_index
 
 end
 
@@ -71,9 +71,9 @@ function build_main_materials_tab(player, tabbed_pane)
     
             local item_name_caption
             if item.type == "item" then
-                item_name_caption = {"", "[item="..item.name.."] ", game.item_prototypes[item.name].localised_name}
+                item_name_caption = {"", "[item="..item.name.."] ", prototypes.item[item.name].localised_name}
             else
-                item_name_caption = {"", "[fluid="..item.name.."] ", game.fluid_prototypes[item.name].localised_name}
+                item_name_caption = {"", "[fluid="..item.name.."] ", prototypes.fluid[item.name].localised_name}
             end
     
             local item_name = item_entry.add{type="label", caption = item_name_caption, elem_tooltip = {type=item.type, name = item.name}}
@@ -89,15 +89,15 @@ function build_main_materials_tab(player, tabbed_pane)
             filler_space.style.horizontally_stretchable = true
     
             -- what is this line? find out why it happens and why it's needed, because I don't think it should be needed
-            if not global.ingredient_filter[item.name] then global.ingredient_filter[item.name] = {count = 0, recipes = {}} end
-            local item_recipe_usage_number = global.ingredient_filter[item.name].count
+            if not storage.ingredient_filter[item.name] then storage.ingredient_filter[item.name] = {count = 0, recipes = {}} end
+            local item_recipe_usage_number = storage.ingredient_filter[item.name].count
             if item_recipe_usage_number > 0 then
                 local item_recipe_usage_caption = {"qf-inventory.recipe-usage", item_recipe_usage_number}
                 local item_recipe_usage = item_entry.add{type="label", caption = item_recipe_usage_caption}
                 item_recipe_usage.style.horizontal_align = "right"
                 item_recipe_usage.style.width = QF_GUI.tabbed_pane.recipe_usage_width
         
-                local item_button = item_entry.add{type = "sprite-button", style = "frame_action_button", sprite="utility/search_white", hovered_sprite="utility/search_black", clicked_sprite="utility/search_black"}
+                local item_button = item_entry.add{type = "sprite-button", style = "frame_action_button", sprite="utility/search"}
                 item_button.style.horizontal_align = "right"
                 item_button.style.size = QF_GUI.tabbed_pane.button_size
                 item_button.tags = {button_type = "recipe_usage_search", item_name = item.name}
@@ -128,10 +128,10 @@ function build_main_placeables_tab(player, tabbed_pane)
         local button_sprite
         local button_tags
         if is_module(item.name) then
-            item_name_caption = {"", "[item="..item.name.."] ", game.item_prototypes[item.name].localised_name}
+            item_name_caption = {"", "[item="..item.name.."] ", prototypes.item[item.name].localised_name}
             take_out_caption = {"qf-inventory.take-out-item"}
         else
-            item_name_caption = {"", "[item="..item.name.."] ", game.item_prototypes[item.name].localised_name}
+            item_name_caption = {"", "[item="..item.name.."] ", prototypes.item[item.name].localised_name}
             take_out_caption = {"qf-inventory.take-out-ghost"}
             button_sprite = "qf-vanilla-ghost-entity-icon"
             button_tags = {button_type = "take_out_ghost", item_name = item.name}
@@ -191,10 +191,10 @@ function build_main_others_tab(player, tabbed_pane)
         local item_name_caption
         local elem_tooltip
         if item.type == "item" then
-            item_name_caption = {"", "[item="..item.name.."] ", game.item_prototypes[item.name].localised_name}
+            item_name_caption = {"", "[item="..item.name.."] ", prototypes.item[item.name].localised_name}
             elem_tooltip = {type="item", name = item.name}
         else
-            item_name_caption = {"", "[fluid="..item.name.."] ", game.fluid_prototypes[item.name].localised_name}
+            item_name_caption = {"", "[fluid="..item.name.."] ", prototypes.fluid[item.name].localised_name}
             elem_tooltip = {type="fluid", name = item.name}
         end
         

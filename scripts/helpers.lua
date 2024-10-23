@@ -32,13 +32,13 @@ end
 ---@param item_name string
 ---@return boolean
 function is_placeable(item_name)
-    if global.placeable[item_name] ~= nil then return global.placeable[item_name] end
-    local item_prototype = game.item_prototypes[item_name]
-    if item_prototype and item_prototype.place_result and item_prototype.place_result.create_ghost_on_death and not item_prototype.place_result.has_flag("hidden") then
-        global.placeable[item_name] = true
+    if storage.placeable[item_name] ~= nil then return storage.placeable[item_name] end
+    local item_prototype = prototypes.item[item_name]
+    if item_prototype and item_prototype.place_result and item_prototype.place_result.create_ghost_on_death and not item_prototype.place_result.hidden then
+        storage.placeable[item_name] = true
         return true
     end
-    global.placeable[item_name] = false
+    storage.placeable[item_name] = false
     return false
 end
 
@@ -46,10 +46,10 @@ end
 ---@param item_name string
 ---@return boolean
 function is_module(item_name)
-    if global.modules[item_name] ~= nil then return global.modules[item_name] end
-    local item_prototype = game.item_prototypes[item_name]
-    global.modules[item_name] = item_prototype and item_prototype.type == "module"
-    return global.modules[item_name]
+    if storage.modules[item_name] ~= nil then return storage.modules[item_name] end
+    local item_prototype = prototypes.item[item_name]
+    storage.modules[item_name] = item_prototype and item_prototype.type == "module"
+    return storage.modules[item_name]
 end
 
 
@@ -57,8 +57,8 @@ end
 ---@param item_name string
 ---@return table | nil
 function get_decraftable_recipe(item_name)
-    local recipes = global.product_craft_data[item_name]
-    local unpacked_recipes = global.unpacked_recipes
+    local recipes = storage.product_craft_data[item_name]
+    local unpacked_recipes = storage.unpacked_recipes
     if not recipes then return nil end
     for i = 1, recipes[1].number_of_recipes do
         if unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_decraftable({ingredients = unpacked_recipes[recipes[i].recipe_name].products}) then
@@ -74,11 +74,11 @@ end
 ---@param player_inventory LuaInventory
 ---@return table | nil
 function get_craftable_recipe(item_name, player_inventory)
-    local recipes = global.product_craft_data[item_name]
+    local recipes = storage.product_craft_data[item_name]
     if not recipes then game.print("no recipes for " .. item_name .. ", this shouldn't happen") return nil end
     for i = 1, recipes[1].number_of_recipes do
-        if global.unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_craftable(global.unpacked_recipes[recipes[i].recipe_name], player_inventory) and not recipes[i].blacklisted then
-            return global.unpacked_recipes[recipes[i].recipe_name]
+        if storage.unpacked_recipes[recipes[i].recipe_name].enabled and is_recipe_craftable(storage.unpacked_recipes[recipes[i].recipe_name], player_inventory) and not recipes[i].blacklisted then
+            return storage.unpacked_recipes[recipes[i].recipe_name]
         end
     end
     return nil
@@ -90,13 +90,13 @@ end
 ---@return boolean
 function is_recipe_craftable(recipe, player_inventory)
     for _, ingredient in pairs(recipe.ingredients) do
-        if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
+        if not storage.fabricator_inventory[ingredient.type][ingredient.name] then storage.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
         if ingredient.type == "item" then
-            if global.fabricator_inventory[ingredient.type][ingredient.name] + player_inventory.get_item_count(ingredient.name) < ingredient.amount then
+            if storage.fabricator_inventory[ingredient.type][ingredient.name] + player_inventory.get_item_count(ingredient.name) < ingredient.amount then
                 return false
             end
         else
-            if global.fabricator_inventory[ingredient.type][ingredient.name] < ingredient.amount then
+            if storage.fabricator_inventory[ingredient.type][ingredient.name] < ingredient.amount then
                 return false
             end
         end
@@ -109,8 +109,8 @@ end
 ---@return boolean
 function is_recipe_decraftable(recipe)
     for _, ingredient in pairs(recipe.ingredients) do
-        if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
-        if global.fabricator_inventory[ingredient.type][ingredient.name] < ingredient.amount then
+        if not storage.fabricator_inventory[ingredient.type][ingredient.name] then storage.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
+        if storage.fabricator_inventory[ingredient.type][ingredient.name] < ingredient.amount then
             return false
         end
     end
@@ -125,12 +125,12 @@ end
 function how_many_can_craft(recipe, player_inventory)
     local result
     for _, ingredient in pairs(recipe.ingredients) do
-        if not global.fabricator_inventory[ingredient.type][ingredient.name] then global.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
+        if not storage.fabricator_inventory[ingredient.type][ingredient.name] then storage.fabricator_inventory[ingredient.type][ingredient.name] = 0 end
         local available = 0
         if ingredient.type == "item" and player_inventory then
-            available = player_inventory.get_item_count(ingredient.name) + global.fabricator_inventory[ingredient.type][ingredient.name]
+            available = player_inventory.get_item_count(ingredient.name) + storage.fabricator_inventory[ingredient.type][ingredient.name]
         else
-            available = global.fabricator_inventory[ingredient.type][ingredient.name]
+            available = storage.fabricator_inventory[ingredient.type][ingredient.name]
         end
         if available < ingredient.amount then
             return 0
@@ -150,8 +150,8 @@ end
 ---@param player_inventory LuaInventory
 ---@param item table
 function add_to_player_inventory(player_inventory, item)
-    if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
-    if is_placeable(item.name) or is_module(item.name) or global.ingredient[item.name] or item.type == "fluid" then
+    if not storage.fabricator_inventory[item.type][item.name] then storage.fabricator_inventory[item.type][item.name] = 0 end
+    if is_placeable(item.name) or is_module(item.name) or storage.ingredient[item.name] or item.type == "fluid" then
         add_to_storage(item, true)
     else
         local inserted = player_inventory.insert(item)
@@ -165,8 +165,8 @@ end
 ---@param try_defabricate boolean
 function add_to_storage(item, try_defabricate)
     if not item then return end
-    if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
-    global.fabricator_inventory[item.type][item.name] = global.fabricator_inventory[item.type][item.name] + (item.count or item.amount)
+    if not storage.fabricator_inventory[item.type][item.name] then storage.fabricator_inventory[item.type][item.name] = 0 end
+    storage.fabricator_inventory[item.type][item.name] = storage.fabricator_inventory[item.type][item.name] + (item.count or item.amount)
     if try_defabricate then decraft(item) end
 end
 
@@ -175,7 +175,7 @@ end
 ---@param item table
 function remove_from_storage(item)
     if not item then return end
-    global.fabricator_inventory[item.type][item.name] = global.fabricator_inventory[item.type][item.name] - (item.count or item.amount)
+    storage.fabricator_inventory[item.type][item.name] = storage.fabricator_inventory[item.type][item.name] - (item.count or item.amount)
 end
 
 
@@ -184,8 +184,8 @@ end
 ---@param target_inventory LuaInventory | LuaEntity
 ---@return table
 function pull_from_storage(item, target_inventory)
-    if not global.fabricator_inventory[item.type][item.name] then global.fabricator_inventory[item.type][item.name] = 0 end
-    local available = global.fabricator_inventory[item.type][item.name]
+    if not storage.fabricator_inventory[item.type][item.name] then storage.fabricator_inventory[item.type][item.name] = 0 end
+    local available = storage.fabricator_inventory[item.type][item.name]
     local to_be_provided = item.count or item.amount
     local status = {empty_storage = false, full_inventory = false}
     if available == 0 then

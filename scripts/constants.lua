@@ -54,3 +54,9 @@ Reactor_constants.empty_storage_cost = 4
 Reactor_constants.min_temperature = 5000
 Reactor_constants.item_transfer_rate = 10
 Reactor_constants.fluid_transfer_rate = 1000
+
+
+if not Actual_non_duplicates then Actual_non_duplicates = {} end
+if not Unpacking_blacklist then Unpacking_blacklist = {} end
+if not Autocraft_blacklist then Autocraft_blacklist = {} end
+if not Recipe_blacklist then Recipe_blacklist = {} end

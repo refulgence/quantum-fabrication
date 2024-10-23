@@ -1,4 +1,4 @@
-flib_dictionary = require("__flib__.dictionary-lite")
+flib_dictionary = require("__flib__.dictionary")
 
 ---comment
 ---@param player_index int
@@ -6,15 +6,17 @@ flib_dictionary = require("__flib__.dictionary-lite")
 ---@param type string
 function get_translation(player_index, name, type)
     if not flib_dictionary.get_all(player_index) then return end
-    local language = global.__flib.dictionary.player_languages[player_index]
+    local language = storage.__flib.dictionary.player_languages[player_index]
+    -- flib bug introduced in 2.0?
+    if not language then language = "en" end
     if type == "unknown" then
-        if global.__flib.dictionary.translated[language]["item"][name] then
-            return global.__flib.dictionary.translated[language]["item"][name]
+        if storage.__flib.dictionary.translated[language]["item"][name] then
+            return storage.__flib.dictionary.translated[language]["item"][name]
         else
-            return global.__flib.dictionary.translated[language]["fluid"][name]
+            return storage.__flib.dictionary.translated[language]["fluid"][name]
         end
     end
-    return global.__flib.dictionary.translated[language][type][name]
+    return storage.__flib.dictionary.translated[language][type][name]
 end
 
 
@@ -31,9 +33,9 @@ end
 
 function build_dictionaries()
   for type, prototypes in pairs({
-    fluid = game.fluid_prototypes,
-    item = game.item_prototypes,
-    recipe = game.recipe_prototypes,
+    fluid = prototypes.fluid,
+    item = prototypes.item,
+    recipe = prototypes.recipe,
   }) do
     flib_dictionary.new(type)
     for name, prototype in pairs(prototypes) do

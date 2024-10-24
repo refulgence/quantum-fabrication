@@ -1,4 +1,4 @@
-flib_dictionary = require("__flib__.dictionary")
+local flib_dictionary = require("__flib__.dictionary")
 
 ---comment
 ---@param player_index int

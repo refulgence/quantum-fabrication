@@ -1,7 +1,5 @@
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 
-require "scripts/helpers"
-
 if script.active_mods["pyalienlife"] then require("compatibility/pyalienlife") end
 
 require "scripts/tracking"

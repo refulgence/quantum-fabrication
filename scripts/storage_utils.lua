@@ -1,5 +1,4 @@
 local utils = require("scripts/utils")
-local qf_utils = require("scripts/fabricator_utils")
 
 ---@class QSItem Format for items/fluids used in storage and fabrication
 ---@field name string
@@ -24,8 +23,8 @@ local qs_utils = {}
 function qs_utils.add_to_storage(qs_item, try_defabricate, count_override)
     if not qs_item then return end
     qs_utils.storage_item_check(qs_item)
-    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + count_override or (qs_item.count or qs_item.amount)
-    if try_defabricate then qf_utils.decraft(qs_item) end
+    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + (count_override or (qs_item.count or qs_item.amount))
+    if try_defabricate then decraft(qs_item) end
 end
 
 
@@ -34,7 +33,7 @@ end
 function qs_utils.remove_from_storage(qs_item, count_override)
     if not qs_item then return end
     qs_utils.storage_item_check(qs_item)
-    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - count_override or (qs_item.count or qs_item.amount)
+    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - (count_override or (qs_item.count or qs_item.amount))
 end
 
 
@@ -58,10 +57,16 @@ end
 ---@param qs_item QSItem
 function qs_utils.storage_item_check(qs_item)
     qs_utils.set_default_quality(qs_item)
-    if not storage.fabricator_inventory[qs_item.surface_index]
-    or not storage.fabricator_inventory[qs_item.surface_index][qs_item.type]
-    or not storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name]
-    or not storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] then
+    if not storage.fabricator_inventory[qs_item.surface_index] then
+        storage.fabricator_inventory[qs_item.surface_index] = {}
+    end
+    if not storage.fabricator_inventory[qs_item.surface_index][qs_item.type] then
+        storage.fabricator_inventory[qs_item.surface_index][qs_item.type] = {}
+    end
+    if not storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name] then
+        storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name] = {}
+    end
+    if not storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] then
         storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = 0
     end
 end
@@ -127,7 +132,7 @@ end
 ---@param qs_item QSItem
 ---@param player_inventory? LuaInventory
 function qs_utils.count_in_storage(qs_item, player_inventory)
-    local available = storage.fabricator_inventory[qs_item.type][qs_item.name][qs_item.quality]
+    local available = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
     if player_inventory and qs_item.type == "item" then
         available = available + player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
     end

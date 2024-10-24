@@ -8,14 +8,13 @@ function instant_fabrication(entity, player_index)
 
     local surface_index = entity.surface_index
 
-    ---@type QSItem
-    local qs_item = {
+    local qs_item = qs_utils.to_qs_item({
         name = storage.prototypes_data[entity.ghost_name].item_name,
         count = 1,
         type = "item",
         quality = entity.quality.name,
         surface_index = surface_index
-    }
+    })
     if not qs_item.name then game.print("instant_fabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
     qs_utils.storage_item_check(qs_item)
 
@@ -49,14 +48,13 @@ function instant_defabrication(entity, player_index)
 
     local surface_index = entity.surface_index
 
-    ---@type QSItem
-    local qs_item = {
+    local qs_item = qs_utils.to_qs_item({
         name = storage.prototypes_data[entity.name].item_name,
         count = 1,
         type = "item",
         quality = entity.quality.name,
         surface_index = surface_index
-    }
+    })
     if not qs_item.name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
     qs_utils.storage_item_check(qs_item)
 
@@ -65,6 +63,14 @@ function instant_defabrication(entity, player_index)
     qs_utils.add_to_storage(qs_item, true)
     process_inventory(entity, player_inventory, surface_index)
     return entity.destroy({raise_destroy = true})
+end
+
+---@param qs_item QSItem
+function decraft(qs_item)
+    local recipe = qf_utils.get_craftable_recipe(qs_item, nil, true)
+    if recipe then
+        qf_utils.fabricate_recipe(recipe, qs_item.quality, qs_item.surface_index, nil, qs_item.count)
+    end
 end
 
 
@@ -286,33 +292,41 @@ end
 
 
 
-
-
-
-
 ---comment
 ---@param entity LuaEntity
 ---@param target LuaEntityPrototype
+---@param quality string
 ---@param player_index int
 ---@return boolean
-function instant_upgrade(entity, target, player_index)
+function instant_upgrade(entity, target, quality, player_index)
     local player = game.get_player(player_index)
     if not player then return false end
+    local surface_index = entity.surface_index
     local player_inventory = player.get_inventory(defines.inventory.character_main)
-    if not player_inventory then return false end
-    local recipe = get_craftable_recipe(target.name, player_inventory)
+    local qs_item = qs_utils.to_qs_item({
+        name = target.name,
+        count = 1,
+        type = "item",
+        quality = quality,
+        surface_index = entity.surface_index
+    })
+
+    local recipe = qf_utils.get_craftable_recipe(qs_item)
     if not recipe then return false end
+
     local upgraded_entity = entity.surface.create_entity{
         name = target.name,
         position = entity.position,
         direction = entity.direction,
+        quality = quality,
         force = entity.force,
         fast_replace = true,
         player = player,
-        raise_built = true,}
+        raise_built = true,
+    }
     if upgraded_entity then
-        fabricate_recipe(recipe, player_inventory)
-        remove_from_storage({name = target.name, count = 1, type = "item"})
+        qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory)
+        qs_utils.remove_from_storage(qs_item)
         return true
     end
     return false

@@ -1,7 +1,8 @@
+local qs_utils = require("scripts/storage_utils")
+
 ---@class qf_utils
 local qf_utils = {}
 
-local qs_utils = require("scripts/storage_utils")
 
 
 ---comment
@@ -126,14 +127,6 @@ function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_invent
     end
 end
 
-
----@param qs_item QSItem
-function qf_utils.decraft(qs_item)
-    local recipe = qf_utils.get_craftable_recipe(qs_item, nil, true)
-    if recipe then
-        qf_utils.fabricate_recipe(recipe, qs_item.quality, qs_item.surface_index, nil, qs_item.count)
-    end
-end
 
 
 return qf_utils

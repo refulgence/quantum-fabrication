@@ -26,6 +26,14 @@ function utils.merge_tables_no_index(t1, t2)
     return t1
 end
 
+function utils.get_quality_names()
+    local quality_names = {}
+    for quality_name, _ in pairs(prototypes.quality) do
+        quality_names[#quality_names + 1] = quality_name
+    end
+    return quality_names
+end
+
 
 ---@param item_name string
 ---@return boolean

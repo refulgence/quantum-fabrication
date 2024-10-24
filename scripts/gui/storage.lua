@@ -127,7 +127,7 @@ function build_main_placeables_tab(player, tabbed_pane)
         local take_out_caption
         local button_sprite
         local button_tags
-        if is_module(item.name) then
+        if utils.is_module(item.name) then
             item_name_caption = {"", "[item="..item.name.."] ", prototypes.item[item.name].localised_name}
             take_out_caption = {"qf-inventory.take-out-item"}
         else
@@ -149,7 +149,7 @@ function build_main_placeables_tab(player, tabbed_pane)
         local filler_space = item_entry.add{type="empty-widget"}
         filler_space.style.horizontally_stretchable = true
 
-        if not is_module(item.name) then
+        if not utils.is_module(item.name) then
             local item_take_out_label = item_entry.add{type="label", caption = take_out_caption}
             item_take_out_label.style.horizontal_align = "right"
             item_take_out_label.style.width = QF_GUI.tabbed_pane.recipe_usage_width

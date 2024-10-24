@@ -91,7 +91,7 @@ function process_recipes()
         if not recipe.hidden and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
-                if is_placeable(product.name) then
+                if utils.is_placeable(product.name) then
                     -- Skip if this product/recipe pair is blacklisted
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst
@@ -181,7 +181,7 @@ function calculate_default_priority()
                 min_products = recipe_name
             end
             for _, product_2 in pairs(recipe.products) do
-                if is_placeable(product_2.name) then
+                if utils.is_placeable(product_2.name) then
                     if not product_min or product_2.amount < product_min then
                         product_min = product_2.amount
                         product_min_s = recipe_name
@@ -239,7 +239,7 @@ function unpack_recipe(recipe)
     helpers.write_file("Log.txt", data, true)
 
     for _, ingredient in pairs(recipe.ingredients) do
-        if is_placeable(ingredient.name) then
+        if utils.is_placeable(ingredient.name) then
             data = "- ingredient " .. ingredient.name .. " is placeable, proceeding to recursive unpacking.\n"
             helpers.write_file("Log.txt", data, true)
             new_ingredients = merge_tables_no_index(new_ingredients, unpack_recipe(get_unpacking_recipe(ingredient.name)).ingredients)

@@ -1,3 +1,5 @@
+local flib_format = require("__flib__.format")
+
 ---comment
 ---@param player LuaPlayer
 ---@param item_name string
@@ -94,7 +96,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         required_label.style.width = QF_GUI.tooltip_frame.required_label_width
         required_label.style.font_color = font_color
 
-        local available_label = ingredient_flow.add{type = "label", caption = "/ " .. int_to_str_si(available)}
+        local available_label = ingredient_flow.add{type = "label", caption = "/ " .. flib_format.number(available, true)}
         available_label.style.horizontal_align = "left"
         available_label.style.width = QF_GUI.tooltip_frame.available_label_width
         available_label.style.font_color = font_color

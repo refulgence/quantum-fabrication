@@ -1,4 +1,12 @@
 
+---@class QSPrototypeData
+---@field name string
+---@field type string
+---@field localised_name LocalisedString
+---@field localised_description LocalisedString
+---@field item_name string
+
+
 
 
 function on_init()
@@ -16,6 +24,8 @@ function on_init()
     storage.options.auto_recheck_item_request_proxies = false
     storage.tracked_entities = {}
     storage.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
+    ---@type table <string, QSPrototypeData>
+    storage.prototypes_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
 end
@@ -53,7 +63,7 @@ function on_pre_mined(event)
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
-                if is_placeable(item_name) then
+                if utils.is_placeable(item_name) then
                     if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
                     instant_defabrication(entity, player_index)
                 end
@@ -71,7 +81,7 @@ function on_deconstructed(event)
                 instant_deforestation(entity, player_index)
             elseif storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
-                if is_placeable(item_name) then
+                if utils.is_placeable(item_name) then
                     if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
                     create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
                 end
@@ -127,6 +137,13 @@ function sort_ingredients(player_index, sort_type)
     end
 end
 
+function on_player_joined_game(event)
+    flib_dictionary.on_player_joined_game(event)
+end
+  
+function on_tick(event)
+    flib_dictionary.on_tick(event)
+end
 
 function post_research_recheck()
     process_ingredient_filter()
@@ -207,6 +224,10 @@ end)
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_changed)
 script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
+
+script.on_event(defines.events.on_string_translated, on_string_translated)
+script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
+script.on_event(defines.events.on_tick, on_tick)
 
 script.on_event("qf-fabricator-gui-search", on_fabricator_gui_search_event)
 script.on_event("qf-fabricator-gui-toggle", on_fabricator_gui_toggle_event)

@@ -1,4 +1,5 @@
-
+local utils = require("scripts/utils")
+local qf_utils = require("scripts/fabricator_utils")
 
 ---comment
 ---@param player LuaPlayer
@@ -87,10 +88,10 @@ function sort_tab_lists()
             if count > 0 and storage.ingredient[name] then
                 sorted_materials[#sorted_materials + 1] = {name = name, count = count, type = type}
             end
-            if count > 0 and (is_placeable(name) or is_module(name)) then
+            if count > 0 and (utils.is_placeable(name) or utils.is_module(name)) then
                 sorted_placeables[#sorted_placeables + 1] = {name = name, count = count, type = type}
             end
-            if count > 0 and not is_placeable(name) and not is_module(name) and not storage.ingredient[name] then
+            if count > 0 and not utils.is_placeable(name) and not utils.is_module(name) and not storage.ingredient[name] then
                 sorted_others[#sorted_others + 1] = {name = name, count = count, type = type}
             end
         end
@@ -116,9 +117,9 @@ function get_craft_data(player)
         if item_type_check(recipe.placeable_product) == "item" then in_inventory = player_inventory.get_item_count(recipe.placeable_product) or 0 end
         local in_storage = storage.fabricator_inventory["item"][recipe.placeable_product] or 0
         if storage.player_gui[player.index].options.calculate_numbers then
-            Craft_data[player.index][recipe.name] = how_many_can_craft(recipe, player_inventory) + in_inventory + in_storage
+            Craft_data[player.index][recipe.name] = qf_utils.how_many_can_craft(recipe, player_inventory) + in_inventory + in_storage
         else
-            if is_recipe_craftable(recipe, player_inventory) then
+            if qf_utils.is_recipe_craftable(recipe, player_inventory) then
                 Craft_data[player.index][recipe.name] = 1
             else
                 Craft_data[player.index][recipe.name] = 0

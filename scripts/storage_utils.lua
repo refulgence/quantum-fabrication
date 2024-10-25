@@ -46,8 +46,8 @@ function qs_utils.add_to_player_inventory(player_inventory, qs_item)
         qs_utils.add_to_storage(qs_item, true)
     else
         local inserted = player_inventory.insert({name = qs_item.name, count = qs_item.amount, quality = qs_item.quality})
-        if qs_item.amount - inserted > 0 then
-            qs_item.amount = qs_item.amount - inserted
+        if qs_item.count - inserted > 0 then
+            qs_item.count = qs_item.count - inserted
             qs_utils.add_to_storage(qs_item)
         end
     end
@@ -204,6 +204,25 @@ function qs_utils.to_qs_item(item, surface_index_override, quality)
     }
 end
 
+---Takes a stack of items from storage to the player's inventory. Only if the player is physically present on the same surface (to prevent some cheesing)
+---@param qs_item any
+---@param player any
+function qs_utils.take_from_storage(qs_item, player)
+    local item_name = qs_item.name
+    local quality_name = qs_item.quality
+    local prototype = prototypes.item[item_name]
+    if not prototype then return end
+    local player_inventory = player.get_inventory(defines.inventory.character_main)
+    local available = qs_utils.count_in_storage(qs_item)
+    if available == 0 then return end
+    local stack_size = prototype.stack_size
+    if available < stack_size then
+        stack_size = available
+    end
+    local inserted = player_inventory.insert({name = item_name, count = stack_size, quality = quality_name})
+    qs_utils.remove_from_storage(qs_item, inserted)
+    update_removal_tab_label(player, item_name, quality_name)
+end
 
 
 return qs_utils

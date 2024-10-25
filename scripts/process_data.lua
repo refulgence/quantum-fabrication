@@ -3,7 +3,6 @@ local utils = require("scripts/utils")
 --- These functions are only done on init and when configuration changes
 function process_data()
     initialize_surfaces()
-    Directly_chosen = {}
     reprocess_recipes()
     process_item_group_order()
 end
@@ -14,6 +13,54 @@ function reprocess_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
+end
+
+---Creates sorted lists to be used later in storage gui
+---@param player_indices? table|uint
+function process_sorted_lists(player_indices)
+    if not storage.sorted_lists then storage.sorted_lists = {} end
+    if not player_indices then
+        player_indices = {}
+        for player_index, _ in pairs(game.players) do
+            player_indices[#player_indices + 1] = player_index
+        end
+    else
+        if type(player_indices) ~= "table" then
+            player_indices = { player_indices }
+        end
+    end
+
+    for _, player_index in pairs(player_indices) do
+        storage.sorted_lists[player_index] = {}
+        local sorted_materials = {}
+        local sorted_placeables = {}
+        local sorted_others = {}
+        local lists = {
+            ["item"] = prototypes.item,
+            ["fluid"] = prototypes.fluid
+        }
+        for item_type, list in pairs(lists) do
+            for item_name, _ in pairs(list) do
+                if storage.ingredient[item_name] then
+                    sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type}
+                end
+                if utils.is_removable(item_name) then
+                    sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type}
+                end
+                if not utils.is_removable(item_name) and not storage.ingredient[item_name] then
+                    sorted_others[#sorted_others + 1] = {name = item_name, type = item_type}
+                end
+            end
+        end
+        table.sort(sorted_materials, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        table.sort(sorted_placeables, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        table.sort(sorted_others, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        storage.sorted_lists[player_index] = {
+            materials = sorted_materials,
+            placeables = sorted_placeables,
+            others = sorted_others
+        }
+    end
 end
 
 -- This mainly exists to obtain precious items_to_place_this data 

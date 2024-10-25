@@ -4,7 +4,6 @@ local utils = {}
 
 
 
----comment
 ---@param t1 table
 ---@param t2 table
 ---@return table
@@ -15,7 +14,7 @@ function utils.merge_tables(t1, t2)
     return t1
 end
 
----Somehow the version from above worked fine in 1.1 but stopped working in 2.0. Curious.
+
 ---@param t1 table
 ---@param t2 table
 ---@return table
@@ -26,12 +25,32 @@ function utils.merge_tables_no_index(t1, t2)
     return t1
 end
 
-function utils.get_quality_names()
+
+
+function utils.get_qualities()
     local quality_names = {}
-    for quality_name, _ in pairs(prototypes.quality) do
-        quality_names[#quality_names + 1] = quality_name
+    for quality_name, quality_data in pairs(prototypes.quality) do
+        if quality_name ~= "quality-unknown" then
+            quality_names[#quality_names + 1] = {
+                name = quality_name,
+                localised_name = quality_data.localised_name,
+                icon = "[quality="..quality_name.."] "
+            }
+        end
     end
     return quality_names
+end
+
+---comment
+---@return table <uint, string>
+function utils.get_surfaces()
+    local surfaces = {}
+    for name, surface in pairs(game.surfaces) do
+        if not surface.platform then
+            surfaces[surface.index] = name
+        end
+    end
+    return surfaces
 end
 
 
@@ -57,6 +76,19 @@ function utils.is_module(item_name)
     return storage.modules[item_name]
 end
 
+---You can only remove buildings, modules, fuel, ammo and tools from the storage into your inventory.
+---@param item_name any
+---@return boolean
+function utils.is_removable(item_name)
+    if storage.removable[item_name] ~= nil then return storage.removable[item_name] end
+    local item_prototype = prototypes.item[item_name]
+    if item_prototype and (utils.is_module(item_name) or utils.is_placeable(item_name) or item_prototype.fuel_category or item_prototype.type == "ammo" or item_prototype.type == "tool") then
+        storage.removable[item_name] = true
+    else
+        storage.removable[item_name] = false
+    end
+    return storage.removable[item_name]
+end
 
 
 

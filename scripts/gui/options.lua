@@ -29,7 +29,7 @@ function build_options_gui(player)
 
     -- General section 
     local general_section_title = general_flow.add{type = "label", caption = {"qf-options.pref-title"}}
-    general_section_title.style.font = "default-small-bold"
+    general_section_title.style.font = "default-bold"
 
     local calc_option_flow = general_flow.add{type = "flow", direction = "horizontal"}
     calc_option_flow.add{type = "label", caption = {"qf-options.pref-calculate-craftable-numbers"}, tooltip = {"qf-options.pref-calculate-craftable-numbers-tooltip"}}
@@ -56,7 +56,7 @@ function build_options_gui(player)
 
     -- Debug section
     local debug_section_title = general_flow.add{type = "label", caption = {"qf-options.debug-title"}}
-    debug_section_title.style.font = "default-small-bold"
+    debug_section_title.style.font = "default-bold"
     general_flow.add{type = "label", caption = {"qf-options.debug-caption"}, tooltip = {"qf-options.debug-caption-tooltip"}}.style.single_line = false
 
     general_flow.add{type = "button", name = "process_recipes_button", caption = {"qf-options.debug-reprocess-recipes"}, tooltip = {"qf-options.debug-reprocess-recipes-tooltip"}}
@@ -68,7 +68,7 @@ function build_options_gui(player)
 
     -- Duplicate section
     local duplicate_flow_title = duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling"}}
-    duplicate_flow_title.style.font = "default-small-bold"
+    duplicate_flow_title.style.font = "default-bold"
     duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling-caption"}}.style.single_line = false
     duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling-caption-green"}, tooltip = {"qf-options.duplicates-handling-caption-green-tooltip"}}
     duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling-caption-red"}, tooltip = {"qf-options.duplicates-handling-caption-red-tooltip"}}

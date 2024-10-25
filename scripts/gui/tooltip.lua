@@ -49,7 +49,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         style = "inside_deep_frame"}
     recipe_frame.style.padding = 12
     local main_ingredient_label = recipe_frame.add{type = "label", caption = {"qf-inventory.ingredinets"}}
-    main_ingredient_label.style.font = "default-small-bold"
+    main_ingredient_label.style.font = "default-bold"
 
     QF_GUI.tooltip_frame = {}
     QF_GUI.tooltip_frame.ing_label_width = 145
@@ -63,18 +63,22 @@ function build_main_tooltip(player, item_name, recipe_name)
         column_count = 1
     end
 
+    local surface_index = player.surface.index
+    local quality = storage.player_gui[player.index].quality.name
+
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
     for _, ingredient in pairs(ingredients) do
-        local icon = "["..ingredient.type.."="..ingredient.name.."] "
-        local localised_name
-        if ingredient.type == "item" then
-            localised_name = prototypes.item[ingredient.name].localised_name
-        else
-            localised_name = prototypes.fluid[ingredient.name].localised_name
+
+        local actual_quality = quality
+        if ingredient.type == "fluid" then
+            actual_quality = QS_DEFAULT_QUALITY
         end
+        local icon = "["..ingredient.type.."="..ingredient.name..",quality="..actual_quality.."] "
+        local localised_name = prototypes[ingredient.type][ingredient.name].localised_name
+
         local required = ingredient.amount
-        local available = storage.fabricator_inventory[ingredient.type][ingredient.name] or 0
+        local available = storage.fabricator_inventory[surface_index][ingredient.type][ingredient.name][actual_quality] or 0
         local ingredient_caption = {"", icon, localised_name}
         local font_color = {1.0, 1.0, 1.0}
         if available / required < 10 then
@@ -111,7 +115,7 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     for _, product in pairs(products) do
         local product_label_flow = product_flow.add{type = "flow", direction = "horizontal"}
-        local icon = "["..product.type.."="..product.name.."] "
+        local icon = "["..product.type.."="..product.name..",quality="..quality.."] "
         local localised_name = prototypes.item[product.name].localised_name
         local product_caption = {"", icon, localised_name}
         local amount = product.amount

@@ -13,6 +13,7 @@ local flib_dictionary = require("__flib__.dictionary")
 ---@alias ItemName string
 ---@alias ItemCount uint
 ---@alias SurfaceIndex uint
+---@alias SurfaceName string
 ---@alias QualityName string
 
 ---@class QSUnpackedRecipeData
@@ -42,6 +43,8 @@ function on_init()
     ---@type table <ItemName, boolean>
     storage.modules = {}
     ---@type table <ItemName, boolean>
+    storage.removable = {}
+    ---@type table <ItemName, boolean>
     storage.ingredient = {}
     ---@type table <ItemName, { ["count"]: uint; ["recipes"]: table <RecipeName, boolean> }>
     storage.ingredient_filter = {}
@@ -50,6 +53,7 @@ function on_init()
     storage.options = {}
     storage.options.auto_recheck_item_request_proxies = false
     storage.tracked_entities = {}
+    storage.sorted_lists = {}
     storage.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
     ---@type table <string, QSPrototypeData>
     storage.prototypes_data = {}
@@ -91,15 +95,17 @@ end
 ---@param surface_index SurfaceIndex
 ---@param value? uint
 function initialize_fabricator_inventory(surface_index, value)
-    local quality_names = utils.get_quality_names()
+    local qualities = utils.get_qualities()
     for _, type in pairs({"item", "fluid"}) do
         for _, thing in pairs(prototypes[type]) do
-            for _, quality in pairs(quality_names) do
+            for _, quality in pairs(qualities) do
+                -- this line makes hesoyam not working, the horror!
+                if value then value = math.random(1, 100000000) end
                 local qs_item = qs_utils.to_qs_item({
                     name = thing.name,
                     type = type,
                     count = value,
-                    quality = quality,
+                    quality = quality.name,
                     surface_index = surface_index
                 })
                 qs_utils.storage_item_check(qs_item)
@@ -135,7 +141,6 @@ function on_pre_mined(event)
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
                 if utils.is_placeable(item_name) then
-                    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
                     instant_defabrication(entity, player_index)
                 end
             end
@@ -187,12 +192,17 @@ function on_player_created(event)
         selected_tab_index = 1,
         tooltip_workaround = 0,
         show_storage = false,
+        quality = {
+            index = 1,
+            name = "normal"
+        },
         fabricator_gui_position = nil,
         options = {
             calculate_numbers = true,
             mark_red = true,
             sort_ingredients = 1
-        }
+        },
+        gui = {}
     }
 end
 

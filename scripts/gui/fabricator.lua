@@ -1,3 +1,5 @@
+local utils = require("scripts/utils")
+
 ---comment
 ---@param player LuaPlayer
 function build_main_gui(player)
@@ -30,16 +32,13 @@ function build_main_gui(player)
         name = "storage_flow",
         direction = "vertical"
     }
-    storage_flow.style.size = {width = QF_GUI.storage_frame.width, height = QF_GUI.storage_frame.height}
+    storage_flow.style.height = QF_GUI.storage_frame.height
+    storage_flow.style.minimal_width = QF_GUI.storage_frame.width
 
     -- Titlebar
     build_titlebar(player, recipe_flow)
 
     -- Recipe GUI
-    sort_tab_lists()
-    if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
-        get_craft_data(player)
-    end
     get_filtered_data(player, "")
 
     build_main_recipe_gui(player, recipe_flow)
@@ -65,10 +64,18 @@ function build_titlebar(player, titlebar_flow_parent)
         name = "titlebar_flow",
         direction = "horizontal"
     }
+    local surface = player.surface
+    local surface_localised_name
+    if surface.platform then
+        surface_localised_name = {"surface-name.space-platform"}
+    else
+        surface_localised_name = surface.localised_name or surface.planet.prototype.localised_name
+    end
+    
     titlebar_flow.style.height = QF_GUI.titlebar.height
     titlebar_flow.add{
         type = "label",
-        caption = {"qf-inventory.recipe-frame-title"},
+        caption = {"", {"qf-inventory.recipe-frame-title"}, ": ", surface_localised_name},
         style = "frame_title"
     }
     local draggable_space = titlebar_flow.add{
@@ -80,6 +87,24 @@ function build_titlebar(player, titlebar_flow_parent)
     draggable_space.style.height = QF_GUI.dragspace.height
     titlebar_flow.drag_target = player.gui.screen.qf_fabricator_frame
 
+
+
+    -- Quality dropdown
+    local dropdown_items = {}
+    local qualities = utils.get_qualities()
+    for i = 1, #qualities do
+        dropdown_items[i] = {"", qualities[i].icon, qualities[i].localised_name}        
+    end
+    local quality_dropdown = titlebar_flow.add{
+        type = "drop-down",
+        name = "qf_quality_selection_dropdown",
+        items = dropdown_items,
+        tooltip = {"qf-inventory.quality-dropdown-tooltip"}
+    }
+    quality_dropdown.selected_index = storage.player_gui[player.index].quality.index
+
+
+    -- Reset filter and search bar
     titlebar_flow.add{
         type = "button",
         name = "filter_reset_button",
@@ -91,6 +116,8 @@ function build_titlebar(player, titlebar_flow_parent)
         clear_and_focus_on_right_click = true
     }
     searchbar.style.width = QF_GUI.searchbar.width
+
+    -- Storage toggle
     local toggle_storage_button = titlebar_flow.add{
         type = "sprite-button",
         name = "toggle_storage_button",
@@ -102,6 +129,8 @@ function build_titlebar(player, titlebar_flow_parent)
     }
     toggle_storage_button.toggled = storage.player_gui[player.index].show_storage
     toggle_storage_button.auto_toggle = true
+
+    -- Options buttons
     titlebar_flow.add{
         type = "sprite-button",
         name = "qf_options_button",
@@ -111,6 +140,8 @@ function build_titlebar(player, titlebar_flow_parent)
         clicked_sprite = "qf-setting-icon",
         tooltip = {"qf-inventory.options-button"}
     }
+
+    -- Close button
     titlebar_flow.add{
         type = "sprite-button",
         name = "qf_close_button",
@@ -133,7 +164,7 @@ function build_main_recipe_gui(player, recipe_frame_parent)
         type = "frame",
         name = "recipe_flow",
         direction = "vertical",
-        style="inside_shallow_frame"
+        style = "inside_shallow_frame"
     }
     recipe_frame.style.size = {width = QF_GUI.recipe_frame.width, height = QF_GUI.recipe_frame.height}
 
@@ -206,7 +237,10 @@ function build_main_recipe_gui(player, recipe_frame_parent)
         error_frame.style.height = QF_GUI.recipe_frame.height
         error_frame.style.vertically_stretchable = true
         error_frame.style.horizontally_stretchable = true
-        local error_label = error_frame.add{
+        error_frame.add{type = "empty-widget"}.style.vertically_stretchable = true
+        local error_frame_flow = error_frame.add{type = "flow"}
+        error_frame_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
+        local error_label = error_frame_flow.add{
             type = "label",
             name = "error_label",
             caption = {"qf-inventory.no-recipes-found"}
@@ -215,6 +249,8 @@ function build_main_recipe_gui(player, recipe_frame_parent)
         error_label.style.vertical_align = "center"
         error_label.style.font_color = {1.0, 0.0, 0.0}
         error_label.style.font = "default-bold"
+        error_frame_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
+        error_frame.add{type = "empty-widget"}.style.vertically_stretchable = true
     end
 
 end
@@ -223,6 +259,11 @@ end
 ---@param player LuaPlayer
 ---@param recipe_frame LuaGuiElement
 function build_main_recipe_item_list_gui(player, recipe_frame)
+
+    local surface_index = player.surface.index
+    local quality_name = storage.player_gui[player.index].quality.name
+    local player_index = player.index
+    local player_inventory = player.get_inventory(defines.inventory.character_main)
 
     if recipe_frame.recipe_item_scroll_pane then recipe_frame.recipe_item_scroll_pane.destroy() end
 
@@ -258,6 +299,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     local filter = Filtered_data[player.index].content
 
     local y_index = 0
+    
     for _, subgroup in pairs(storage.item_subgroup_order[current_selection]) do
         if filter and filter[current_selection] and filter[current_selection][subgroup.name] then
             y_index = y_index + 1
@@ -274,27 +316,39 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     x_index = 1
                     y_index = y_index + 1
                 end
-                local style = "slot_button"
-                if Craft_data[player.index][item.recipe_name] == 0 then
-                    if storage.player_gui[player.index].options.mark_red then
-                        style = "flib_slot_button_red"
-                    end
-                end
+                local item_name = item.item_name
+                local recipe_name = item.recipe_name
+
+
                 local item_button = subgroup_table.add{
                     type = "sprite-button",
-                    sprite = "item/" .. item.item_name,
-                    style = style
+                    sprite = "item/" .. item_name,
+                    style = "slot_button"
                 }
                 item_button.style.padding = 0
-                if storage.player_gui[player.index].options.calculate_numbers then
-                    item_button.number = Craft_data[player.index][item.recipe_name]
+
+
+                if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
+                    if not Craft_data[player.index][surface_index] or not Craft_data[player.index][surface_index][recipe_name] or not Craft_data[player.index][surface_index][recipe_name][quality_name] then
+                        get_craft_data(player_index, player_inventory, surface_index, quality_name, recipe_name)
+                    end
+                    if Craft_data[player.index][surface_index][recipe_name][quality_name] == 0 then
+                        if storage.player_gui[player.index].options.mark_red then
+                            item_button.style = "flib_slot_button_red"
+                        end
+                    end
+                    if storage.player_gui[player.index].options.calculate_numbers then
+                        item_button.number = Craft_data[player.index][surface_index][recipe_name][quality_name]
+                    end
                 end
+
+
                 item_button.raise_hover_events = true
                 item_button.tags = {
                     button_type = "take_out_ghost",
-                    item_name = item.item_name,
+                    item_name = item_name,
                     hover_type = "recipe",
-                    recipe_name = item.recipe_name,
+                    recipe_name = recipe_name,
                     index = {x = x_index, y = y_index}
                 }
             end

@@ -8,6 +8,8 @@ function instant_fabrication(entity, player_index)
 
     local surface_index = entity.surface_index
 
+    if not storage.prototypes_data[entity.ghost_name] then return false end
+
     local qs_item = qs_utils.to_qs_item({
         name = storage.prototypes_data[entity.ghost_name].item_name,
         count = 1,
@@ -15,7 +17,7 @@ function instant_fabrication(entity, player_index)
         quality = entity.quality.name,
         surface_index = surface_index
     })
-    if not qs_item.name then game.print("instant_fabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
+    
     qs_utils.storage_item_check(qs_item)
 
     local player = game.get_player(player_index)
@@ -82,6 +84,7 @@ end
 ---@return boolean
 function revive_ghost(entity, qs_item, inventory_type, player_inventory)
     local entity_name = storage.prototypes_data[entity.ghost_name].item_name
+    local entity_quality = entity.quality.name
     local modules = entity.item_requests
     local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
@@ -90,7 +93,7 @@ function revive_ghost(entity, qs_item, inventory_type, player_inventory)
             qs_utils.remove_from_storage(qs_item)
         elseif inventory_type == "player" then
             ---@diagnostic disable-next-line: need-check-nil
-            player_inventory.remove({name = entity_name, count = 1, quality = entity.quality.name})
+            player_inventory.remove({name = entity_name, count = 1, quality = entity_quality})
         end
 
         -- If there are module requests:
@@ -281,7 +284,7 @@ function process_mining(mining_properties, player_inventory, surface_index)
                 surface_index = surface_index
             })
             if item.amount then
-                qs_item.count = item.amount_max
+                qs_item.count = item.amount
             else
                 qs_item.count = math.random(item.amount_min, item.amount_max)
             end

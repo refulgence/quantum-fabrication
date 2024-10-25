@@ -1,21 +1,62 @@
+local utils = require("scripts/utils")
+local qs_utils = require("scripts/storage_utils")
+local flib_dictionary = require("__flib__.dictionary")
 
+---@class QSPrototypeData
+---@field name string
+---@field type string
+---@field localised_name LocalisedString
+---@field localised_description LocalisedString
+---@field item_name string
+
+---@alias RecipeName string
+---@alias ItemName string
+---@alias ItemCount uint
+---@alias SurfaceIndex uint
+---@alias SurfaceName string
+---@alias QualityName string
+
+---@class QSUnpackedRecipeData
+---@field ingredients table
+---@field products table
+---@field localised_name LocalisedString
+---@field localised_description LocalisedString
+---@field enabled boolean
+---@field name string
+---@field placeable_product string
+---@field group_name string
+---@field subgroup_name string
+---@field order string
+---@field priority_style string
 
 
 function on_init()
     flib_dictionary.on_init()
     build_dictionaries()
-    storage.fabricator_inventory = {item = {}, fluid = {}}
+    ---@type table <SurfaceIndex, table <"item"|"fluid", table <ItemName, table <QualityName, ItemCount>>>>
+    storage.fabricator_inventory = {}
+    ---@type table <RecipeName, QSUnpackedRecipeData>
     storage.unpacked_recipes = {}
+    ---@type table <ItemName, boolean>
     storage.placeable = {}
     storage.recipe = {}
+    ---@type table <ItemName, boolean>
     storage.modules = {}
+    ---@type table <ItemName, boolean>
+    storage.removable = {}
+    ---@type table <ItemName, boolean>
     storage.ingredient = {}
+    ---@type table <ItemName, { ["count"]: uint; ["recipes"]: table <RecipeName, boolean> }>
     storage.ingredient_filter = {}
     storage.player_gui = {}
+    ---@type table <string, boolean>
     storage.options = {}
     storage.options.auto_recheck_item_request_proxies = false
     storage.tracked_entities = {}
+    storage.sorted_lists = {}
     storage.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
+    ---@type table <string, QSPrototypeData>
+    storage.prototypes_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
 end
@@ -29,6 +70,52 @@ end
 function on_mod_settings_changed()
 end
 
+---Check every existing surface (except space platforms) and initialize fabricator inventories for all items and qualities. Doesn't overwrite anything
+function initialize_surfaces()
+    for _, surface in pairs(game.surfaces) do
+        if not surface.platform then
+            initialize_fabricator_inventory(surface.index)
+        end
+    end
+end
+
+function on_surface_created(event)
+    local surface = game.surfaces[event.surface_index]
+    if not surface.platform then
+        initialize_fabricator_inventory(event.surface_index)
+    end
+end
+
+
+function on_surface_deleted(event)
+    storage.fabricator_inventory[event.surface_index] = nil
+end
+
+---comment
+---@param surface_index SurfaceIndex
+---@param value? uint
+function initialize_fabricator_inventory(surface_index, value)
+    local qualities = utils.get_qualities()
+    for _, type in pairs({"item", "fluid"}) do
+        for _, thing in pairs(prototypes[type]) do
+            for _, quality in pairs(qualities) do
+                -- this line makes hesoyam not working, the horror!
+                if value then value = math.random(1, 100000000) end
+                local qs_item = qs_utils.to_qs_item({
+                    name = thing.name,
+                    type = type,
+                    count = value,
+                    quality = quality.name,
+                    surface_index = surface_index
+                })
+                qs_utils.storage_item_check(qs_item)
+                if value then
+                    qs_utils.add_to_storage(qs_item)
+                end
+            end
+        end
+    end
+end
 
 function on_created_player(event)
     if event.entity and event.entity.valid then
@@ -53,8 +140,7 @@ function on_pre_mined(event)
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
-                if is_placeable(item_name) then
-                    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
+                if utils.is_placeable(item_name) then
                     instant_defabrication(entity, player_index)
                 end
             end
@@ -71,8 +157,7 @@ function on_deconstructed(event)
                 instant_deforestation(entity, player_index)
             elseif storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
-                if is_placeable(item_name) then
-                    if not storage.fabricator_inventory.item[item_name] then storage.fabricator_inventory.item[item_name] = 0 end
+                if utils.is_placeable(item_name) then
                     create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
                 end
             end
@@ -91,8 +176,11 @@ function on_upgrade(event)
     local entity = event.entity
     local target = event.target
     local player_index = event.player_index
+    local quality = event.quality
     if entity and entity.valid and player_index then
-        if not instant_upgrade(entity, target, player_index) then create_tracked_request({entity = entity, player_index = player_index, upgrade_target = target, request_type = "upgrades"}) end
+        if not instant_upgrade(entity, target, quality, player_index) then
+            create_tracked_request({entity = entity, player_index = player_index, upgrade_target = target, quality = quality, request_type = "upgrades"})
+        end
     end
 end
 
@@ -104,12 +192,17 @@ function on_player_created(event)
         selected_tab_index = 1,
         tooltip_workaround = 0,
         show_storage = false,
+        quality = {
+            index = 1,
+            name = "normal"
+        },
         fabricator_gui_position = nil,
         options = {
             calculate_numbers = true,
             mark_red = true,
             sort_ingredients = 1
-        }
+        },
+        gui = {}
     }
 end
 
@@ -127,6 +220,13 @@ function sort_ingredients(player_index, sort_type)
     end
 end
 
+function on_player_joined_game(event)
+    flib_dictionary.on_player_joined_game(event)
+end
+  
+function on_tick(event)
+    flib_dictionary.on_tick(event)
+end
 
 function post_research_recheck()
     process_ingredient_filter()
@@ -163,23 +263,13 @@ end
 
 
 function debug_storage(amount, everything)
-    if not everything then
-        for material, _ in pairs(storage.ingredient) do
-            local type = item_type_check(material)
-            if not storage.fabricator_inventory[type][material] then storage.fabricator_inventory[type][material] = 0 end
-            add_to_storage({name = material, amount = amount, type = type}, false)
-        end
-    else
-        for _, item in pairs(prototypes.item) do
-            if not storage.fabricator_inventory["item"][item.name] then storage.fabricator_inventory["item"][item.name] = 0 end
-            add_to_storage({name = item.name, amount = amount, type = "item"}, false)
-        end
-        for _, fluid in pairs(prototypes.fluid) do
-            if not storage.fabricator_inventory["fluid"][fluid.name] then storage.fabricator_inventory["fluid"][fluid.name] = 0 end
-            add_to_storage({name = fluid.name, amount = amount, type = "fluid"}, false)
-        end
-    end
+    initialize_fabricator_inventory(1, amount)
 end
+
+
+
+
+
 
 function on_lua_shortcut(event)
     local player = game.get_player(event.player_index)
@@ -208,6 +298,10 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_c
 script.on_init(on_init)
 script.on_configuration_changed(on_config_changed)
 
+script.on_event(defines.events.on_string_translated, on_string_translated)
+script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
+script.on_event(defines.events.on_tick, on_tick)
+
 script.on_event("qf-fabricator-gui-search", on_fabricator_gui_search_event)
 script.on_event("qf-fabricator-gui-toggle", on_fabricator_gui_toggle_event)
 script.on_event(defines.events.on_lua_shortcut, on_lua_shortcut)
@@ -230,3 +324,7 @@ script.on_event(defines.events.on_player_mined_entity, on_destroyed)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_pre_mined)
 script.on_event(defines.events.on_marked_for_deconstruction, on_deconstructed)
+
+script.on_event(defines.events.on_surface_created, on_surface_created)
+script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
+ 

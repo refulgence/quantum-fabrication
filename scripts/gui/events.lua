@@ -1,4 +1,5 @@
-
+local utils = require("scripts/utils")
+local qs_utils = require("scripts/storage_utils")
 
 
 function on_gui_leave(event)
@@ -106,11 +107,15 @@ function on_gui_click(event)
         end
         table.sort(storage.product_craft_data[element_tags.item_name], function(a, b) return a.suitability > b.suitability end)
         update_duplicate_handling_buttons(element.parent, element_tags.item_name)
-    elseif element_tags.button_type == "take_out_ghost" then
-        player.clear_cursor()
-        player.cursor_ghost = element_tags.item_name
-        --Directly_chosen[element_tags.recipe_name] = element_tags.recipe_name
-        toggle_qf_gui(player)
+    elseif element_tags.button_type == "take_out_item" then
+        local qs_item = qs_utils.to_qs_item({
+            name = element_tags.item_name,
+            count = 1,
+            type = "item",
+            quality = storage.player_gui[event.player_index].quality.name,
+            surface_index = player.physical_surface_index
+        })
+        qs_utils.take_from_storage(qs_item, player)
     elseif element.name == "qf_options_button" then
         toggle_options_gui(player)
     elseif element.name == "process_recipes_button" then
@@ -204,6 +209,10 @@ function on_gui_selection_state_changed(event)
         elseif element.selected_index == 3 then
             sort_ingredients(event.player_index, "amount")
         end
+    elseif element.name == "qf_quality_selection_dropdown" then
+        storage.player_gui[event.player_index].quality.index = element.selected_index
+        storage.player_gui[event.player_index].quality.name = utils.get_qualities()[element.selected_index].name
+        build_main_recipe_item_list_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.recipe_flow)
     end
 end
 

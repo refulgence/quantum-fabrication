@@ -10,7 +10,7 @@ QF_GUI.dragspace.height = 28
 QF_GUI.searchbar = {}
 QF_GUI.searchbar.width = 150
 QF_GUI.storage_frame = {}
-QF_GUI.storage_frame.width = 580
+QF_GUI.storage_frame.width = 580 / 2
 QF_GUI.storage_frame.height = 988
 QF_GUI.recipe_frame = {}
 QF_GUI.recipe_frame.width = 840
@@ -21,9 +21,9 @@ QF_GUI.recipe_frame.item_group_table.button_height = 75
 QF_GUI.recipe_frame.item_group_table.max_number_of_columns = 8
 QF_GUI.recipe_frame.item_group_table.subgroup_table_columns = 20
 QF_GUI.main_frame = {}
-QF_GUI.main_frame.width = QF_GUI.storage_frame.width + QF_GUI.recipe_frame.width + QF_GUI.default.padding * 3
+QF_GUI.main_frame.width = (QF_GUI.storage_frame.width + QF_GUI.recipe_frame.width + QF_GUI.default.padding * 3) / 2
 QF_GUI.main_frame.height = QF_GUI.storage_frame.height + QF_GUI.default.padding * 2 + QF_GUI.titlebar.height
-QF_GUI.main_frame.min_width = QF_GUI.main_frame.width - QF_GUI.storage_frame.width - QF_GUI.default.padding
+QF_GUI.main_frame.min_width = (QF_GUI.main_frame.width - QF_GUI.storage_frame.width - QF_GUI.default.padding) / 2
 QF_GUI.main_frame.min_height = QF_GUI.main_frame.height
 QF_GUI.options_frame = {}
 QF_GUI.options_frame.width = 800
@@ -37,6 +37,9 @@ QF_GUI.tabbed_pane.name_width = 200
 QF_GUI.tabbed_pane.count_width = 100
 QF_GUI.tabbed_pane.button_width = 200
 QF_GUI.tabbed_pane.recipe_usage_width = 200
+
+--Would only be used with extra quality types. Not tested whether it would actually do anything to make the storage list look better with 10 quality types
+QS_MAX_COLUMN_COUNT = 12
 
 Update_rate = {}
 Update_rate.revivals = {rate = 11, slots = 12}
@@ -60,3 +63,5 @@ if not Actual_non_duplicates then Actual_non_duplicates = {} end
 if not Unpacking_blacklist then Unpacking_blacklist = {} end
 if not Autocraft_blacklist then Autocraft_blacklist = {} end
 if not Recipe_blacklist then Recipe_blacklist = {} end
+
+QS_DEFAULT_QUALITY = "normal"

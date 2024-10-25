@@ -1,3 +1,8 @@
+local utils = require("scripts/utils")
+local qf_utils = require("scripts/fabricator_utils")
+local qs_utils = require("scripts/storage_utils")
+local flib_dictionary = require("__flib__.dictionary")
+
 
 
 ---comment
@@ -7,8 +12,18 @@ function toggle_qf_gui(player)
     if Research_finished then post_research_recheck() Research_finished = false end
     storage.player_gui[player.index].tooltip_workaround = 0
     if main_frame == nil then
+        if not Craft_data then Craft_data = {} end
+        if not Craft_data[player.index] then Craft_data[player.index] = {} end
+        if not storage.sorted_lists[player.index] then
+            if flib_dictionary.get_all(player.index) then
+            process_sorted_lists(player.index)
+            else
+                return
+            end
+        end
         build_main_gui(player)
     else
+        Craft_data[player.index] = nil
         storage.player_gui[player.index].fabricator_gui_position = main_frame.location
         main_frame.destroy()
         if player.gui.screen.qf_fabricator_options_frame then player.gui.screen.qf_fabricator_options_frame.destroy() end
@@ -24,11 +39,9 @@ function toggle_storage_gui(player)
     if not main_frame then return end
     storage.player_gui[player.index].show_storage = not storage.player_gui[player.index].show_storage
     if storage.player_gui[player.index].show_storage then
-        --main_frame.style.size = {width = QF_GUI.main_frame.width, height = QF_GUI.main_frame.height}
         if not main_frame.main_content_flow.storage_flow.storage_flow then build_main_storage_gui(player, main_frame.main_content_flow.storage_flow) end
         main_frame.main_content_flow.storage_flow.visible = true
     else
-        --main_frame.style.size = {width = QF_GUI.main_frame.min_width, height = QF_GUI.main_frame.min_height}
         main_frame.main_content_flow.storage_flow.visible = false
     end
 end
@@ -73,56 +86,34 @@ function auto_position_tooltip(player, button_index)
 end
 
 
----comment
-function sort_tab_lists()
-    Sorted_lists = {}
-    local sorted_materials = {}
-    local sorted_placeables = {}
-    local sorted_others = {}
-    local lists = {}
-    lists["item"] = storage.fabricator_inventory["item"]
-    lists["fluid"] = storage.fabricator_inventory["fluid"]
-    for type, items_list in pairs(lists) do
-        for name, count in pairs(items_list) do
-            if count > 0 and storage.ingredient[name] then
-                sorted_materials[#sorted_materials + 1] = {name = name, count = count, type = type}
-            end
-            if count > 0 and (is_placeable(name) or is_module(name)) then
-                sorted_placeables[#sorted_placeables + 1] = {name = name, count = count, type = type}
-            end
-            if count > 0 and not is_placeable(name) and not is_module(name) and not storage.ingredient[name] then
-                sorted_others[#sorted_others + 1] = {name = name, count = count, type = type}
-            end
-        end
-    end
-    table.sort(sorted_materials, function(a, b) if a.count == b.count then return a.name < b.name end return a.count > b.count end)
-    table.sort(sorted_placeables, function(a, b) if a.count == b.count then return a.name < b.name end return a.count < b.count end)
-    table.sort(sorted_others, function(a, b) if a.count == b.count then return a.name < b.name end return a.count < b.count end)
-    Sorted_lists["Materials"] = sorted_materials
-    Sorted_lists["Placeables"] = sorted_placeables
-    Sorted_lists["Others"] = sorted_others
-end
 
 
 ---comment
----@param player LuaPlayer
-function get_craft_data(player)
-    if not Craft_data then Craft_data = {} end
-    Craft_data[player.index] = {}
-    local player_inventory = player.get_inventory(defines.inventory.character_main)
-    if not player_inventory then return end
-    for _, recipe in pairs(storage.unpacked_recipes) do
-        local in_inventory = 0
-        if item_type_check(recipe.placeable_product) == "item" then in_inventory = player_inventory.get_item_count(recipe.placeable_product) or 0 end
-        local in_storage = storage.fabricator_inventory["item"][recipe.placeable_product] or 0
-        if storage.player_gui[player.index].options.calculate_numbers then
-            Craft_data[player.index][recipe.name] = how_many_can_craft(recipe, player_inventory) + in_inventory + in_storage
+---@param player_index uint
+---@param player_inventory? LuaInventory
+---@param surface_index uint
+---@param quality_name string
+---@param recipe_name string
+function get_craft_data(player_index, player_inventory, surface_index, quality_name, recipe_name)
+    if not Craft_data[player_index][surface_index] then Craft_data[player_index][surface_index] = {} end
+    if not Craft_data[player_index][surface_index][recipe_name] then Craft_data[player_index][surface_index][recipe_name] = {} end
+
+    local recipe = storage.unpacked_recipes[recipe_name]
+    local qs_item = qs_utils.to_qs_item({
+        name = recipe.placeable_product,
+        count = 1,
+        type = "item",
+        quality = quality_name,
+        surface_index = surface_index
+    })
+    local available = qs_utils.count_in_storage(qs_item, player_inventory)
+    if storage.player_gui[player_index].options.calculate_numbers then
+        Craft_data[player_index][surface_index][recipe_name][quality_name] = qf_utils.how_many_can_craft(recipe, quality_name, surface_index, player_inventory) + available
+    else
+        if qf_utils.is_recipe_craftable(recipe, quality_name, surface_index, player_inventory) then
+            Craft_data[player_index][surface_index][recipe_name][quality_name] = 1
         else
-            if is_recipe_craftable(recipe, player_inventory) then
-                Craft_data[player.index][recipe.name] = 1
-            else
-                Craft_data[player.index][recipe.name] = 0
-            end
+            Craft_data[player_index][surface_index][recipe_name][quality_name] = 0
         end
     end
 end
@@ -132,14 +123,22 @@ end
 ---@param filter string | table if table, then we allows only recipes in that table; if stringe then we'll compare it to localised_name
 function get_filtered_data(player, filter)
     if not Filtered_data then Filtered_data = {} end
-    Filtered_data[player.index] = {content = {}, materials = {}, size = 0}
+    local player_index = player.index
+    Filtered_data[player_index] = {content = {}, materials = {}, placeables = {}, others = {}, size = 0}
     local recipes = storage.unpacked_recipes
 
     local function add_entry(recipe)
-        if not storage.player_gui[player.index].item_group_selection then storage.player_gui[player.index].item_group_selection = recipe.group_name end -- questionable?
-        if not Filtered_data[player.index].content[recipe.group_name] then Filtered_data[player.index].content[recipe.group_name] = {} Filtered_data[player.index].size = Filtered_data[player.index].size + 1 end
-        if not Filtered_data[player.index].content[recipe.group_name][recipe.subgroup_name] then Filtered_data[player.index].content[recipe.group_name][recipe.subgroup_name] = {} end
-        table.insert(Filtered_data[player.index].content[recipe.group_name][recipe.subgroup_name],{
+        if not storage.player_gui[player_index].item_group_selection then
+            storage.player_gui[player_index].item_group_selection = recipe.group_name
+        end
+        if not Filtered_data[player_index].content[recipe.group_name] then
+            Filtered_data[player_index].content[recipe.group_name] = {}
+            Filtered_data[player_index].size = Filtered_data[player_index].size + 1
+        end
+        if not Filtered_data[player_index].content[recipe.group_name][recipe.subgroup_name] then
+            Filtered_data[player_index].content[recipe.group_name][recipe.subgroup_name] = {}
+        end
+        table.insert(Filtered_data[player_index].content[recipe.group_name][recipe.subgroup_name],{
             item_name = recipe.placeable_product,
             recipe_name = recipe.name,
             order = recipe.order,
@@ -151,16 +150,18 @@ function get_filtered_data(player, filter)
     if type(filter) == "string" then
         for name, recipe in pairs(recipes) do
             if storage.unpacked_recipes[name].enabled then
-                local localised_name = get_translation(player.index, name, "recipe")
+                local localised_name = get_translation(player_index, name, "recipe")
                 if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
                     add_entry(recipe)
                 end
             end
         end
-        for _, material in pairs(Sorted_lists["Materials"]) do
-            local localised_name = get_translation(player.index, material.name, "unknown")
-            if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
-                Filtered_data[player.index].materials[material.name] = true
+        for _, tabbed_type in pairs({"materials", "placeables", "others"}) do
+            for _, thing in pairs(storage.sorted_lists[player_index][tabbed_type]) do
+                local localised_name = get_translation(player_index, thing.name, "unknown")
+                if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
+                    Filtered_data[player_index][tabbed_type][thing.name] = true
+                end
             end
         end
     else
@@ -172,7 +173,7 @@ function get_filtered_data(player, filter)
             end
         end
     end
-    for _, group in pairs(Filtered_data[player.index].content) do
+    for _, group in pairs(Filtered_data[player_index].content) do
         for _, subgroup in pairs(group) do
             table.sort(subgroup, function(a, b) if a.order == b.order then return a.recipe_name < b.recipe_name end return a.order < b.order end)
         end
@@ -191,3 +192,5 @@ function apply_gui_filter(player, filter, reset_searchbar, reset_materials)
     end
     build_main_recipe_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow)
 end
+
+

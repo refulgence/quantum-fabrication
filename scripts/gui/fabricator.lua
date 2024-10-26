@@ -1,3 +1,6 @@
+local utils = require("scripts/utils")
+local gui_utils = require("scripts/gui/gui_utils")
+
 ---comment
 ---@param player LuaPlayer
 function build_main_gui(player)
@@ -36,15 +39,11 @@ function build_main_gui(player)
     build_titlebar(player, recipe_flow)
 
     -- Recipe GUI
-    sort_tab_lists()
-    if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
-        get_craft_data(player)
-    end
-    get_filtered_data(player, "")
+    gui_utils.get_filtered_data(player, "")
 
     build_main_recipe_gui(player, recipe_flow)
 
-    if storage.player_gui[player.index].show_storage then
+    if storage.player_gui[player.index].show_storage and not player.surface.platform then
         build_main_storage_gui(player, storage_flow)
         storage_flow.visible = true
     else
@@ -65,12 +64,14 @@ function build_titlebar(player, titlebar_flow_parent)
         name = "titlebar_flow",
         direction = "horizontal"
     }
+
+    
     titlebar_flow.style.height = QF_GUI.titlebar.height
-    titlebar_flow.add{
+    local titlebar_label = titlebar_flow.add{
         type = "label",
-        caption = {"qf-inventory.recipe-frame-title"},
         style = "frame_title"
     }
+    
     local draggable_space = titlebar_flow.add{
         type = "empty-widget",
         style = "draggable_space",
@@ -98,10 +99,27 @@ function build_titlebar(player, titlebar_flow_parent)
         hovered_sprite = "qf-toggle-storage-icon",
         clicked_sprite = "qf-toggle-storage-icon",
         style = "frame_action_button",
-        tooltip = {"qf-inventory.toggle-storage-button-tooltip"},
     }
     toggle_storage_button.toggled = storage.player_gui[player.index].show_storage
     toggle_storage_button.auto_toggle = true
+
+
+    local surface = player.surface
+    local titlebar_caption
+    local toggle_storage_tooltip
+    if surface.platform then
+        titlebar_caption = {"", {"qf-inventory.recipe-frame-title-ghost"}, ": ", {"surface-name.space-platform"}}
+        toggle_storage_tooltip = {"qf-inventory.toggle-storage-button-tooltip-platform"}
+        toggle_storage_button.enabled = false
+    else
+        titlebar_caption = {"", {"qf-inventory.recipe-frame-title"}, ": ", surface.localised_name or surface.planet.prototype.localised_name}
+        toggle_storage_tooltip = {"qf-inventory.toggle-storage-button-tooltip"}
+    end
+
+    toggle_storage_button.tooltip = toggle_storage_tooltip
+    titlebar_label.caption = titlebar_caption
+
+    -- Options buttons
     titlebar_flow.add{
         type = "sprite-button",
         name = "qf_options_button",
@@ -286,8 +304,20 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     style = style
                 }
                 item_button.style.padding = 0
-                if storage.player_gui[player.index].options.calculate_numbers then
-                    item_button.number = Craft_data[player.index][item.recipe_name]
+
+
+                if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
+                    if not Craft_data[player.index][surface_index] or not Craft_data[player.index][surface_index][recipe_name] or not Craft_data[player.index][surface_index][recipe_name][quality_name] then
+                        gui_utils.get_craft_data(player_index, player_inventory, surface_index, quality_name, recipe_name)
+                    end
+                    if Craft_data[player.index][surface_index][recipe_name][quality_name] == 0 then
+                        if storage.player_gui[player.index].options.mark_red then
+                            item_button.style = "flib_slot_button_red"
+                        end
+                    end
+                    if storage.player_gui[player.index].options.calculate_numbers then
+                        item_button.number = Craft_data[player.index][surface_index][recipe_name][quality_name]
+                    end
                 end
                 item_button.raise_hover_events = true
                 item_button.tags = {

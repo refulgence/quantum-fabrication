@@ -15,7 +15,6 @@ require "scripts/events"
 require "scripts/gui/dedigitizer_reactor"
 
 require "scripts/gui/fabricator"
-require "scripts/gui/functions"
 require "scripts/gui/options"
 require "scripts/gui/storage"
 require "scripts/gui/tooltip"

@@ -1,4 +1,6 @@
-
+local utils = require("scripts/utils")
+local qs_utils = require("scripts/storage_utils")
+local gui_utils = require("scripts/gui/gui_utils")
 
 
 function on_gui_leave(event)
@@ -24,7 +26,7 @@ function on_gui_hover(event)
     if element_tags.hover_type == "recipe" then
         storage.player_gui[event.player_index].tooltip_workaround = storage.player_gui[event.player_index].tooltip_workaround + 1
         build_main_tooltip(player, element_tags.item_name, element_tags.recipe_name)
-        auto_position_tooltip(player, element_tags.index)
+        gui_utils.auto_position_tooltip(player, element_tags.index)
     end
 end
 
@@ -52,7 +54,7 @@ function on_gui_text_changed(event)
     if not player then return end
     if not event.element then return end
     if event.element.name == "searchbar" then
-        apply_gui_filter(player, event.text, false, true)
+        gui_utils.apply_gui_filter(player, event.text, false, true)
         event.element.focus()
     end
 end
@@ -95,9 +97,9 @@ function on_gui_click(event)
         element.toggled = true
         build_main_recipe_item_list_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.recipe_flow)
     elseif element_tags.button_type == "recipe_usage_search" then
-        apply_gui_filter(player, storage.ingredient_filter[element_tags.item_name].recipes, true, false)
+        gui_utils.apply_gui_filter(player, storage.ingredient_filter[element_tags.item_name].recipes, true, false)
     elseif element.name == "filter_reset_button" then
-        apply_gui_filter(player, "", true, true)
+        gui_utils.apply_gui_filter(player, "", true, true)
     elseif element_tags.button_type == "recipe_priority_selector" then
         if event.button == defines.mouse_button_type.left then
             prioritise_recipe(element_tags)

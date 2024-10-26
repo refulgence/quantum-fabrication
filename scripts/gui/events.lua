@@ -32,24 +32,6 @@ function on_gui_hover(event)
 end
 
 
-
-function on_gui_elem_changed(event)
-    local element = event.element
-    local unit_id = element.tags.unit_number
-    local player = game.get_player(event.player_index)
-    if not player then return end
-    if element.name == "choose_item_button" then
-        storage.tracked_entities["dedigitizer-reactor"][unit_id].item_filter = element.elem_value
-        update_dedigitizer_reactor_gui(player, storage.tracked_entities["dedigitizer-reactor"][unit_id].entity)
-        return
-    end
-    if element.name == "choose_fluid_button" then
-        storage.tracked_entities["dedigitizer-reactor"][unit_id].fluid_filter = element.elem_value
-        update_dedigitizer_reactor_gui(player, storage.tracked_entities["dedigitizer-reactor"][unit_id].entity)
-        return
-    end
-end
-
 function on_gui_text_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
@@ -58,14 +40,6 @@ function on_gui_text_changed(event)
         gui_utils.apply_gui_filter(player, event.text, false, true)
         event.element.focus()
     end
-end
-
-function on_gui_opened(event)
-    if event.gui_type ~= defines.gui_type.entity or not event.entity or event.entity.name ~= "dedigitizer-reactor" then return end
-    local player = game.get_player(event.player_index)
-	local entity = event.entity
-    if not player then return end
-    create_dedigitizer_reactor_gui(player, entity)
 end
 
 function on_gui_closed(event)
@@ -261,6 +235,4 @@ script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)
 script.on_event(defines.events.on_gui_click, on_gui_click)
 script.on_event(defines.events.on_gui_selected_tab_changed, on_gui_selected_tab_changed)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
-script.on_event(defines.events.on_gui_elem_changed, on_gui_elem_changed)
-script.on_event(defines.events.on_gui_opened, on_gui_opened)
 script.on_event(defines.events.on_gui_closed, on_gui_closed)

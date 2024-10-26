@@ -9,8 +9,6 @@ require "scripts/translation"
 require "scripts/gui/events"
 require "scripts/events"
 
-require "scripts/gui/dedigitizer_reactor"
-
 require "scripts/gui/fabricator"
 require "scripts/gui/options"
 require "scripts/gui/storage"

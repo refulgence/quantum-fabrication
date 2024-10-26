@@ -221,6 +221,7 @@ function tracking.add_tracked_entity(request_data)
         entity_data.fluid_filter = ""
         entity_data.item_transfer_status = "inactive"
         entity_data.fluid_transfer_status = "inactive"
+        entity_data.lag_id = 0
     end
     storage.tracked_entities[entity.name][entity.unit_number] = entity_data
 
@@ -304,65 +305,99 @@ function tracking.update_entity(entity_data, entity_id)
     -- Ok, filters are broken because they are tables now, so we need to rework it later
     if entity_data.entity.name == "dedigitizer-reactor" then
         local energy_consumption = Reactor_constants.idle_cost
-        local item_filter = entity_data.item_filter
-        local fluid_filter = entity_data.fluid_filter
-        local transfer_status
+        local energy_consumption_multiplier = 1
+        local transfer_rate_multiplier = 1
 
         if entity_data.entity.temperature > Reactor_constants.min_temperature then
-            if item_filter and item_filter ~= "" then
-                local qs_item = qs_utils.to_qs_item({
-                    name = item_filter.name,
-                    count = Reactor_constants.item_transfer_rate,
-                    type = "item",
-                    quality = item_filter.quality,
-                    surface_index = surface_index
-                })
-                transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.inventory)
-                if transfer_status.empty_storage then
-                    storage.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "empty storage"
-                    energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
+            local signals = entity_data.entity.get_signals(defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
+            if signals then
+                local item_filter
+                local fluid_filter
+                local quality_filter
+                local surface_id
+                -- iterate over signals, if set item_filter and fluid_filter to signals with highest count. fields are signal.count for count, signal.signal.name for name and signal.signal.type for type
+
+                local highest_count_item = 0
+                local highest_count_fluid = 0
+                local highest_count_quality = 0
+                for _, signal in pairs(signals) do
+                    if signal.signal.type == "item" or signal.signal.type == nil then
+                        if signal.count > highest_count_item then
+                            highest_count_item = signal.count
+                            item_filter = signal.signal.name
+                        end
+                    elseif signal.signal.type == "fluid" then
+                        if signal.count > highest_count_fluid then
+                            highest_count_fluid = signal.count
+                            fluid_filter = signal.signal.name
+                        end
+                    elseif signal.signal.type == "virtual" and signal.signal.name == "signal-S" then
+                        surface_id = signal.count
+                    elseif signal.signal.type == "quality" then
+                        if signal.count > highest_count_quality then
+                            highest_count_quality = signal.count
+                            quality_filter = signal.signal.name
+                        end
+                    end
                 end
-                if transfer_status.full_inventory and not transfer_status.empty_storage then
-                    storage.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "full inventory"
-                    energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
+
+                if not quality_filter then
+                    quality_filter = QS_DEFAULT_QUALITY
                 end
-                if not transfer_status.empty_storage and not transfer_status.full_inventory then
-                    storage.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "active"
-                    energy_consumption = energy_consumption + Reactor_constants.active_cost
+                if surface_id and surface_id ~= surface_index and storage.fabricator_inventory[surface_id] then
+                    energy_consumption_multiplier = 5
+                    transfer_rate_multiplier = 0.5
+                else
+                    surface_id = surface_index
                 end
-            else
-                storage.tracked_entities["dedigitizer-reactor"][entity_id].item_transfer_status = "inactive"
-            end
-    
-            if fluid_filter and fluid_filter ~= "" then
-                local qs_item = qs_utils.to_qs_item({
-                    name = fluid_filter.name,
-                    count = Reactor_constants.item_transfer_rate,
-                    type = "fluid",
-                    surface_index = surface_index
-                })
-                transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.container_fluid)
-                if transfer_status.empty_storage then
-                    storage.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "empty storage"
-                    energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
+                if item_filter then
+                    local qs_item = qs_utils.to_qs_item({
+                        name = item_filter,
+                        count = Reactor_constants.item_transfer_rate * transfer_rate_multiplier,
+                        type = "item",
+                        quality = quality_filter,
+                        surface_index = surface_id
+                    })
+                    transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.inventory)
+                    if transfer_status.empty_storage then
+                        energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
+                    end
+                    if transfer_status.full_inventory and not transfer_status.empty_storage then
+                        energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
+                    end
+                    if not transfer_status.empty_storage and not transfer_status.full_inventory then
+                        energy_consumption = energy_consumption + Reactor_constants.active_cost
+                    end
                 end
-                if transfer_status.full_inventory and not transfer_status.empty_storage then
-                    storage.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "full inventory"
-                    energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
+
+                if fluid_filter then
+                    local qs_item = qs_utils.to_qs_item({
+                        name = fluid_filter,
+                        count = Reactor_constants.fluid_transfer_rate * transfer_rate_multiplier,
+                        type = "fluid",
+                        surface_index = surface_id
+                    })
+                    transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.container_fluid)
+                    if transfer_status.empty_storage then
+                        energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
+                    end
+                    if transfer_status.full_inventory and not transfer_status.empty_storage then
+                        energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
+                    end
+                    if not transfer_status.empty_storage and not transfer_status.full_inventory then
+                        energy_consumption = energy_consumption + Reactor_constants.active_cost
+                    end
                 end
-                if not transfer_status.empty_storage and not transfer_status.full_inventory then
-                    storage.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "active"
-                    energy_consumption = energy_consumption + Reactor_constants.active_cost
-                end
-            else
-                storage.tracked_entities["dedigitizer-reactor"][entity_id].fluid_transfer_status = "inactive"
+
+
+
             end
         end
 
         if energy_consumption > entity_data.entity.temperature then
             entity_data.entity.temperature = 0
         else
-            entity_data.entity.temperature = entity_data.entity.temperature - energy_consumption
+            entity_data.entity.temperature = entity_data.entity.temperature - (energy_consumption * energy_consumption_multiplier)
         end
 
         return

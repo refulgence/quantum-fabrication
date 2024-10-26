@@ -331,7 +331,7 @@ script.on_nth_tick(Update_rate.destroys.rate, function(event) tracking.update_tr
 script.on_nth_tick(Update_rate.revivals.rate, function(event) tracking.update_tracked_requests(event.tick, {"revivals"}) end)
 script.on_nth_tick(Update_rate.requests.rate, function(event) tracking.update_tracked_requests(event.tick) end)
 script.on_nth_tick(Update_rate.entities.rate, function(event) tracking.update_tracked_entities(event.tick, {"digitizer-chest"}) end)
-script.on_nth_tick(Update_rate.reactors,      function(event) tracking.update_tracked_entities(event.tick, {"dedigitizer-reactor"}) end)
+script.on_nth_tick(Update_rate.reactors,      function(event) tracking.update_tracked_entities(0, {"dedigitizer-reactor"}) end)
 
 script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)
     if storage.options.auto_recheck_item_request_proxies then tracking.update_lost_module_requests(game.connected_players[1]) end

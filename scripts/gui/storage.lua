@@ -22,7 +22,7 @@ function build_main_storage_gui(player, storage_flow_parent)
     storage_titlebar.style.height = QF_GUI.titlebar.height
     storage_titlebar.add{
         type = "label",
-        caption = {"qf-inventory.storage-frame-title"},
+        caption = {"", {"qf-inventory.storage-frame-title"}, " #", player.surface.index},
         style = "frame_title"
     }
     local draggable_space = storage_titlebar.add{

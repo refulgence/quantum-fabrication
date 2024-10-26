@@ -1,6 +1,7 @@
-local qs_utils = require("scripts/storage_utils")
-local qf_utils = require("scripts/fabricator_utils")
+local qs_utils = require("scripts/qs_utils")
+local qf_utils = require("scripts/qf_utils")
 local tracking = require("scripts/tracking_utils")
+local utils = require("scripts/utils")
 
 ---comment
 ---@param entity LuaEntity Entity to fabricate
@@ -85,7 +86,7 @@ end
 function revive_ghost(entity, qs_item, inventory_type, player_inventory)
     local entity_name = storage.prototypes_data[entity.ghost_name].item_name
     local entity_quality = entity.quality.name
-    local modules = entity.item_requests
+    local item_requests = entity.item_requests
     local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
         -- Note: this won't work properly for reviving entities that require multiple items. A problem for future me to solve when the need arises
@@ -97,13 +98,14 @@ function revive_ghost(entity, qs_item, inventory_type, player_inventory)
         end
 
         -- If there are module requests:
-        if modules and modules ~= {} then
+        -- (it gets all requests, but we only care about modules, everything else is outside of the scope of the mod)
+        if item_requests and item_requests ~= {} then
             local player_index
             if player_inventory then
                 player_index = player_inventory.player_owner.index
             end
-            -- If we failed to add modules, create a tracked request to be processed later
-            if not add_modules(revived_entity, modules, player_inventory) then
+            -- it's nil if the entity doesn't have module inventory or request didn't had modules in it
+            if add_modules(revived_entity, item_requests, player_inventory) == false then
                 tracking.create_tracked_request({
                     entity = revived_entity,
                     player_index = player_index,
@@ -121,31 +123,33 @@ end
 
 ---comment
 ---@param entity LuaEntity
----@param modules table
+---@param item_requests table
 ---@param player_inventory? LuaInventory
-function add_modules(entity, modules, player_inventory)
+function add_modules(entity, item_requests, player_inventory)
     local module_inventory = entity.get_module_inventory()
     if not module_inventory then return nil end
     local satisfied = true
     local module_contents = module_inventory.get_contents()
-    for _, module in pairs(modules) do
-        local qs_item = qs_utils.to_qs_item({
-            name = module.name,
-            count = module.count,
-            quality = module.quality,
-            type = "item",
-            surface_index = entity.surface_index
-        })
-        qs_utils.storage_item_check(qs_item)
+    for _, item in pairs(item_requests) do
+        if utils.is_module(item.name) then
+            local qs_item = qs_utils.to_qs_item({
+                name = item.name,
+                count = item.count,
+                quality = item.quality,
+                type = "item",
+                surface_index = entity.surface_index
+            })
+            qs_utils.storage_item_check(qs_item)
 
-        qs_item.count = qs_item.count - (module_contents[qs_item.name] or 0)
-        -- First we try to take from the player's inventory if it's provided
-        if player_inventory then
-            process_modules(entity, qs_item, "player", player_inventory)
-            if qs_item.count == 0 then goto continue end
+            qs_item.count = qs_item.count - (module_contents[qs_item.name] or 0)
+            -- First we try to take from the player's inventory if it's provided
+            if player_inventory then
+                process_modules(entity, qs_item, "player", player_inventory)
+                if qs_item.count == 0 then goto continue end
+            end
+            process_modules(entity, qs_item, "storage")
+            if qs_item.count > 0 then satisfied = false end
         end
-        process_modules(entity, qs_item, "storage")
-        if qs_item.count > 0 then satisfied = false end
         ::continue::
     end
     return satisfied

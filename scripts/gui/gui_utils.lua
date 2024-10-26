@@ -1,6 +1,6 @@
 local utils = require("scripts/utils")
-local qf_utils = require("scripts/fabricator_utils")
-local qs_utils = require("scripts/storage_utils")
+local qf_utils = require("scripts/qf_utils")
+local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
 
 ---@class gui_utils

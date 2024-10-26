@@ -1,4 +1,4 @@
-local qs_utils = require("scripts/storage_utils")
+local qs_utils = require("scripts/qs_utils")
 local flib_table = require("__flib__.table")
 
 ---@class qf_utils

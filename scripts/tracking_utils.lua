@@ -1,5 +1,5 @@
 ---@diagnostic disable: need-check-nil
-local qs_utils = require("scripts/storage_utils")
+local qs_utils = require("scripts/qs_utils")
 
 --@diagnostic disable: need-check-nil
 ---@class tracking

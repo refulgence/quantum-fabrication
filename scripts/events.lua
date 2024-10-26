@@ -1,5 +1,5 @@
 local utils = require("scripts/utils")
-local qs_utils = require("scripts/storage_utils")
+local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
 local tracking = require("scripts/tracking_utils")
 

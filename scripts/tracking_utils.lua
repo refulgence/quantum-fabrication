@@ -246,13 +246,14 @@ end
 ---@param entity_names? table
 function tracking.update_tracked_entities(tick, entity_names)
     local smoothing = tick % Update_rate.entities.slots
-    if not entity_names then entity_names = {"dedigitizer-reactor", "digitizer-chest", "digitizer-combinator"} end
+    if not entity_names then entity_names = {"dedigitizer-reactor", "digitizer-chest"} end
     for _, entity_name in pairs(entity_names) do
         local entities = storage.tracked_entities[entity_name]
-        if not entities then return end
-        for entity_id, entity_data in pairs(entities) do
-            if entity_data.lag_id == smoothing then
-                tracking.update_entity(entity_data, entity_id)
+        if entities then
+            for entity_id, entity_data in pairs(entities) do
+                if entity_data.lag_id == smoothing then
+                    tracking.update_entity(entity_data, entity_id)
+                end
             end
         end
     end
@@ -261,8 +262,10 @@ end
 
 function tracking.update_entity(entity_data, entity_id)
     local surface_index = entity_data.surface_index
+
     if entity_data.entity.name == "digitizer-chest" then
         local inventory = entity_data.inventory
+        local limit_value = entity_data.entity.get_signal({type = "virtual", name = "signal-L"}, defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
         if inventory and not inventory.is_empty() then
             local inventory_contents = inventory.get_contents()
             for _, item in pairs(inventory_contents) do
@@ -273,11 +276,14 @@ function tracking.update_entity(entity_data, entity_id)
                     quality = item.quality,
                     surface_index = surface_index
                 })
-                qs_utils.add_to_storage(qs_item, true)
+                if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
+                    qs_utils.add_to_storage(qs_item, true)
+                    inventory.remove({name = item.name, count = item.count, quality = item.quality})
+                end
             end
-            inventory.clear()
         end
         if entity_data.container_fluid and entity_data.container_fluid.get_fluid_contents() then
+            local clear
             for name, count in pairs(entity_data.container_fluid.get_fluid_contents()) do
                 local qs_item = qs_utils.to_qs_item({
                     name = name,
@@ -285,28 +291,12 @@ function tracking.update_entity(entity_data, entity_id)
                     type = "fluid",
                     surface_index = surface_index
                 })
-                qs_utils.add_to_storage(qs_item)
-            end
-            entity_data.container_fluid.clear_fluid_inside()
-        end
-        return
-    end
-    -- Might not work at all
-    if entity_data.entity.name == "digitizer-combinator" then
-        local index = 1
-        local control_behavior = entity_data.entity.get_control_behavior()
-        control_behavior.remove_section(1)
-        local logistic_section = control_behavior.add_section("quantum_storage")
-        for _, type in pairs({"item", "fluid"}) do
-            for item_name, item_data in pairs(storage.fabricator_inventory[surface_index][type]) do
-                for quality_name, count in pairs(item_data) do
-                    if count > 0 then
-                        local signal = {value = {type = type, name = item_name, quality = quality_name}, min = count}
-                        logistic_section.set_slot(index, signal)
-                        index = index + 1
-                    end
+                if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
+                    qs_utils.add_to_storage(qs_item)
+                    clear = true
                 end
             end
+            if clear then entity_data.container_fluid.clear_fluid_inside() end
         end
         return
     end

@@ -150,7 +150,7 @@ end
 function on_created(event)
     local entity = event.entity or event.entity
     if entity and entity.valid then
-        if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then
+        if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
             tracking.create_tracked_request({request_type = "entities", entity = entity, player_index = event.player_index})
         end
     end
@@ -203,7 +203,7 @@ end
 function on_destroyed(event)
     local entity = event.entity
     if entity and entity.valid then
-        if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then
+        if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
             tracking.remove_tracked_entity(entity)
         end
     end
@@ -330,7 +330,7 @@ commands.add_command("qf_clear_storage", nil, on_console_command)
 script.on_nth_tick(Update_rate.destroys.rate, function(event) tracking.update_tracked_requests(event.tick, {"destroys"}) end)
 script.on_nth_tick(Update_rate.revivals.rate, function(event) tracking.update_tracked_requests(event.tick, {"revivals"}) end)
 script.on_nth_tick(Update_rate.requests.rate, function(event) tracking.update_tracked_requests(event.tick) end)
-script.on_nth_tick(Update_rate.entities.rate, function(event) tracking.update_tracked_entities(event.tick, {"digitizer-chest", "digitizer-combinator"}) end)
+script.on_nth_tick(Update_rate.entities.rate, function(event) tracking.update_tracked_entities(event.tick, {"digitizer-chest"}) end)
 script.on_nth_tick(Update_rate.reactors,      function(event) tracking.update_tracked_entities(event.tick, {"dedigitizer-reactor"}) end)
 
 script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)

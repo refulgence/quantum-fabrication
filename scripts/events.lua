@@ -184,7 +184,7 @@ function on_deconstructed(event)
             return
         end
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
-            if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" then
+            if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
                 instant_deforestation(entity, player_index)
             elseif storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name

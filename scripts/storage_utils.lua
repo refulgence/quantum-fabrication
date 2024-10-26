@@ -38,11 +38,11 @@ end
 
 
 ---Actually it first adds all placeables/modules/ingredients to the storage and only then adds the leftovers to the player's inventory
----@param player_inventory LuaInventory
+---@param player_inventory? LuaInventory
 ---@param qs_item QSItem
 function qs_utils.add_to_player_inventory(player_inventory, qs_item)
     qs_utils.storage_item_check(qs_item)
-    if qs_item.type == "fluid" or utils.is_placeable(qs_item.name) or storage.ingredient[qs_item.name] or utils.is_module(qs_item.name) then
+    if qs_item.type == "fluid" or utils.is_placeable(qs_item.name) or storage.ingredient[qs_item.name] or utils.is_module(qs_item.name) or not player_inventory then
         qs_utils.add_to_storage(qs_item, true)
     else
         local inserted = player_inventory.insert({name = qs_item.name, count = qs_item.amount, quality = qs_item.quality})

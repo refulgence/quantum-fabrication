@@ -113,19 +113,21 @@ function initialize_fabricator_inventory(surface_index, value)
     local qualities = utils.get_qualities()
     for _, type in pairs({"item", "fluid"}) do
         for _, thing in pairs(prototypes[type]) do
-            for _, quality in pairs(qualities) do
-                -- this line makes hesoyam not working, the horror!
-                if value then value = math.random(1, 100000000) end
-                local qs_item = qs_utils.to_qs_item({
-                    name = thing.name,
-                    type = type,
-                    count = value,
-                    quality = quality.name,
-                    surface_index = surface_index
-                })
-                qs_utils.storage_item_check(qs_item)
-                if value then
-                    qs_utils.add_to_storage(qs_item)
+            if not thing.parameter then
+                for _, quality in pairs(qualities) do
+                    -- this line makes hesoyam not working, the horror!
+                    if value then value = math.random(1, 100000000) end
+                    local qs_item = qs_utils.to_qs_item({
+                        name = thing.name,
+                        type = type,
+                        count = value,
+                        quality = quality.name,
+                        surface_index = surface_index
+                    })
+                    qs_utils.storage_item_check(qs_item)
+                    if value then
+                        qs_utils.add_to_storage(qs_item)
+                    end
                 end
             end
         end

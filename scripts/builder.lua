@@ -62,7 +62,6 @@ function instant_defabrication(entity, player_index)
     qs_utils.storage_item_check(qs_item)
 
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
-    if not player_inventory then return nil end
     qs_utils.add_to_storage(qs_item, true)
     process_inventory(entity, player_inventory, surface_index)
     return entity.destroy({raise_destroy = true})
@@ -199,7 +198,7 @@ end
 
 ---comment
 ---@param entity LuaEntity
----@param player_inventory LuaInventory
+---@param player_inventory? LuaInventory
 ---@param surface_index uint
 function process_inventory(entity, player_inventory, surface_index)
     local max_index = entity.get_max_inventory_index()

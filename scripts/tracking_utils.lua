@@ -268,7 +268,7 @@ function tracking.update_entity(entity_data, entity_id)
             for _, item in pairs(inventory_contents) do
                 local qs_item = qs_utils.to_qs_item({
                     name = item.name,
-                    count = item.name,
+                    count = item.count,
                     type = "item",
                     quality = item.quality,
                     surface_index = surface_index

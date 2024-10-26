@@ -40,15 +40,17 @@ function process_sorted_lists(player_indices)
             ["fluid"] = prototypes.fluid
         }
         for item_type, list in pairs(lists) do
-            for item_name, _ in pairs(list) do
-                if storage.ingredient[item_name] then
-                    sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type}
-                end
-                if utils.is_removable(item_name) then
-                    sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type}
-                end
-                if not utils.is_removable(item_name) and not storage.ingredient[item_name] then
-                    sorted_others[#sorted_others + 1] = {name = item_name, type = item_type}
+            for item_name, item in pairs(list) do
+                if not item.parameter then
+                    if storage.ingredient[item_name] then
+                        sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type}
+                    end
+                    if utils.is_removable(item_name) then
+                        sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type}
+                    end
+                    if not utils.is_removable(item_name) and not storage.ingredient[item_name] then
+                        sorted_others[#sorted_others + 1] = {name = item_name, type = item_type}
+                    end
                 end
             end
         end
@@ -70,7 +72,7 @@ function process_entities()
     storage.prototypes_data = {}
     local result = {}
     for _, entity in pairs(entities) do
-        if entity and entity.name and not entity.hidden and entity.items_to_place_this then
+        if entity and entity.name and entity.items_to_place_this then
             result[#result + 1] = {
                 name = entity.name,
                 type = entity.type,

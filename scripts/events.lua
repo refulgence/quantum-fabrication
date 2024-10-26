@@ -134,7 +134,8 @@ function initialize_fabricator_inventory(surface_index, value)
     end
 end
 
-function on_created_player(event)
+---Not to be confused with on_player_created; this is called when a player builds stuff
+function on_built_entity(event)
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
             tracking.create_tracked_request({
@@ -354,7 +355,7 @@ script.on_event(defines.events.on_player_created, on_player_created)
 script.on_event(defines.events.on_research_finished, on_research_changed)
 script.on_event(defines.events.on_research_reversed, on_research_changed)
 
-script.on_event(defines.events.on_built_entity, on_created_player)
+script.on_event(defines.events.on_built_entity, on_built_entity)
 script.on_event(defines.events.on_robot_built_entity, on_created)
 script.on_event(defines.events.script_raised_built, on_created)
 script.on_event(defines.events.script_raised_revive, on_created)

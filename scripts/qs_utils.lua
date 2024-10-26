@@ -45,7 +45,7 @@ function qs_utils.add_to_player_inventory(player_inventory, qs_item)
     if qs_item.type == "fluid" or utils.is_placeable(qs_item.name) or storage.ingredient[qs_item.name] or utils.is_module(qs_item.name) or not player_inventory then
         qs_utils.add_to_storage(qs_item, true)
     else
-        local inserted = player_inventory.insert({name = qs_item.name, count = qs_item.amount, quality = qs_item.quality})
+        local inserted = player_inventory.insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
         if qs_item.count - inserted > 0 then
             qs_item.count = qs_item.count - inserted
             qs_utils.add_to_storage(qs_item)

@@ -1,6 +1,7 @@
 local utils = require("scripts/utils")
 local qs_utils = require("scripts/storage_utils")
 local gui_utils = require("scripts/gui/gui_utils")
+local tracking = require("scripts/tracking_utils")
 
 
 function on_gui_leave(event)
@@ -133,7 +134,7 @@ function on_gui_click(event)
     elseif element.name == "qf_close_button" then
         toggle_qf_gui(player)
     elseif element.name == "update_module_requests_button" then
-        update_lost_module_requests(player)
+        tracking.update_lost_module_requests(player)
         game.print("Updating item request proxy tracking")
     end
 end

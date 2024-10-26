@@ -1,5 +1,6 @@
 local qs_utils = require("scripts/storage_utils")
 local qf_utils = require("scripts/fabricator_utils")
+local tracking = require("scripts/tracking_utils")
 
 ---comment
 ---@param entity LuaEntity Entity to fabricate
@@ -104,11 +105,11 @@ function revive_ghost(entity, qs_item, inventory_type, player_inventory)
             end
             -- If we failed to add modules, create a tracked request to be processed later
             if not add_modules(revived_entity, modules, player_inventory) then
-                create_tracked_request({
+                tracking.create_tracked_request({
                     entity = revived_entity,
                     player_index = player_index,
                     item_request_proxy = item_request_proxy,
-                    request_type = "modules"
+                    request_type = "item_requests"
                 })
             end
         end
@@ -330,6 +331,28 @@ function instant_upgrade(entity, target, quality, player_index)
     if upgraded_entity then
         qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory)
         qs_utils.remove_from_storage(qs_item)
+        return true
+    end
+    return false
+end
+
+---Handles removing cliffs via explosions
+---@param entity LuaEntity
+---@param player_index uint
+function instant_decliffing(entity, player_index)
+    if not entity or not entity.valid then return true end
+    local entity_prototype = entity.prototype
+    local cliff_explosive = entity_prototype.cliff_explosive_prototype
+    if not cliff_explosive then return true end
+    local qs_item = qs_utils.to_qs_item({
+        name = cliff_explosive,
+        count = 1,
+        type = "item",
+        surface_index = entity.surface_index
+    })
+    if qs_utils.check_in_storage(qs_item) then
+        qs_utils.remove_from_storage(qs_item)
+        entity.destroy({raise_destroy = true})
         return true
     end
     return false

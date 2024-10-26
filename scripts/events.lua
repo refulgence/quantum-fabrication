@@ -1,6 +1,7 @@
 local utils = require("scripts/utils")
 local qs_utils = require("scripts/storage_utils")
 local flib_dictionary = require("__flib__.dictionary")
+local tracking = require("scripts/tracking_utils")
 
 ---@class QSPrototypeData
 ---@field name string
@@ -52,9 +53,23 @@ function on_init()
     ---@type table <string, boolean>
     storage.options = {}
     storage.options.auto_recheck_item_request_proxies = false
-    storage.tracked_entities = {}
     storage.sorted_lists = {}
-    storage.tracked_requests = {construction = {}, modules = {}, upgrades = {}, revivals = {}, destroys = {}}
+    ---@type table <string, table<uint, RequestData>>
+    storage.tracked_requests = {
+        construction = {},
+        item_requests = {},
+        upgrades = {},
+        revivals = {},
+        destroys = {},
+        cliffs = {},
+        tiles = {},
+    }
+    storage.request_ids = {
+        cliffs = 0,
+        tiles = 0,
+    }
+    ---@type table <string, table<uint, EntityData>>
+    storage.tracked_entities = {}
     ---@type table <string, QSPrototypeData>
     storage.prototypes_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
@@ -120,7 +135,11 @@ end
 function on_created_player(event)
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
-            create_tracked_request({entity = event.entity, player_index = event.player_index, request_type = "revivals"})
+            tracking.create_tracked_request({
+                entity = event.entity,
+                player_index = event.player_index,
+                request_type = "revivals"
+            })
         end
         on_created(event)
     end
@@ -129,7 +148,9 @@ end
 function on_created(event)
     local entity = event.entity or event.entity
     if entity and entity.valid then
-        if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then create_tracked_entity(entity) end
+        if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then
+            tracking.create_tracked_request({request_type = "entities", entity = entity, player_index = event.player_index})
+        end
     end
 end
 
@@ -152,13 +173,25 @@ function on_deconstructed(event)
     local entity = event.entity
     local player_index = event.player_index
     if entity and entity.valid and player_index then
+        if entity.type == "cliff" then
+            tracking.create_tracked_request({
+                entity = entity,
+                player_index = player_index,
+                request_type = "cliffs"
+            })
+            return
+        end
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" then
                 instant_deforestation(entity, player_index)
             elseif storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
                 if utils.is_placeable(item_name) then
-                    create_tracked_request({entity = entity, player_index = player_index, request_type = "destroys"})
+                    tracking.create_tracked_request({
+                        entity = entity,
+                        player_index = player_index,
+                        request_type = "destroys"
+                    })
                 end
             end
         end
@@ -168,7 +201,9 @@ end
 function on_destroyed(event)
     local entity = event.entity
     if entity and entity.valid then
-        if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then remove_tracked_entity(entity) end
+        if entity.name == "digitizer-chest" or entity.name == "digitizer-combinator" or entity.name == "dedigitizer-reactor" then
+            tracking.remove_tracked_entity(entity)
+        end
     end
 end
 
@@ -179,7 +214,13 @@ function on_upgrade(event)
     local quality = event.quality
     if entity and entity.valid and player_index then
         if not instant_upgrade(entity, target, quality, player_index) then
-            create_tracked_request({entity = entity, player_index = player_index, upgrade_target = target, quality = quality, request_type = "upgrades"})
+            tracking.create_tracked_request({
+                entity = entity,
+                player_index = player_index,
+                upgrade_target = target,
+                quality = quality,
+                request_type = "upgrades"
+            })
         end
     end
 end
@@ -256,7 +297,7 @@ function on_console_command(command)
         storage.fabricator_inventory = {item = {}, fluid = {}}
         game.print("CHEAT(?): Fabricator inventory cleared")
     elseif name == "qf_update_module_requests" then
-        update_lost_module_requests(game.players[player_index])
+        tracking.update_lost_module_requests(game.players[player_index])
         game.print("Updating item request proxy tracking")
     end
 end
@@ -284,14 +325,14 @@ commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
 
-script.on_nth_tick(Update_rate.destroys.rate, update_tracked_destroys)
-script.on_nth_tick(Update_rate.revivals.rate, update_tracked_revivals)
-script.on_nth_tick(Update_rate.entities.rate, update_tracked_entities)
-script.on_nth_tick(Update_rate.requests.rate, update_tracked_requests)
-script.on_nth_tick(Update_rate.reactors, update_tracked_dedigitizer_reactors)
+script.on_nth_tick(Update_rate.destroys.rate, function(event) tracking.update_tracked_requests(event.tick, {"destroys"}) end)
+script.on_nth_tick(Update_rate.revivals.rate, function(event) tracking.update_tracked_requests(event.tick, {"revivals"}) end)
+script.on_nth_tick(Update_rate.requests.rate, function(event) tracking.update_tracked_requests(event.tick) end)
+script.on_nth_tick(Update_rate.entities.rate, function(event) tracking.update_tracked_entities(event.tick, {"digitizer-chest", "digitizer-combinator"}) end)
+script.on_nth_tick(Update_rate.reactors,      function(event) tracking.update_tracked_entities(event.tick, {"dedigitizer-reactor"}) end)
 
 script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)
-    if storage.options.auto_recheck_item_request_proxies then update_lost_module_requests(game.connected_players[1]) end
+    if storage.options.auto_recheck_item_request_proxies then tracking.update_lost_module_requests(game.connected_players[1]) end
 end)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_changed)

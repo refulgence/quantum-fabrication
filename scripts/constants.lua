@@ -42,8 +42,8 @@ QF_GUI.tabbed_pane.recipe_usage_width = 200
 QS_MAX_COLUMN_COUNT = 12
 
 Update_rate = {}
-Update_rate.revivals = {rate = 11, slots = 12}
-Update_rate.destroys = {rate = 8, slots = 5}
+Update_rate.revivals = {rate = 5, slots = 12}
+Update_rate.destroys = {rate = 3, slots = 5}
 Update_rate.entities = {rate = 67, slots = 6}
 Update_rate.requests = {rate = 87, slots = 4}
 Update_rate.reactors = 60

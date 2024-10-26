@@ -1,4 +1,4 @@
-flib_dictionary = require("__flib__.dictionary")
+local flib_dictionary = require("__flib__.dictionary")
 
 ---comment
 ---@param player_index int
@@ -27,10 +27,6 @@ function on_string_translated(event)
 end
 
 
-
-
-
-
 function build_dictionaries()
   for type, prototypes in pairs({
     fluid = prototypes.fluid,
@@ -44,14 +40,8 @@ function build_dictionaries()
   end
 end
 
-function on_player_joined_game(event)
-    flib_dictionary.on_player_joined_game(event)
+function on_player_dictionaries_ready(event)
+  process_sorted_lists(event.player_index)
 end
 
-function on_tick(event)
-    flib_dictionary.on_tick(event)
-end
-
-script.on_event(defines.events.on_string_translated, on_string_translated)
-script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
-script.on_event(defines.events.on_tick, on_tick)
+script.on_event(flib_dictionary.on_player_dictionaries_ready, on_player_dictionaries_ready)

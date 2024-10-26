@@ -1,9 +1,10 @@
+local utils = require("scripts/utils")
+
 --- These functions are only done on init and when configuration changes
 function process_data()
-    Directly_chosen = {}
+    initialize_surfaces()
     reprocess_recipes()
     process_item_group_order()
-    --testing_cheat()
 end
 
 function reprocess_recipes()
@@ -12,6 +13,54 @@ function reprocess_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
+end
+
+---Creates sorted lists to be used later in storage gui
+---@param player_indices? table|uint
+function process_sorted_lists(player_indices)
+    if not storage.sorted_lists then storage.sorted_lists = {} end
+    if not player_indices then
+        player_indices = {}
+        for player_index, _ in pairs(game.players) do
+            player_indices[#player_indices + 1] = player_index
+        end
+    else
+        if type(player_indices) ~= "table" then
+            player_indices = { player_indices }
+        end
+    end
+
+    for _, player_index in pairs(player_indices) do
+        storage.sorted_lists[player_index] = {}
+        local sorted_materials = {}
+        local sorted_placeables = {}
+        local sorted_others = {}
+        local lists = {
+            ["item"] = prototypes.item,
+            ["fluid"] = prototypes.fluid
+        }
+        for item_type, list in pairs(lists) do
+            for item_name, _ in pairs(list) do
+                if storage.ingredient[item_name] then
+                    sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type}
+                end
+                if utils.is_removable(item_name) then
+                    sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type}
+                end
+                if not utils.is_removable(item_name) and not storage.ingredient[item_name] then
+                    sorted_others[#sorted_others + 1] = {name = item_name, type = item_type}
+                end
+            end
+        end
+        table.sort(sorted_materials, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        table.sort(sorted_placeables, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        table.sort(sorted_others, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        storage.sorted_lists[player_index] = {
+            materials = sorted_materials,
+            placeables = sorted_placeables,
+            others = sorted_others
+        }
+    end
 end
 
 -- This mainly exists to obtain precious items_to_place_this data 
@@ -91,7 +140,7 @@ function process_recipes()
         if not recipe.hidden and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
-                if is_placeable(product.name) then
+                if utils.is_placeable(product.name) then
                     -- Skip if this product/recipe pair is blacklisted
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst
@@ -181,7 +230,7 @@ function calculate_default_priority()
                 min_products = recipe_name
             end
             for _, product_2 in pairs(recipe.products) do
-                if is_placeable(product_2.name) then
+                if utils.is_placeable(product_2.name) then
                     if not product_min or product_2.amount < product_min then
                         product_min = product_2.amount
                         product_min_s = recipe_name
@@ -213,8 +262,6 @@ end
 
 -- Which recipe to use for unpacking?
 function get_unpacking_recipe(product)
-    local data = "Getting unpacking recipe for " .. product .."\n"
-    helpers.write_file("Log.txt", data, true)
     for _, recipe in pairs(storage.product_craft_data[product]) do
         if game.forces["player"].recipes[recipe.recipe_name].enabled then
             data = "Found a recipe, it's " .. recipe.recipe_name .."\n"
@@ -222,10 +269,9 @@ function get_unpacking_recipe(product)
             return storage.preprocessed_recipes[recipe.recipe_name]
         end
     end
-    data = "No recipes found, returning smth default.\n"
-    helpers.write_file("Log.txt", data, true)
     return storage.preprocessed_recipes[storage.product_craft_data[product][1].recipe_name]
 end
+
 
 
 ---@param recipe table
@@ -235,25 +281,17 @@ function unpack_recipe(recipe)
     if storage.unpacked_recipes[recipe.name] then return storage.unpacked_recipes[recipe.name] end
     local new_ingredients = {}
 
-    local data = "\n\nProcessing unpacking for recipe " .. recipe.name .."\n"
-    helpers.write_file("Log.txt", data, true)
 
     for _, ingredient in pairs(recipe.ingredients) do
-        if is_placeable(ingredient.name) then
-            data = "- ingredient " .. ingredient.name .. " is placeable, proceeding to recursive unpacking.\n"
-            helpers.write_file("Log.txt", data, true)
-            new_ingredients = merge_tables_no_index(new_ingredients, unpack_recipe(get_unpacking_recipe(ingredient.name)).ingredients)
+        if utils.is_placeable(ingredient.name) then
+            new_ingredients = utils.merge_tables_no_index(new_ingredients, unpack_recipe(get_unpacking_recipe(ingredient.name)).ingredients)
         else
             table.insert(new_ingredients, ingredient)
-            data = "- ingredient " .. ingredient.name .. " is not placeable, adding it to the list.\n"
-            helpers.write_file("Log.txt", data, true)
         end
     end
     storage.unpacked_recipes[recipe.name] = recipe
 
-    data = "Processing recipe " .. recipe.name .. " with " .. #recipe.ingredients .. " ingredients.\n"
-    helpers.write_file("Log.txt", data, true)
-
+    
     storage.unpacked_recipes[recipe.name].ingredients = deduplicate_ingredients(new_ingredients)
     table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
     return storage.unpacked_recipes[recipe.name]
@@ -266,32 +304,19 @@ function deduplicate_ingredients(ingredients)
     local result2 = {}
     local seen = {}
 
-    local data
-
     for _, ingredient in pairs(ingredients) do
         if not seen[ingredient.name] then
             table.insert(result, ingredient)
             seen[ingredient.name] = ingredient.amount
-            data = "Ingredient " .. ingredient.name .. " is not seen yet, current amount is " .. ingredient.amount .."\n"
         else
             seen[ingredient.name] = seen[ingredient.name] + ingredient.amount
-            data = "Ingredient " .. ingredient.name .. " is seen, current amount is " .. ingredient.amount .."\n"
         end
-        
-        helpers.write_file("Log.txt", data, true)
     end
-
-    data = "Finished 1st stage of processing.\n"
-    helpers.write_file("Log.txt", data, true)
 
     for _, ingredient in pairs(result) do
         if not storage.ingredient[ingredient.name] then storage.ingredient[ingredient.name] = true end
         local ingredient_table = {type = ingredient.type, name = ingredient.name, amount = seen[ingredient.name]}
         table.insert(result2, ingredient_table)
-
-        data = "Processing ingredient " .. ingredient.name .. " with amount " .. seen[ingredient.name] .. "\n"
-        helpers.write_file("Log.txt", data, true)
-
     end
     return result2
 end

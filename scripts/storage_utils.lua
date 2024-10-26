@@ -24,7 +24,7 @@ function qs_utils.add_to_storage(qs_item, try_defabricate, count_override)
     if not qs_item then return end
     qs_utils.storage_item_check(qs_item)
     storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + (count_override or (qs_item.count or qs_item.amount))
-    if try_defabricate then decraft(qs_item) end
+    if try_defabricate and settings.global["qf-allow-decrafting"].value then decraft(qs_item) end
 end
 
 

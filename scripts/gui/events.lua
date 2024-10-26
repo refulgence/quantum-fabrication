@@ -117,6 +117,10 @@ function on_gui_click(event)
             surface_index = player.physical_surface_index
         })
         qs_utils.take_from_storage(qs_item, player)
+    elseif element_tags.button_type == "take_out_ghost" then
+        player.clear_cursor()
+        player.cursor_ghost = element_tags.item_name
+        toggle_qf_gui(player)
     elseif element.name == "qf_options_button" then
         toggle_options_gui(player)
     elseif element.name == "process_recipes_button" then

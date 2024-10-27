@@ -8,7 +8,7 @@ local tracking = {}
 
 ---@class RequestData
 ---@field entity? LuaEntity
----@field player_index uint
+---@field player_index? uint
 ---@field request_type "entities"|"revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"
 ---@field target? LuaEntityPrototype
 ---@field quality? string
@@ -102,27 +102,23 @@ function tracking.on_tick_update_requests()
     end)
 end
 
-function tracking.on_tick_update_revival(request_data)
-    local entity = request_data.entity
-    if not entity.valid then return nil, true end
-    local player_index = request_data.player_index
 
-    if not instant_fabrication(entity, player_index) then
+function tracking.on_tick_update_revival(entity)
+    if not entity.valid then return nil, true end
+
+    if not instant_fabrication(entity) then
         tracking.create_tracked_request({
             entity = entity,
-            player_index = player_index,
             request_type = "construction"
         })
     end
     return nil, true
 end
 
-function tracking.on_tick_update_destroy(request_data)
-    local entity = request_data.entity
+function tracking.on_tick_update_destroy(entity)
     if not entity.valid then return nil, true end
-    local player_index = request_data.player_index
 
-    if instant_defabrication(entity, player_index) then
+    if instant_defabrication(entity) then
         return nil, true
     end
     return nil, false
@@ -159,7 +155,7 @@ function tracking.update_request(request_data, request_type, request_id)
             tracking.remove_tracked_request(request_type, request_id)
         end
     elseif request_type == "cliffs" then
-        if instant_decliffing(entity, player_index) then
+        if instant_decliffing(entity) then
             tracking.remove_tracked_request(request_type, request_id)
         end
     elseif request_type == "item_requests" then
@@ -173,7 +169,10 @@ function tracking.update_request(request_data, request_type, request_id)
             request_data.item_request_proxy.destroy()
             return
         end
-        local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
+        local player_inventory
+        if player_index then
+            player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+        end
         if add_modules(entity, modules, player_inventory) then
             tracking.remove_tracked_request(request_type, request_id)
             request_data.item_request_proxy.destroy()

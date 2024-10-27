@@ -68,6 +68,8 @@ function on_init()
     }
     storage.countdowns = {
         tile_creation = nil,
+        revivals = nil,
+        destroys = nil,
     }
     storage.request_ids = {
         cliffs = 0,
@@ -148,13 +150,9 @@ end
 function on_built_entity(event)
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
-            tracking.create_tracked_request({
-                entity = event.entity,
-                player_index = event.player_index,
-                request_type = "revivals"
-            })
+            storage.countdowns.revivals = 2
         elseif event.entity.type == "tile-ghost" then
-            storage.countdowns.tile_creation = 2
+            storage.countdowns.tile_creation = 20
             goto continue
         end
         on_created(event)
@@ -202,11 +200,7 @@ function on_deconstructed(event)
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
                 if utils.is_placeable(item_name) then
-                    tracking.create_tracked_request({
-                        entity = entity,
-                        player_index = player_index,
-                        request_type = "destroys"
-                    })
+                    storage.countdowns.destroys = 2
                 end
             elseif entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
                 instant_deforestation(entity, player_index)
@@ -315,7 +309,7 @@ function on_console_command(command)
         storage.fabricator_inventory = {item = {}, fluid = {}}
         game.print("CHEAT(?): Fabricator inventory cleared")
     elseif name == "qf_update_module_requests" then
-        tracking.update_lost_module_requests(game.players[player_index])
+        tracking.update_lost_module_requests(game.get_player(player_index))
         game.print("Updating item request proxy tracking")
     end
 end
@@ -344,7 +338,7 @@ commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
 
 
-script.on_nth_tick(112, function(event)
+script.on_nth_tick(11, function(event)
     for type, countdown in pairs(storage.countdowns) do
         if countdown then
             storage.countdowns[type] = storage.countdowns[type] - 1
@@ -352,6 +346,10 @@ script.on_nth_tick(112, function(event)
                 storage.countdowns[type] = nil
                 if type == "tile_creation" then
                     instant_tileation()
+                elseif type == "revivals" then
+                    instant_revivals()
+                elseif type == "destroys" then
+                    instant_destroys()
                 end
             end
         end

@@ -2,10 +2,11 @@ local qs_utils = require("scripts/qs_utils")
 local qf_utils = require("scripts/qf_utils")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
+local flib_table = require("__flib__.table")
 
 ---comment
 ---@param entity LuaEntity Entity to fabricate
----@param player_index int
+---@param player_index? int
 function instant_fabrication(entity, player_index)
 
     local surface_index = entity.surface_index
@@ -20,12 +21,15 @@ function instant_fabrication(entity, player_index)
         surface_index = surface_index
     }
 
-    local player = game.get_player(player_index)
+    local player
     local player_surface_index
     local player_inventory
-    if player then
-        player_surface_index = player.surface_index
-        player_inventory = player.get_inventory(defines.inventory.character_main)
+    if player_index then
+        player = game.get_player(player_index)
+        if player then
+            player_surface_index = player.surface_index
+            player_inventory = player.get_inventory(defines.inventory.character_main)
+        end
     end
 
     -- Check if requested item is available
@@ -45,7 +49,7 @@ end
 
 
 ---@param entity LuaEntity
----@param player_index int id of a player who placed the order
+---@param player_index? int id of a player who placed the order
 function instant_defabrication(entity, player_index)
 
     local surface_index = entity.surface_index
@@ -59,7 +63,10 @@ function instant_defabrication(entity, player_index)
     }
     if not qs_item.name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
 
-    local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
+    local player_inventory
+    if player_index then
+        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+    end
     qs_utils.add_to_storage(qs_item, true)
     process_inventory(entity, player_inventory, surface_index)
     return entity.destroy({raise_destroy = true})
@@ -105,10 +112,28 @@ function instant_tileation()
         end
     end
     if schedule_retileation then
-        storage.countdowns.tile_creation = 50
+        storage.countdowns.tile_creation = 500
     end
 end
 
+
+function instant_revivals()
+    local result = {}
+    for _, surface in pairs(game.surfaces) do
+        local ghosts = surface.find_entities_filtered({name = "entity-ghost"})
+        result = flib_table.array_merge({result, ghosts})
+    end
+    storage.tracked_requests.revivals = result
+end
+
+function instant_destroys()
+    local result = {}
+    for _, surface in pairs(game.surfaces) do
+        local targets = surface.find_entities_filtered({to_be_deconstructed = true})
+        result = flib_table.array_merge({result, targets})
+    end
+    storage.tracked_requests.destroys = result
+end
 
 ---@param qs_item QSItem
 function decraft(qs_item)
@@ -272,7 +297,7 @@ end
 ---@param entity LuaEntity
 ---@param player_index int
 function instant_deforestation(entity, player_index)
-    local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
+    local player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
     if not player_inventory then return end
     local surface_index = entity.surface_index
     if entity.prototype.loot then
@@ -347,13 +372,19 @@ end
 ---@param entity LuaEntity
 ---@param target LuaEntityPrototype
 ---@param quality string
----@param player_index int
+---@param player_index? int
 ---@return boolean
 function instant_upgrade(entity, target, quality, player_index)
-    local player = game.get_player(player_index)
-    if not player then return false end
+
     local surface_index = entity.surface_index
-    local player_inventory = player.get_inventory(defines.inventory.character_main)
+    local player
+    local player_inventory
+    if player_index then
+        player = game.get_player(player_index)
+        if player then
+            player_inventory = player.get_inventory(defines.inventory.character_main)
+        end
+    end
     local qs_item = {
         name = target.name,
         count = 1,
@@ -385,8 +416,7 @@ end
 
 ---Handles removing cliffs via explosions
 ---@param entity LuaEntity
----@param player_index uint
-function instant_decliffing(entity, player_index)
+function instant_decliffing(entity)
     if not entity or not entity.valid then return true end
     local entity_prototype = entity.prototype
     local cliff_explosive = entity_prototype.cliff_explosive_prototype

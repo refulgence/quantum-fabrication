@@ -328,7 +328,8 @@ function process_mining(mining_properties, player_inventory, surface_index)
                 name = item.name,
                 count = 1,
                 type = "item",
-                surface_index = surface_index
+                surface_index = surface_index,
+                quality = item.quality or QS_DEFAULT_QUALITY
             }
             if item.amount then
                 qs_item.count = item.amount

@@ -222,7 +222,7 @@ function on_upgrade(event)
     local entity = event.entity
     local target = event.target
     local player_index = event.player_index
-    local quality = event.quality
+    local quality = event.quality.name or QS_DEFAULT_QUALITY
     if entity and entity.valid and player_index then
         if not instant_upgrade(entity, target, quality, player_index) then
             tracking.create_tracked_request({

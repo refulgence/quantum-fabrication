@@ -8,11 +8,23 @@ function process_data()
 end
 
 function reprocess_recipes()
+    process_tiles()
     process_entities()
     process_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
+end
+
+
+function process_tiles()
+    storage.tiles = {}
+    storage.tile_link = {}
+    local tiles = prototypes.get_tile_filtered{{filter = "item-to-place"}}
+    for _, tile in pairs(tiles) do
+        storage.tiles[tile.items_to_place_this[1].name] = true
+        storage.tile_link[tile.name] = tile.items_to_place_this[1].name
+    end
 end
 
 ---Creates sorted lists to be used later in storage gui
@@ -88,24 +100,14 @@ function process_entities()
     end
 end
 
+
 function process_recipe_enablement()
+    local recipes = game.forces["player"].recipes
     for _, recipe in pairs(storage.unpacked_recipes) do
-        recipe.enabled = game.forces["player"].recipes[recipe.name].enabled
+        recipe.enabled = recipes[recipe.name].enabled
     end
 end
 
-
-
-function item_type_check(item)
-    local type
-    local item_check = prototypes.item[item]
-    local fluid_check = prototypes.fluid[item]
-    if item_check and not fluid_check then type = "item" end
-    if not item_check and fluid_check then type = "fluid" end
-    if item_check and fluid_check then type = "both" end
-    if not item_check and not fluid_check then type = "neither" end
-    return type
-end
 
 -- Sorts item groups and subgroups for Recipe GUI
 function process_item_group_order()
@@ -254,8 +256,6 @@ end
 
 -- go through all recipes and unpack them
 function process_unpacking()
-    local data = "Processing unpacking.\n"
-    helpers.write_file("Log.txt", data, true)
     for _, recipe_data in pairs(storage.preprocessed_recipes) do
         unpack_recipe(recipe_data)
     end
@@ -266,8 +266,6 @@ end
 function get_unpacking_recipe(product)
     for _, recipe in pairs(storage.product_craft_data[product]) do
         if game.forces["player"].recipes[recipe.recipe_name].enabled then
-            data = "Found a recipe, it's " .. recipe.recipe_name .."\n"
-            helpers.write_file("Log.txt", data, true)
             return storage.preprocessed_recipes[recipe.recipe_name]
         end
     end
@@ -281,11 +279,17 @@ end
 function unpack_recipe(recipe)
     -- if this recipe is already unpacked, then simply return it
     if storage.unpacked_recipes[recipe.name] then return storage.unpacked_recipes[recipe.name] end
+
+    if storage.tiles[recipe.products[1].name] then
+        storage.unpacked_recipes[recipe.name] = recipe
+        return storage.unpacked_recipes[recipe.name]
+    end
+
     local new_ingredients = {}
 
 
     for _, ingredient in pairs(recipe.ingredients) do
-        if utils.is_placeable(ingredient.name) then
+        if utils.is_placeable(ingredient.name) and not storage.tiles[ingredient.name] and not Unpacking_blacklist[ingredient.name] then
             new_ingredients = utils.merge_tables_no_index(new_ingredients, unpack_recipe(get_unpacking_recipe(ingredient.name)).ingredients)
         else
             table.insert(new_ingredients, ingredient)

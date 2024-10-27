@@ -68,6 +68,51 @@ function instant_defabrication(entity, player_index)
     return entity.destroy({raise_destroy = true})
 end
 
+
+---Unlike others, this one doesn't care for player inventories
+function instant_tileation()
+    
+    local function remove_from_storage(indices, surface_index)
+        for name, value in pairs(indices) do
+            qs_utils.remove_from_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
+        end
+    end
+
+    local schedule_retileation = false
+
+    for _, surface in pairs(game.surfaces) do
+        local tiles = surface.find_entities_filtered({name = "tile-ghost"})
+        if tiles then
+            local tile_availability = qs_utils.get_available_tiles(surface.index)
+            local final_tiles = {}
+            local indices = {}
+            indices.overall = 1
+            for tile_name, _ in pairs(storage.tiles) do
+                indices[tile_name] = 1
+            end
+            for _, tile in pairs(tiles) do
+                local tile_name = storage.tile_link[tile.ghost_name]
+                if tile_availability[tile_name] > indices[tile_name] then
+                    final_tiles[indices.overall] = {
+                        name = tile.ghost_name,
+                        position = tile.position
+                    }
+                    indices.overall = indices.overall + 1
+                    indices[tile_name] = indices[tile_name] + 1
+                else
+                    schedule_retileation = true
+                end
+            end
+            surface.set_tiles(final_tiles)
+            remove_from_storage(indices, surface.index)
+        end
+    end
+    if schedule_retileation then
+        storage.countdowns.tile_creation = 50
+    end
+end
+
+
 ---@param qs_item QSItem
 function decraft(qs_item)
     local recipe = qf_utils.get_craftable_recipe(qs_item, nil, true)
@@ -252,6 +297,8 @@ function instant_deforestation(entity, player_index)
     end
     entity.destroy({raise_destroy = true})
 end
+
+
 
 
 ---comment

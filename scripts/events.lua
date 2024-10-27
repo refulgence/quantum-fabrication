@@ -40,6 +40,8 @@ function on_init()
     storage.unpacked_recipes = {}
     ---@type table <ItemName, boolean>
     storage.placeable = {}
+    ---@type table <ItemName, boolean>
+    storage.tiles = {}
     storage.recipe = {}
     ---@type table <ItemName, boolean>
     storage.modules = {}
@@ -62,11 +64,12 @@ function on_init()
         revivals = {},
         destroys = {},
         cliffs = {},
-        tiles = {},
+    }
+    storage.countdowns = {
+        tile_creation = nil,
     }
     storage.request_ids = {
         cliffs = 0,
-        tiles = 0,
     }
     ---@type table <string, table<uint, EntityData>>
     storage.tracked_entities = {}
@@ -88,22 +91,26 @@ end
 ---Check every existing surface (except space platforms) and initialize fabricator inventories for all items and qualities. Doesn't overwrite anything
 function initialize_surfaces()
     for _, surface in pairs(game.surfaces) do
-        if not surface.platform then
-            initialize_fabricator_inventory(surface.index)
-        end
+        initialize_surface(surface)
+    end
+end
+
+function initialize_surface(surface)
+    if not surface.platform then
+        local surface_index = surface.index
+        initialize_fabricator_inventory(surface_index)
     end
 end
 
 function on_surface_created(event)
     local surface = game.surfaces[event.surface_index]
-    if not surface.platform then
-        initialize_fabricator_inventory(event.surface_index)
-    end
+    initialize_surface(surface)
 end
 
 
 function on_surface_deleted(event)
-    storage.fabricator_inventory[event.surface_index] = nil
+    local surface_index = event.surface_index
+    storage.fabricator_inventory[surface_index] = nil
 end
 
 ---comment
@@ -134,7 +141,7 @@ function initialize_fabricator_inventory(surface_index, value)
     end
 end
 
----Not to be confused with on_player_created; this is called when a player builds stuff
+
 function on_built_entity(event)
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
@@ -143,8 +150,12 @@ function on_built_entity(event)
                 player_index = event.player_index,
                 request_type = "revivals"
             })
+        elseif event.entity.type == "tile-ghost" then
+            storage.countdowns.tile_creation = 2
+            goto continue
         end
         on_created(event)
+        ::continue::
     end
 end
 
@@ -185,9 +196,7 @@ function on_deconstructed(event)
             return
         end
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
-            if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
-                instant_deforestation(entity, player_index)
-            elseif storage.prototypes_data[entity.name] then
+            if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
                 if utils.is_placeable(item_name) then
                     tracking.create_tracked_request({
@@ -196,6 +205,8 @@ function on_deconstructed(event)
                         request_type = "destroys"
                     })
                 end
+            elseif entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
+                instant_deforestation(entity, player_index)
             end
         end
     end
@@ -327,6 +338,21 @@ commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
+
+
+script.on_nth_tick(112, function(event)
+    for type, countdown in pairs(storage.countdowns) do
+        if countdown then
+            storage.countdowns[type] = storage.countdowns[type] - 1
+            if countdown == 0 then
+                storage.countdowns[type] = nil
+                if type == "tile_creation" then
+                    instant_tileation()
+                end
+            end
+        end
+    end
+end)
 
 script.on_nth_tick(Update_rate.destroys.rate, function(event) tracking.update_tracked_requests(event.tick, {"destroys"}) end)
 script.on_nth_tick(Update_rate.revivals.rate, function(event) tracking.update_tracked_requests(event.tick, {"revivals"}) end)

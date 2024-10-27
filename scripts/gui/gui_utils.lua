@@ -108,6 +108,10 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
         surface_index = surface_index
     })
     local available = qs_utils.count_in_storage(qs_item, player_inventory)
+    if storage.tiles[recipe.placeable_product] then
+        Craft_data[player_index][surface_index][recipe_name][quality_name] = available
+        return
+    end
     if storage.player_gui[player_index].options.calculate_numbers then
         Craft_data[player_index][surface_index][recipe_name][quality_name] = qf_utils.how_many_can_craft(recipe, quality_name, surface_index, player_inventory) + available
     else

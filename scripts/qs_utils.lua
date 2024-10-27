@@ -24,7 +24,7 @@ function qs_utils.add_to_storage(qs_item, try_defabricate, count_override)
     if not qs_item then return end
     qs_utils.storage_item_check(qs_item)
     storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + (count_override or (qs_item.count or qs_item.amount))
-    if try_defabricate and settings.global["qf-allow-decrafting"].value then decraft(qs_item) end
+    if try_defabricate and settings.global["qf-allow-decrafting"].value and not storage.tiles[qs_item.name] then decraft(qs_item) end
 end
 
 
@@ -158,6 +158,22 @@ function qs_utils.check_in_storage(qs_item, player_inventory, player_surface_ind
         return "both"
     end
     return nil
+end
+
+---Returns a table
+---@param surface_index uint
+---@return table
+function qs_utils.get_available_tiles(surface_index)
+    local result = {}
+    for tile_name, _ in pairs(storage.tiles) do
+        result[tile_name] = qs_utils.count_in_storage({
+            name = tile_name,
+            surface_index = surface_index,
+            quality = QS_DEFAULT_QUALITY,
+            type = "item",
+        })
+    end
+    return result
 end
 
 

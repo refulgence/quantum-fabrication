@@ -6,13 +6,14 @@ local qs_utils = require("scripts/qs_utils")
 local tracking = {}
 
 ---@class RequestData
----@field entity LuaEntity
+---@field entity? LuaEntity
 ---@field player_index uint
----@field request_type "entities"|"revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"|"tiles"
+---@field request_type "entities"|"revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"
 ---@field target? LuaEntityPrototype
 ---@field quality? string
 ---@field item_request_proxy? LuaEntity
 ---@field lag_id? uint
+---@field position? TilePosition
 
 ---@class EntityData
 ---@field entity LuaEntity
@@ -40,6 +41,7 @@ function tracking.create_tracked_request(request_data)
 end
 
 
+
 ---@param request_data RequestData
 function tracking.add_request(request_data)
     local request_type = request_data.request_type
@@ -56,7 +58,7 @@ function tracking.add_request(request_data)
         request_data.item_request_proxy = request_table.item_request_proxy
     end
 
-    if request_type == "cliffs" or request_type == "tiles" then
+    if request_type == "cliffs" then
         storage.request_ids[request_type] = storage.request_ids[request_type] + 1
         index = storage.request_ids[request_type]
     else
@@ -78,7 +80,7 @@ end
 ---@param request_types? table
 function tracking.update_tracked_requests(tick, request_types)
     local smoothing = tick % Update_rate.requests.slots
-    if not request_types then request_types = {"construction", "item_requests", "upgrades", "revivals", "destroys", "cliffs", "tiles"} end
+    if not request_types then request_types = {"construction", "item_requests", "upgrades", "revivals", "destroys", "cliffs"} end
     for _, request_type in pairs(request_types) do
         local requests = storage.tracked_requests[request_type]
         for request_id, request_data in pairs(requests) do
@@ -91,7 +93,7 @@ end
 
 
 ---@param request_data RequestData
----@param request_type "construction"|"item_requests"|"upgrades"|"revivals"|"destroys"|"cliffs"|"tiles"
+---@param request_type "construction"|"item_requests"|"upgrades"|"revivals"|"destroys"|"cliffs"
 ---@param request_id uint
 function tracking.update_request(request_data, request_type, request_id)
     local entity = request_data.entity
@@ -119,11 +121,6 @@ function tracking.update_request(request_data, request_type, request_id)
         if instant_fabrication(entity, player_index) then
             tracking.remove_tracked_request(request_type, request_id)
         end
-    elseif request_type == "tiles" then
-        -- TODO: try to support tile construction with new tech
-        --if instant_fabrication(entity, player_index) then
-        --    tracking.remove_tracked_request(request_type, request_id)
-        --end
     elseif request_type == "cliffs" then
         if instant_decliffing(entity, player_index) then
             tracking.remove_tracked_request(request_type, request_id)

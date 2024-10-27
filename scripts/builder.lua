@@ -51,6 +51,7 @@ end
 ---@param entity LuaEntity
 ---@param player_index? int id of a player who placed the order
 function instant_defabrication(entity, player_index)
+    if not storage.prototypes_data[entity.name] then return false end
 
     local surface_index = entity.surface_index
 
@@ -297,8 +298,10 @@ end
 ---@param entity LuaEntity
 ---@param player_index int
 function instant_deforestation(entity, player_index)
-    local player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
-    if not player_inventory then return end
+    local player_inventory
+    if player_index then
+        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+    end
     local surface_index = entity.surface_index
     if entity.prototype.loot then
         process_loot(entity.prototype.loot, player_inventory, surface_index)
@@ -324,7 +327,7 @@ end
 
 ---comment
 ---@param loot table
----@param player_inventory LuaInventory
+---@param player_inventory? LuaInventory
 ---@param surface_index uint
 function process_loot(loot, player_inventory, surface_index)
     for _, item in pairs(loot) do
@@ -343,7 +346,7 @@ end
 
 ---comment
 ---@param mining_properties table
----@param player_inventory LuaInventory
+---@param player_inventory? LuaInventory
 ---@param surface_index uint
 function process_mining(mining_properties, player_inventory, surface_index)
     if not mining_properties or not mining_properties.products then return end

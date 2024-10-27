@@ -223,7 +223,7 @@ local recipe = {
     type = "recipe",
     name = "digitizer-chest",
     enabled = false,
-    ingredients = {{type = "item", name = "steel-plate", amount = 12}, {type = "item", name = "advanced-circuit", amount = 8}},
+    ingredients = {{type = "item", name = "steel-plate", amount = 12}, {type = "item", name = "electronic-circuit", amount = 8}},
     results = {{type = "item", name = "digitizer-chest", amount = 1}}
   }
 
@@ -231,7 +231,7 @@ local technology = {
     type = "technology",
     name = "matter-digitization",
     icon_size = 256, icon_mipmaps = 4,
-    icon = "__base__/graphics/technology/advanced-circuit.png",
+    icon = "__base__/graphics/technology/electronics.png",
     effects =
     {
       {
@@ -239,7 +239,7 @@ local technology = {
         recipe = "digitizer-chest"
       },
     },
-    prerequisites = {"steel-processing", "advanced-circuit"},
+    prerequisites = {"steel-processing", "circuit-network"},
     unit =
     {
       count = 250,

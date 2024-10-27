@@ -75,6 +75,8 @@ function on_init()
         cliffs = 0,
         revivals = 1,
         destroys = 1,
+        player_revivals = 1,
+        player_destroys = 1,
     }
     ---@type table <string, table<uint, EntityData>>
     storage.tracked_entities = {}
@@ -151,6 +153,7 @@ function on_built_entity(event)
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
             storage.countdowns.revivals = 2
+            storage.request_ids.player_revivals = event.player_index
         elseif event.entity.type == "tile-ghost" then
             storage.countdowns.tile_creation = 20
             goto continue
@@ -201,6 +204,7 @@ function on_deconstructed(event)
                 local item_name = storage.prototypes_data[entity.name].item_name
                 if utils.is_placeable(item_name) then
                     storage.countdowns.destroys = 2
+                    storage.request_ids.player_destroys = player_index
                 end
             elseif entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
                 instant_deforestation(entity, player_index)
@@ -228,7 +232,7 @@ function on_upgrade(event)
             tracking.create_tracked_request({
                 entity = entity,
                 player_index = player_index,
-                upgrade_target = target,
+                target = target,
                 quality = quality,
                 request_type = "upgrades"
             })
@@ -311,6 +315,9 @@ function on_console_command(command)
     elseif name == "qf_update_module_requests" then
         tracking.update_lost_module_requests(game.get_player(player_index))
         game.print("Updating item request proxy tracking")
+    elseif name == "qf_reprocess_recipes" then
+        reprocess_recipes()
+        game.print("Reprocessing recipes...")
     end
 end
 
@@ -336,6 +343,7 @@ commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
+commands.add_command("qf_reprocess_recipes", nil, on_console_command)
 
 
 script.on_nth_tick(11, function(event)

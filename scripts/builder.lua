@@ -314,7 +314,7 @@ function instant_deforestation(entity, player_index)
             name = entity.stack.name,
             count = entity.stack.count,
             type = "item",
-            quality = entity.stack.quality,
+            quality = entity.stack.quality or QS_DEFAULT_QUALITY,
             surface_index = surface_index
         }
         qs_utils.add_to_player_inventory(player_inventory, qs_item)
@@ -396,7 +396,7 @@ function instant_upgrade(entity, target, quality, player_index)
         surface_index = entity.surface_index
     }
 
-    local recipe = qf_utils.get_craftable_recipe(qs_item)
+    local recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)
     if not recipe then return false end
 
     local upgraded_entity = entity.surface.create_entity{

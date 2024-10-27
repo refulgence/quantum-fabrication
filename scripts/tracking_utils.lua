@@ -53,10 +53,10 @@ function tracking.add_request(request_data)
     }
     local index
     if request_type == "upgrades" then
-        request_data.target = request_table.upgrade_target
-        request_data.quality = request_table.quality
+        request_table.target = request_data.target
+        request_table.quality = request_data.quality
     elseif request_type == "item_requests" then
-        request_data.item_request_proxy = request_table.item_request_proxy
+        request_table.item_request_proxy = request_data.item_request_proxy
     end
 
     if request_type == "cliffs" then
@@ -105,10 +105,12 @@ end
 
 function tracking.on_tick_update_revival(entity)
     if not entity.valid then return nil, true end
+    local player_index = storage.request_ids.player_revivals
 
-    if not instant_fabrication(entity) then
+    if not instant_fabrication(entity, player_index) then
         tracking.create_tracked_request({
             entity = entity,
+            player_index = player_index,
             request_type = "construction"
         })
     end
@@ -118,7 +120,7 @@ end
 function tracking.on_tick_update_destroy(entity)
     if not entity.valid then return nil, true end
 
-    if instant_defabrication(entity) then
+    if instant_defabrication(entity, storage.request_ids.player_revivals) then
         return nil, true
     end
     return nil, false
@@ -133,20 +135,7 @@ function tracking.update_request(request_data, request_type, request_id)
     if not entity or not entity.valid then tracking.remove_tracked_request(request_type, request_id) return end
     local player_index = request_data.player_index
 
-    if request_type == "revivals" then
-        --tracking.remove_tracked_request(request_type, request_id)
-        --if not instant_fabrication(entity, player_index) then
-        --    tracking.create_tracked_request({
-        --        entity = entity,
-        --        player_index = player_index,
-        --        request_type = "construction"
-        --    })
-        --end
-    elseif request_type == "destroys" then
-        --if instant_defabrication(entity, player_index) then
-        --    tracking.remove_tracked_request(request_type, request_id)
-        --end
-    elseif request_type == "upgrades" then
+    if request_type == "upgrades" then
         if instant_upgrade(entity, request_data.target, request_data.quality, player_index) then
             tracking.remove_tracked_request(request_type, request_id)
         end

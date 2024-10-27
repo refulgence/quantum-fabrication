@@ -139,6 +139,7 @@ function process_recipes()
     local seen = {}
     storage.preprocessed_recipes = {}
     storage.product_craft_data = {}
+    storage.unpacked_recipes = {}
     for _, recipe in pairs(game.forces["player"].recipes) do
         -- Skip if hidden
         if not recipe.hidden and not Recipe_blacklist[recipe.name] then

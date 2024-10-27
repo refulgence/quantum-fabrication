@@ -1,6 +1,7 @@
 local utils = require("scripts/utils")
 local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
+local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 
 ---@class QSPrototypeData
@@ -70,6 +71,8 @@ function on_init()
     }
     storage.request_ids = {
         cliffs = 0,
+        revivals = 1,
+        destroys = 1,
     }
     ---@type table <string, table<uint, EntityData>>
     storage.tracked_entities = {}
@@ -278,9 +281,10 @@ end
 function on_player_joined_game(event)
     flib_dictionary.on_player_joined_game(event)
 end
-  
+
 function on_tick(event)
     flib_dictionary.on_tick(event)
+    tracking.on_tick_update_requests()
 end
 
 function post_research_recheck()
@@ -354,8 +358,7 @@ script.on_nth_tick(112, function(event)
     end
 end)
 
-script.on_nth_tick(Update_rate.destroys.rate, function(event) tracking.update_tracked_requests(event.tick, {"destroys"}) end)
-script.on_nth_tick(Update_rate.revivals.rate, function(event) tracking.update_tracked_requests(event.tick, {"revivals"}) end)
+
 script.on_nth_tick(Update_rate.requests.rate, function(event) tracking.update_tracked_requests(event.tick) end)
 script.on_nth_tick(Update_rate.entities.rate, function(event) tracking.update_tracked_entities(event.tick, {"digitizer-chest"}) end)
 script.on_nth_tick(Update_rate.reactors,      function(event) tracking.update_tracked_entities(0, {"dedigitizer-reactor"}) end)

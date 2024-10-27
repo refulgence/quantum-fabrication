@@ -84,13 +84,13 @@ function on_gui_click(event)
         table.sort(storage.product_craft_data[element_tags.item_name], function(a, b) return a.suitability > b.suitability end)
         update_duplicate_handling_buttons(element.parent, element_tags.item_name)
     elseif element_tags.button_type == "take_out_item" then
-        local qs_item = qs_utils.to_qs_item({
+        local qs_item = {
             name = element_tags.item_name,
             count = 1,
             type = "item",
             quality = storage.player_gui[event.player_index].quality.name,
             surface_index = player.physical_surface_index
-        })
+        }
         qs_utils.take_from_storage(qs_item, player)
     elseif element_tags.button_type == "take_out_ghost" then
         player.clear_cursor()

@@ -22,7 +22,6 @@ function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inve
             quality = quality,
             surface_index = surface_index
         })
-        qs_utils.storage_item_check(qs_item)
         local available = qs_utils.count_in_storage(qs_item, player_inventory)
         if available < qs_item.count then
             return 0
@@ -41,11 +40,16 @@ end
 ---comment
 ---@param recipe table
 ---@param quality string
----@param player_inventory? LuaInventory
 ---@param surface_index uint
+---@param player_inventory? LuaInventory
+---@param decraft? boolean
 ---@return boolean
-function qf_utils.is_recipe_craftable(recipe, quality, surface_index, player_inventory)
-    for _, ingredient in pairs(recipe.ingredients) do
+function qf_utils.is_recipe_craftable(recipe, quality, surface_index, player_inventory, decraft)
+    local ingredients = recipe.ingredients
+    if decraft then
+        ingredients = recipe.products
+    end
+    for _, ingredient in pairs(ingredients) do
         local qs_item = qs_utils.to_qs_item({
             name = ingredient.name,
             count = ingredient.amount,
@@ -53,7 +57,6 @@ function qf_utils.is_recipe_craftable(recipe, quality, surface_index, player_inv
             quality = quality,
             surface_index = surface_index
         })
-        qs_utils.storage_item_check(qs_item)
         if qs_utils.count_in_storage(qs_item, player_inventory) < qs_item.count then
             return false
         end
@@ -70,19 +73,13 @@ function qf_utils.get_craftable_recipe(qs_item, player_inventory, decraft)
     local item_name = qs_item.name
     local recipes = storage.product_craft_data[item_name]
     local unpacked_recipes = storage.unpacked_recipes
-    local temp_recipe
     if not recipes then return nil end
     for i = 1, recipes[1].number_of_recipes do
         local recipe = unpacked_recipes[recipes[i].recipe_name]
         if recipe.enabled then
-            temp_recipe = recipe
-            if decraft then
-                temp_recipe = flib_table.deep_copy(recipe)
-                temp_recipe.ingredients, temp_recipe.products = temp_recipe.products, temp_recipe.ingredients
-            end
-            if qf_utils.is_recipe_craftable(temp_recipe, qs_item.quality, qs_item.surface_index, player_inventory)
+            if qf_utils.is_recipe_craftable(recipe, qs_item.quality, qs_item.surface_index, player_inventory, decraft)
                 and not recipes[i].blacklisted then
-                return temp_recipe
+                return recipe
             end
         end
     end
@@ -95,14 +92,22 @@ end
 ---@param surface_index uint
 ---@param player_inventory? LuaInventory
 ---@param multiplier? int
-function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory, multiplier)
-    if multiplier then
+---@param decraft? boolean
+function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory, multiplier, decraft)
+    if multiplier and multiplier ~= 1 then
         multiplier = math.min(multiplier, qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory))
     else
         multiplier = 1
     end
 
-    for _, ingredient in pairs(recipe.ingredients) do
+    local ingredients = recipe.ingredients
+    local products = recipe.products
+    if decraft then
+        products = recipe.ingredients
+        ingredients = recipe.products
+    end
+
+    for _, ingredient in pairs(ingredients) do
         local qs_item = qs_utils.to_qs_item({
             name = ingredient.name,
             type = ingredient.type,
@@ -132,7 +137,7 @@ function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_invent
 
     end
     -- This doesn't work for products with variable amounts. Let's just pretend recipes with such products do not exist for now
-    for _, product in pairs(recipe.products) do
+    for _, product in pairs(products) do
         local qs_item = qs_utils.to_qs_item({
             name = product.name,
             type = product.type,

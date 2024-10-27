@@ -22,7 +22,6 @@ local qs_utils = {}
 ---@param count_override? int
 function qs_utils.add_to_storage(qs_item, try_defabricate, count_override)
     if not qs_item then return end
-    qs_utils.storage_item_check(qs_item)
     storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + (count_override or (qs_item.count or qs_item.amount))
     if try_defabricate and settings.global["qf-allow-decrafting"].value and not storage.tiles[qs_item.name] then decraft(qs_item) end
 end
@@ -32,7 +31,6 @@ end
 ---@param count_override? int
 function qs_utils.remove_from_storage(qs_item, count_override)
     if not qs_item then return end
-    qs_utils.storage_item_check(qs_item)
     storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - (count_override or (qs_item.count or qs_item.amount))
 end
 
@@ -41,7 +39,6 @@ end
 ---@param player_inventory? LuaInventory
 ---@param qs_item QSItem
 function qs_utils.add_to_player_inventory(player_inventory, qs_item)
-    qs_utils.storage_item_check(qs_item)
     if qs_item.type == "fluid" or utils.is_placeable(qs_item.name) or storage.ingredient[qs_item.name] or utils.is_module(qs_item.name) or not player_inventory then
         qs_utils.add_to_storage(qs_item, true)
     else
@@ -82,7 +79,6 @@ end
 ---@param target_inventory LuaInventory | LuaEntity
 ---@return StorageStatusTable
 function qs_utils.pull_from_storage(qs_item, target_inventory)
-    qs_utils.storage_item_check(qs_item)
     local available = qs_utils.count_in_storage(qs_item)
     local to_be_provided = qs_item.count or qs_item.amount
     local status = {empty_storage = false, full_inventory = false}

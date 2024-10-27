@@ -100,13 +100,13 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
     if not Craft_data[player_index][surface_index][recipe_name] then Craft_data[player_index][surface_index][recipe_name] = {} end
 
     local recipe = storage.unpacked_recipes[recipe_name]
-    local qs_item = qs_utils.to_qs_item({
+    local qs_item = {
         name = recipe.placeable_product,
         count = 1,
         type = "item",
         quality = quality_name,
         surface_index = surface_index
-    })
+    }
     local available = qs_utils.count_in_storage(qs_item, player_inventory)
     if storage.tiles[recipe.placeable_product] then
         Craft_data[player_index][surface_index][recipe_name][quality_name] = available

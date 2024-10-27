@@ -1,5 +1,6 @@
 ---@diagnostic disable: need-check-nil
 local qs_utils = require("scripts/qs_utils")
+local flib_table = require("__flib__.table")
 
 --@diagnostic disable: need-check-nil
 ---@class tracking
@@ -64,6 +65,7 @@ function tracking.add_request(request_data)
     else
         index = request_table.entity.unit_number
     end
+    request_table.index = index
 
     storage.tracked_requests[request_type][index] = request_table
 end
@@ -80,7 +82,7 @@ end
 ---@param request_types? table
 function tracking.update_tracked_requests(tick, request_types)
     local smoothing = tick % Update_rate.requests.slots
-    if not request_types then request_types = {"construction", "item_requests", "upgrades", "revivals", "destroys", "cliffs"} end
+    if not request_types then request_types = {"construction", "item_requests", "upgrades", "cliffs"} end
     for _, request_type in pairs(request_types) do
         local requests = storage.tracked_requests[request_type]
         for request_id, request_data in pairs(requests) do
@@ -89,6 +91,41 @@ function tracking.update_tracked_requests(tick, request_types)
             end
         end
     end
+end
+
+function tracking.on_tick_update_requests()
+    storage.request_ids.revivals = flib_table.for_n_of(storage.tracked_requests["revivals"], storage.request_ids.revivals, 3, function(v)
+        tracking.on_tick_update_revival(v)
+    end)
+    storage.request_ids.destroys = flib_table.for_n_of(storage.tracked_requests["destroys"], storage.request_ids.destroys, 3, function(v)
+        tracking.on_tick_update_destroy(v)
+    end)
+end
+
+function tracking.on_tick_update_revival(request_data)
+    local entity = request_data.entity
+    if not entity.valid then return nil, true end
+    local player_index = request_data.player_index
+
+    if not instant_fabrication(entity, player_index) then
+        tracking.create_tracked_request({
+            entity = entity,
+            player_index = player_index,
+            request_type = "construction"
+        })
+    end
+    return nil, true
+end
+
+function tracking.on_tick_update_destroy(request_data)
+    local entity = request_data.entity
+    if not entity.valid then return nil, true end
+    local player_index = request_data.player_index
+
+    if instant_defabrication(entity, player_index) then
+        return nil, true
+    end
+    return nil, false
 end
 
 
@@ -101,18 +138,18 @@ function tracking.update_request(request_data, request_type, request_id)
     local player_index = request_data.player_index
 
     if request_type == "revivals" then
-        tracking.remove_tracked_request(request_type, request_id)
-        if not instant_fabrication(entity, player_index) then
-            tracking.create_tracked_request({
-                entity = entity,
-                player_index = player_index,
-                request_type = "construction"
-            })
-        end
+        --tracking.remove_tracked_request(request_type, request_id)
+        --if not instant_fabrication(entity, player_index) then
+        --    tracking.create_tracked_request({
+        --        entity = entity,
+        --        player_index = player_index,
+        --        request_type = "construction"
+        --    })
+        --end
     elseif request_type == "destroys" then
-        if instant_defabrication(entity, player_index) then
-            tracking.remove_tracked_request(request_type, request_id)
-        end
+        --if instant_defabrication(entity, player_index) then
+        --    tracking.remove_tracked_request(request_type, request_id)
+        --end
     elseif request_type == "upgrades" then
         if instant_upgrade(entity, request_data.target, request_data.quality, player_index) then
             tracking.remove_tracked_request(request_type, request_id)
@@ -250,7 +287,7 @@ function tracking.update_tracked_entities(tick, entity_names)
         if entities then
             for entity_id, entity_data in pairs(entities) do
                 if entity_data.lag_id == smoothing then
-                    tracking.update_entity(entity_data, entity_id)
+                    tracking.update_entity(entity_data)
                 end
             end
         end
@@ -258,7 +295,7 @@ function tracking.update_tracked_entities(tick, entity_names)
 end
 
 
-function tracking.update_entity(entity_data, entity_id)
+function tracking.update_entity(entity_data)
     local surface_index = entity_data.surface_index
 
     if entity_data.entity.name == "digitizer-chest" then
@@ -267,13 +304,13 @@ function tracking.update_entity(entity_data, entity_id)
         if inventory and not inventory.is_empty() then
             local inventory_contents = inventory.get_contents()
             for _, item in pairs(inventory_contents) do
-                local qs_item = qs_utils.to_qs_item({
+                local qs_item = {
                     name = item.name,
                     count = item.count,
                     type = "item",
                     quality = item.quality,
                     surface_index = surface_index
-                })
+                }
                 if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
                     qs_utils.add_to_storage(qs_item, true)
                     inventory.remove({name = item.name, count = item.count, quality = item.quality})
@@ -283,12 +320,13 @@ function tracking.update_entity(entity_data, entity_id)
         if entity_data.container_fluid and entity_data.container_fluid.get_fluid_contents() then
             local clear
             for name, count in pairs(entity_data.container_fluid.get_fluid_contents()) do
-                local qs_item = qs_utils.to_qs_item({
+                local qs_item = {
                     name = name,
                     count = count,
                     type = "fluid",
+                    quality = QS_DEFAULT_QUALITY,
                     surface_index = surface_index
-                })
+                }
                 if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
                     qs_utils.add_to_storage(qs_item)
                     clear = true
@@ -348,13 +386,13 @@ function tracking.update_entity(entity_data, entity_id)
                     surface_id = surface_index
                 end
                 if item_filter then
-                    local qs_item = qs_utils.to_qs_item({
+                    local qs_item = {
                         name = item_filter,
                         count = Reactor_constants.item_transfer_rate * transfer_rate_multiplier,
                         type = "item",
                         quality = quality_filter,
                         surface_index = surface_id
-                    })
+                    }
                     transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.inventory)
                     if transfer_status.empty_storage then
                         energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
@@ -368,12 +406,13 @@ function tracking.update_entity(entity_data, entity_id)
                 end
 
                 if fluid_filter then
-                    local qs_item = qs_utils.to_qs_item({
+                    local qs_item = {
                         name = fluid_filter,
                         count = Reactor_constants.fluid_transfer_rate * transfer_rate_multiplier,
                         type = "fluid",
+                        quality = QS_DEFAULT_QUALITY,
                         surface_index = surface_id
-                    })
+                    }
                     transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.container_fluid)
                     if transfer_status.empty_storage then
                         energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost

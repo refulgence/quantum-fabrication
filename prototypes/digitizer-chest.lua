@@ -95,7 +95,8 @@ entity.icon = "__quantum-fabricator__/graphics/icons/digitizer-chest.png"
 entity.flags = {"placeable-neutral", "player-creation", "no-automated-item-removal"}
 entity.minable = {mining_time = 0.2, result = "digitizer-chest"}
 entity.corpse = nil
-entity.inventory_size = 48
+entity.inventory_type = "with_filters_and_bar"
+entity.inventory_size = 24
 entity.picture =
     {
       layers =

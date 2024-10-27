@@ -12,15 +12,13 @@ function instant_fabrication(entity, player_index)
 
     if not storage.prototypes_data[entity.ghost_name] then return false end
 
-    local qs_item = qs_utils.to_qs_item({
+    local qs_item = {
         name = storage.prototypes_data[entity.ghost_name].item_name,
         count = 1,
         type = "item",
         quality = entity.quality.name,
         surface_index = surface_index
-    })
-    
-    qs_utils.storage_item_check(qs_item)
+    }
 
     local player = game.get_player(player_index)
     local player_surface_index
@@ -52,15 +50,14 @@ function instant_defabrication(entity, player_index)
 
     local surface_index = entity.surface_index
 
-    local qs_item = qs_utils.to_qs_item({
+    local qs_item = {
         name = storage.prototypes_data[entity.name].item_name,
         count = 1,
         type = "item",
         quality = entity.quality.name,
         surface_index = surface_index
-    })
+    }
     if not qs_item.name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
-    qs_utils.storage_item_check(qs_item)
 
     local player_inventory = game.players[player_index].get_inventory(defines.inventory.character_main)
     qs_utils.add_to_storage(qs_item, true)
@@ -117,7 +114,7 @@ end
 function decraft(qs_item)
     local recipe = qf_utils.get_craftable_recipe(qs_item, nil, true)
     if recipe then
-        qf_utils.fabricate_recipe(recipe, qs_item.quality, qs_item.surface_index, nil, qs_item.count)
+        qf_utils.fabricate_recipe(recipe, qs_item.quality, qs_item.surface_index, nil, qs_item.count, true)
     end
 end
 
@@ -177,14 +174,13 @@ function add_modules(entity, item_requests, player_inventory)
     local module_contents = module_inventory.get_contents()
     for _, item in pairs(item_requests) do
         if utils.is_module(item.name) then
-            local qs_item = qs_utils.to_qs_item({
+            local qs_item = {
                 name = item.name,
                 count = item.count,
                 quality = item.quality,
                 type = "item",
                 surface_index = entity.surface_index
-            })
-            qs_utils.storage_item_check(qs_item)
+            }
 
             qs_item.count = qs_item.count - (module_contents[qs_item.name] or 0)
             -- First we try to take from the player's inventory if it's provided
@@ -258,13 +254,13 @@ function process_inventory(entity, player_inventory, surface_index)
         if inventory and not inventory.is_empty() then
             local inventory_contents = inventory.get_contents()
             for _, item in pairs(inventory_contents) do
-                local qs_item = qs_utils.to_qs_item({
+                local qs_item = {
                     name = item.name,
                     count = item.count,
                     type = "item",
                     quality = item.quality,
                     surface_index = surface_index
-                })
+                }
                 qs_utils.add_to_player_inventory(player_inventory, qs_item)
             end
         end
@@ -286,13 +282,13 @@ function instant_deforestation(entity, player_index)
         process_mining(entity.prototype.mineable_properties, player_inventory, surface_index)
     end
     if entity.prototype.type == "item-entity" then
-        local qs_item = qs_utils.to_qs_item({
+        local qs_item = {
             name = entity.stack.name,
             count = entity.stack.count,
             type = "item",
             quality = entity.stack.quality,
             surface_index = surface_index
-        })
+        }
         qs_utils.add_to_player_inventory(player_inventory, qs_item)
     end
     entity.destroy({raise_destroy = true})
@@ -308,12 +304,12 @@ end
 function process_loot(loot, player_inventory, surface_index)
     for _, item in pairs(loot) do
         if item.probability >= math.random() then
-            local qs_item = qs_utils.to_qs_item({
+            local qs_item = {
                 name = item.item,
                 count = math.random(item.count_min, item.count_max),
                 type = "item",
                 surface_index = surface_index
-            })
+            }
             qs_utils.add_to_player_inventory(player_inventory, qs_item)
         end
     end
@@ -328,12 +324,12 @@ function process_mining(mining_properties, player_inventory, surface_index)
     if not mining_properties or not mining_properties.products then return end
     for _, item in pairs(mining_properties.products) do
         if item.probability >= math.random() then
-            local qs_item = qs_utils.to_qs_item({
+            local qs_item = {
                 name = item.name,
                 count = 1,
                 type = "item",
                 surface_index = surface_index
-            })
+            }
             if item.amount then
                 qs_item.count = item.amount
             else
@@ -357,13 +353,13 @@ function instant_upgrade(entity, target, quality, player_index)
     if not player then return false end
     local surface_index = entity.surface_index
     local player_inventory = player.get_inventory(defines.inventory.character_main)
-    local qs_item = qs_utils.to_qs_item({
+    local qs_item = {
         name = target.name,
         count = 1,
         type = "item",
         quality = quality,
         surface_index = entity.surface_index
-    })
+    }
 
     local recipe = qf_utils.get_craftable_recipe(qs_item)
     if not recipe then return false end
@@ -394,12 +390,12 @@ function instant_decliffing(entity, player_index)
     local entity_prototype = entity.prototype
     local cliff_explosive = entity_prototype.cliff_explosive_prototype
     if not cliff_explosive then return true end
-    local qs_item = qs_utils.to_qs_item({
+    local qs_item = {
         name = cliff_explosive,
         count = 1,
         type = "item",
         surface_index = entity.surface_index
-    })
+    }
     if qs_utils.check_in_storage(qs_item) then
         qs_utils.remove_from_storage(qs_item)
         entity.destroy({raise_destroy = true})

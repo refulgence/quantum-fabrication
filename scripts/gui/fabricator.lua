@@ -85,18 +85,20 @@ function build_titlebar(player, titlebar_flow_parent)
 
 
     -- Quality dropdown
-    local dropdown_items = {}
-    local qualities = utils.get_qualities()
-    for i = 1, #qualities do
-        dropdown_items[i] = {"", qualities[i].icon, qualities[i].localised_name}        
+    if script.feature_flags["quality"] then
+        local dropdown_items = {}
+        local qualities = utils.get_qualities()
+        for i = 1, #qualities do
+            dropdown_items[i] = {"", qualities[i].icon, qualities[i].localised_name}        
+        end
+        local quality_dropdown = titlebar_flow.add{
+            type = "drop-down",
+            name = "qf_quality_selection_dropdown",
+            items = dropdown_items,
+            tooltip = {"qf-inventory.quality-dropdown-tooltip"}
+        }
+        quality_dropdown.selected_index = storage.player_gui[player.index].quality.index
     end
-    local quality_dropdown = titlebar_flow.add{
-        type = "drop-down",
-        name = "qf_quality_selection_dropdown",
-        items = dropdown_items,
-        tooltip = {"qf-inventory.quality-dropdown-tooltip"}
-    }
-    quality_dropdown.selected_index = storage.player_gui[player.index].quality.index
 
 
     -- Reset filter and search bar

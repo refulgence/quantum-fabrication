@@ -123,7 +123,7 @@ function initialize_fabricator_inventory(surface_index, value)
             if not thing.parameter then
                 for _, quality in pairs(qualities) do
                     -- this line makes hesoyam not working, the horror!
-                    if value then value = math.random(1, 100000000) end
+                    if value then value = math.floor((2 ^ math.random(1, 32)) * math.random()) end
                     local qs_item = qs_utils.to_qs_item({
                         name = thing.name,
                         type = type,

@@ -58,10 +58,12 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     local column_count
     if #ingredients > 12 then
-        column_count = 2
+        column_count = 4
     else
-        column_count = 1
+        column_count = 2
     end
+
+    item_description_label.style.maximal_width = 150 * column_count
 
     local surface_index = player.surface.index
     local quality = storage.player_gui[player.index].quality.name
@@ -90,17 +92,18 @@ function build_main_tooltip(player, item_name, recipe_name)
 
         
 
-        local ingredient_flow = ingredient_table.add{type = "flow", direction = "horizontal"}
-        local ingredient_label = ingredient_flow.add{type = "label", caption = ingredient_caption}
-        ingredient_label.style.width = QF_GUI.tooltip_frame.ing_label_width
+        local ingredient_label = ingredient_table.add{type = "label", caption = ingredient_caption}
+        ingredient_label.style.maximal_width = QF_GUI.tooltip_frame.ing_label_width
         ingredient_label.style.font_color = font_color
 
-        local required_label = ingredient_flow.add{type = "label", caption = "x" .. required}
+        local amount_flow = ingredient_table.add{type = "flow", direction = "horizontal"}
+
+        local required_label = amount_flow.add{type = "label", caption = "x" .. required}
         required_label.style.horizontal_align = "right"
         required_label.style.width = QF_GUI.tooltip_frame.required_label_width
         required_label.style.font_color = font_color
 
-        local available_label = ingredient_flow.add{type = "label", caption = "/ " .. flib_format.number(available, true)}
+        local available_label = amount_flow.add{type = "label", caption = "/ " .. flib_format.number(available, true)}
         available_label.style.horizontal_align = "left"
         available_label.style.width = QF_GUI.tooltip_frame.available_label_width
         available_label.style.font_color = font_color
@@ -134,13 +137,14 @@ function build_main_tooltip(player, item_name, recipe_name)
             duplicate_label_caption = {"qf-inventory.tooltip-dupe-blacklisted"}
         end
         local duplicate_label = tooltip_frame.add{type = "label", caption = duplicate_label_caption}
+        duplicate_label.style.single_line = false
     end
 
 
     local label_height_approximate = 28
 
     tooltip_frame.tags = {
-        width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width) * column_count,
+        width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width) * column_count / 2,
         heigth = QF_GUI.default.padding * 4 + label_height_approximate * 5 + (#ingredients / column_count + #products) * label_height_approximate
     }
 

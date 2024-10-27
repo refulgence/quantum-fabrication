@@ -36,6 +36,9 @@ function utils.get_qualities()
                 localised_name = quality_data.localised_name,
                 icon = "[quality="..quality_name.."] "
             }
+            if not script.feature_flags["quality"] then
+                quality_names[#quality_names].icon = ""
+            end
         end
     end
     return quality_names

@@ -88,7 +88,7 @@ function instant_tileation()
             local indices = {}
             indices.overall = 1
             for tile_name, _ in pairs(storage.tiles) do
-                indices[tile_name] = 1
+                indices[tile_name] = 0
             end
             for _, tile in pairs(tiles) do
                 local tile_name = storage.tile_link[tile.ghost_name]

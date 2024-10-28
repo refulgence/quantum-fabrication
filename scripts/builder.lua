@@ -118,23 +118,93 @@ function instant_tileation()
 end
 
 
-function instant_revivals()
-    local result = {}
-    for _, surface in pairs(game.surfaces) do
-        local ghosts = surface.find_entities_filtered({name = "entity-ghost"})
-        result = flib_table.array_merge({result, ghosts})
+
+---comment
+---@param entity LuaEntity
+---@param target LuaEntityPrototype
+---@param quality string
+---@param player_index? int
+---@return "success" | "no_recipe" | "error"
+function instant_upgrade(entity, target, quality, player_index)
+    
+    local surface_index = entity.surface_index
+    local player
+    local player_inventory
+    if player_index then
+        player = game.get_player(player_index)
+        if player then
+            player_inventory = player.get_inventory(defines.inventory.character_main)
+            player_surface_index = player.physical_surface_index
+        end
     end
-    storage.tracked_requests.revivals = result
+
+    local qs_item = {
+        name = target.name,
+        count = 1,
+        type = "item",
+        quality = quality,
+        surface_index = surface_index
+    }
+
+    -- Check if requested item is available
+    local available = qs_utils.check_in_storage(qs_item, player_inventory, player_surface_index)
+    local recipe
+    -- If it's not, then we'll check for a recipe and return if it's not available either
+    if not available then
+        recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)
+        if not recipe then return "no_recipe" end
+    end
+
+    -- I've spent an embarassing amount of time not understanding why only one of the underground belts pair would get upgraded.
+    -- The answer was in the API docs. As usual. RTFM people, always RTFM.
+    -- But still, it feels like fast_replace should work here like how it works for everything else.
+    local underground_belt_type
+    if entity.type == "underground-belt" then
+        underground_belt_type = entity.belt_to_ground_type
+    end
+
+    local upgraded_entity = entity.surface.create_entity{
+        name = target.name,
+        position = entity.position,
+        direction = entity.direction,
+        quality = quality,
+        force = entity.force,
+        fast_replace = true,
+        player = player,
+        raise_built = true,
+        type = underground_belt_type,
+    }
+  
+    if upgraded_entity then
+        if recipe then
+            qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory)
+        end
+        if available == "player" then
+            ---@diagnostic disable-next-line: need-check-nil
+            player_inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+        else
+            qs_utils.remove_from_storage(qs_item)
+        end
+        return "success"
+    end
+
+    -- If the upgrade failed not because we could not find a recipe, then we'll return an error becuase what is going on
+    return "error"
 end
 
-function instant_destroys()
+
+---comment
+---@param request_type "revivals"|"destroys"|"upgrades"
+function register_request_table(request_type)
     local result = {}
     for _, surface in pairs(game.surfaces) do
-        local targets = surface.find_entities_filtered({to_be_deconstructed = true})
+        local targets = surface.find_entities_filtered(Request_table_filter_link[request_type])
         result = flib_table.array_merge({result, targets})
     end
-    storage.tracked_requests.destroys = result
+    storage.tracked_requests[request_type] = result
 end
+
+
 
 ---@param qs_item QSItem
 function decraft(qs_item)
@@ -371,51 +441,6 @@ end
 
 
 
----comment
----@param entity LuaEntity
----@param target LuaEntityPrototype
----@param quality string
----@param player_index? int
----@return boolean
-function instant_upgrade(entity, target, quality, player_index)
-
-    local surface_index = entity.surface_index
-    local player
-    local player_inventory
-    if player_index then
-        player = game.get_player(player_index)
-        if player then
-            player_inventory = player.get_inventory(defines.inventory.character_main)
-        end
-    end
-    local qs_item = {
-        name = target.name,
-        count = 1,
-        type = "item",
-        quality = quality,
-        surface_index = entity.surface_index
-    }
-
-    local recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)
-    if not recipe then return false end
-
-    local upgraded_entity = entity.surface.create_entity{
-        name = target.name,
-        position = entity.position,
-        direction = entity.direction,
-        quality = quality,
-        force = entity.force,
-        fast_replace = true,
-        player = player,
-        raise_built = true,
-    }
-    if upgraded_entity then
-        qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory)
-        qs_utils.remove_from_storage(qs_item)
-        return true
-    end
-    return false
-end
 
 ---Handles removing cliffs via explosions
 ---@param entity LuaEntity

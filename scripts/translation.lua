@@ -5,27 +5,25 @@ local flib_dictionary = require("__flib__.dictionary")
 ---@param name string
 ---@param type string
 function get_translation(player_index, name, type)
-    if not flib_dictionary.get_all(player_index) then return end
-    local language = storage.__flib.dictionary.player_languages[player_index]
-    -- flib bug introduced in 2.0?
-    if not language then language = "en" end
-    if type == "unknown" then
-        if storage.__flib.dictionary.translated[language]["item"][name] then
-            return storage.__flib.dictionary.translated[language]["item"][name]
-        else
-            return storage.__flib.dictionary.translated[language]["fluid"][name]
-        end
+  if not flib_dictionary.get_all(player_index) then return end
+  -- I think there is a way to get language natively? fix later
+  local language = storage.__flib.dictionary.player_languages[player_index]
+  if not language then language = "en" end
+  if type == "unknown" then
+    if storage.__flib.dictionary.translated[language]["item"][name] then
+      return storage.__flib.dictionary.translated[language]["item"][name]
+    else
+      return storage.__flib.dictionary.translated[language]["fluid"][name]
     end
-    return storage.__flib.dictionary.translated[language][type][name]
+  end
+  return storage.__flib.dictionary.translated[language][type][name]
 end
-
 
 ---comment
 ---@param event any
 function on_string_translated(event)
-    flib_dictionary.on_string_translated(event)
+  flib_dictionary.on_string_translated(event)
 end
-
 
 function build_dictionaries()
   for type, prototypes in pairs({

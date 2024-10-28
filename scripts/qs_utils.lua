@@ -142,12 +142,12 @@ end
 ---@param player_surface_index? any
 ---@return "storage"|"player"|"both"|nil
 function qs_utils.check_in_storage(qs_item, player_inventory, player_surface_index)
+    if qs_utils.count_in_storage(qs_item) > 0 then
+        return "storage"
+    end
     if qs_item.type == "item" and player_inventory and qs_item.surface_index == player_surface_index
     and player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality}) > 0 then
         return "player"
-    end
-    if qs_utils.count_in_storage(qs_item) > 0 then
-        return "storage"
     end
     if qs_item.type == "item" and player_inventory and qs_item.surface_index == player_surface_index
     and player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality}) + qs_utils.count_in_storage(qs_item) > 0 then

@@ -55,9 +55,20 @@ Reactor_constants.active_cost = 20
 Reactor_constants.full_inventory_cost = 32
 Reactor_constants.empty_storage_cost = 4
 Reactor_constants.min_temperature = 5000
-Reactor_constants.item_transfer_rate = 10
-Reactor_constants.fluid_transfer_rate = 1000
+Reactor_constants.item_transfer_rate = 4
+Reactor_constants.fluid_transfer_rate = 80
 
+Request_table_filter_link = {
+    ["revivals"] = {name = "entity-ghost"},
+    ["destroys"] = {to_be_deconstructed = true},
+    ["upgrades"] = {to_be_upgraded = true},
+}
+
+On_tick_requests = {
+    [1] = "revivals",
+    [2] = "destroys",
+    [3] = "upgrades",
+}
 
 if not Actual_non_duplicates then Actual_non_duplicates = {} end
 if not Unpacking_blacklist then Unpacking_blacklist = {} end

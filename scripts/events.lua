@@ -70,13 +70,18 @@ function on_init()
         tile_creation = nil,
         revivals = nil,
         destroys = nil,
+        upgrades = nil,
     }
     storage.request_ids = {
         cliffs = 0,
         revivals = 1,
         destroys = 1,
-        player_revivals = 1,
-        player_destroys = 1,
+        upgrades = 1,
+    }
+    storage.request_player_ids = {
+        revivals = 1,
+        destroys = 1,
+        upgrades = 1,
     }
     ---@type table <string, table<uint, EntityData>>
     storage.tracked_entities = {}
@@ -153,7 +158,7 @@ function on_built_entity(event)
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
             storage.countdowns.revivals = 2
-            storage.request_ids.player_revivals = event.player_index
+            storage.request_player_ids.revivals = event.player_index
         elseif event.entity.type == "tile-ghost" then
             storage.countdowns.tile_creation = 20
             goto continue
@@ -204,7 +209,7 @@ function on_deconstructed(event)
                 local item_name = storage.prototypes_data[entity.name].item_name
                 if utils.is_placeable(item_name) then
                     storage.countdowns.destroys = 2
-                    storage.request_ids.player_destroys = player_index
+                    storage.request_player_ids.destroys = player_index
                 end
             elseif entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
                 instant_deforestation(entity, player_index)
@@ -228,7 +233,23 @@ function on_upgrade(event)
     local player_index = event.player_index
     local quality = event.quality.name or QS_DEFAULT_QUALITY
     if entity and entity.valid and player_index then
-        if not instant_upgrade(entity, target, quality, player_index) then
+        storage.countdowns.upgrades = 2
+        storage.request_player_ids.upgrades = player_index
+--[[         if entity.type == "underground-belt" then
+            local connected = entity.neighbours
+            if connected then
+                if instant_upgrade(connected, target, quality, player_index) ~= "success" then
+                    tracking.create_tracked_request({
+                        entity = connected,
+                        player_index = player_index,
+                        target = target,
+                        quality = quality,
+                        request_type = "upgrades"
+                    })
+                end
+            end
+        end
+        if instant_upgrade(entity, target, quality, player_index) ~= "success" then
             tracking.create_tracked_request({
                 entity = entity,
                 player_index = player_index,
@@ -236,7 +257,16 @@ function on_upgrade(event)
                 quality = quality,
                 request_type = "upgrades"
             })
-        end
+        end ]]
+    end
+end
+
+function on_cancelled_upgrade(event)
+    local entity = event.entity
+    local target = event.target
+    local player_index = event.player_index
+    if entity and entity.valid and player_index then
+        tracking.remove_tracked_request("upgrades", entity.unit_number)
     end
 end
 
@@ -318,8 +348,20 @@ function on_console_command(command)
     elseif name == "qf_reprocess_recipes" then
         reprocess_recipes()
         game.print("Reprocessing recipes...")
+    elseif name == "qf_add_thing" then
+        local qs_item = qs_utils.to_qs_item({
+            name = "iron-gear-wheel",
+            type = "item",
+            count = 10000,
+            quality = "normal",
+            surface_index = 1
+        })
+        qs_utils.add_to_storage(qs_item)
     end
 end
+
+
+
 
 
 function debug_storage(amount, everything)
@@ -344,6 +386,7 @@ commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_clear_storage", nil, on_console_command)
 commands.add_command("qf_reprocess_recipes", nil, on_console_command)
+commands.add_command("qf_add_thing", nil, on_console_command)
 
 
 script.on_nth_tick(11, function(event)
@@ -354,10 +397,8 @@ script.on_nth_tick(11, function(event)
                 storage.countdowns[type] = nil
                 if type == "tile_creation" then
                     instant_tileation()
-                elseif type == "revivals" then
-                    instant_revivals()
-                elseif type == "destroys" then
-                    instant_destroys()
+                elseif type == "revivals" or type == "destroys" or type == "upgrades" then
+                    register_request_table(type)
                 end
             end
         end
@@ -396,6 +437,7 @@ script.on_event(defines.events.script_raised_built, on_created)
 script.on_event(defines.events.script_raised_revive, on_created)
 
 script.on_event(defines.events.on_marked_for_upgrade, on_upgrade)
+script.on_event(defines.events.on_cancelled_upgrade, on_cancelled_upgrade)
 
 script.on_event(defines.events.on_entity_died, on_destroyed)
 script.on_event(defines.events.script_raised_destroy, on_destroyed)

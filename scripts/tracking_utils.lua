@@ -82,7 +82,7 @@ end
 ---@param request_types? table
 function tracking.update_tracked_requests(tick, request_types)
     local smoothing = tick % Update_rate.requests.slots
-    if not request_types then request_types = {"construction", "item_requests", "upgrades", "cliffs"} end
+    if not request_types then request_types = {"construction", "item_requests", "cliffs"} end
     for _, request_type in pairs(request_types) do
         local requests = storage.tracked_requests[request_type]
         for request_id, request_data in pairs(requests) do
@@ -94,37 +94,66 @@ function tracking.update_tracked_requests(tick, request_types)
 end
 
 function tracking.on_tick_update_requests()
-    storage.request_ids.revivals = flib_table.for_n_of(storage.tracked_requests["revivals"], storage.request_ids.revivals, 3, function(v)
-        tracking.on_tick_update_revival(v)
-    end)
-    storage.request_ids.destroys = flib_table.for_n_of(storage.tracked_requests["destroys"], storage.request_ids.destroys, 3, function(v)
-        tracking.on_tick_update_destroy(v)
-    end)
-end
-
-
-function tracking.on_tick_update_revival(entity)
-    if not entity.valid then return nil, true end
-    local player_index = storage.request_ids.player_revivals
-
-    if not instant_fabrication(entity, player_index) then
-        tracking.create_tracked_request({
-            entity = entity,
-            player_index = player_index,
-            request_type = "construction"
-        })
+    for i = 1, 3 do
+        if next(storage.tracked_requests[On_tick_requests[i]]) then
+            storage.request_ids[On_tick_requests[i]] = flib_table.for_n_of(storage.tracked_requests[On_tick_requests[i]], storage.request_ids[On_tick_requests[i]], 3, function(entity)
+                return tracking.on_tick_update_handler(entity, On_tick_requests[i])
+            end)
+        end
     end
-    return nil, true
+
+
+--[[     for _, request_type in pairs({"revivals", "destroys", "upgrades"}) do
+        storage.request_ids[request_type] = flib_table.for_n_of(storage.tracked_requests[request_type], storage.request_ids[request_type], 3, function(entity)
+            tracking.on_tick_update_handler(entity, request_type)
+        end)
+    end ]]
 end
 
-function tracking.on_tick_update_destroy(entity)
-    if not entity.valid then return nil, true end
 
-    if instant_defabrication(entity, storage.request_ids.player_revivals) then
-        return nil, true
+function tracking.on_tick_update_handler(entity, request_type)
+    if not entity.valid then return nil, true, false end
+    local player_index = storage.request_player_ids[request_type]
+
+    if request_type == "revivals" then
+        if not instant_fabrication(entity, player_index) then
+            tracking.create_tracked_request({
+                entity = entity,
+                player_index = player_index,
+                request_type = "construction"
+            })
+        end
+        return nil, true, false
     end
-    return nil, false
+
+    if request_type == "destroys" then
+        if instant_defabrication(entity, player_index) then
+            return nil, true, false
+        else
+            return nil, false, false
+        end
+    end
+
+    if request_type == "upgrades" then
+        local target, quality_prototype = entity.get_upgrade_target()
+        if not target then return nil, true, false end
+        local quality
+        if not quality_prototype then
+            quality = QS_DEFAULT_QUALITY
+        else
+            quality = quality_prototype.name
+        end
+        local status = instant_upgrade(entity, target, quality, player_index)
+        if status == "success" then
+            return nil, true, false
+        end
+    end
+
 end
+
+
+
+
 
 
 ---@param request_data RequestData
@@ -136,9 +165,7 @@ function tracking.update_request(request_data, request_type, request_id)
     local player_index = request_data.player_index
 
     if request_type == "upgrades" then
-        if instant_upgrade(entity, request_data.target, request_data.quality, player_index) then
-            tracking.remove_tracked_request(request_type, request_id)
-        end
+
     elseif request_type == "construction" then
         if instant_fabrication(entity, player_index) then
             tracking.remove_tracked_request(request_type, request_id)

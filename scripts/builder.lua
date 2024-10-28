@@ -91,18 +91,18 @@ function instant_tileation()
             local tile_availability = qs_utils.get_available_tiles(surface.index)
             local final_tiles = {}
             local indices = {}
-            indices.overall = 1
+            local indices_overall = 1
             for tile_name, _ in pairs(storage.tiles) do
                 indices[tile_name] = 0
             end
             for _, tile in pairs(tiles) do
                 local tile_name = storage.tile_link[tile.ghost_name]
                 if tile_availability[tile_name] > indices[tile_name] then
-                    final_tiles[indices.overall] = {
+                    final_tiles[indices_overall] = {
                         name = tile.ghost_name,
                         position = tile.position
                     }
-                    indices.overall = indices.overall + 1
+                    indices_overall = indices_overall + 1
                     indices[tile_name] = indices[tile_name] + 1
                 else
                     schedule_retileation = true

@@ -33,18 +33,20 @@ function instant_fabrication(entity, player_index)
     end
 
     -- Check if requested item is available
-    local availability = qs_utils.check_in_storage(qs_item, player_inventory, player_surface_index)
+    local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
 
     -- If it is, then just use it to instantly revive the entity
-    if availability then
-        return revive_ghost(entity, qs_item, availability, player_inventory)
+    if in_storage > 0 then
+        return revive_ghost(entity, qs_item)
+    elseif in_inventory and in_inventory > 0 then
+        return revive_ghost(entity, qs_item, player_inventory)
     end
 
     -- Nothing? Guess we are fabricating
     local recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)
     if not recipe then return false end
     qf_utils.fabricate_recipe(recipe, entity.quality.name, surface_index, player_inventory)
-    return revive_ghost(entity, qs_item, "storage")
+    return revive_ghost(entity, qs_item)
 end
 
 
@@ -147,10 +149,10 @@ function instant_upgrade(entity, target, quality, player_index)
     }
 
     -- Check if requested item is available
-    local available = qs_utils.check_in_storage(qs_item, player_inventory, player_surface_index)
+    local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
     local recipe
     -- If it's not, then we'll check for a recipe and return if it's not available either
-    if not available then
+    if in_storage == 0 and (not in_inventory or in_inventory == 0) then
         recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)
         if not recipe then return "no_recipe" end
     end
@@ -178,8 +180,8 @@ function instant_upgrade(entity, target, quality, player_index)
     if upgraded_entity then
         if recipe then
             qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory)
-        end
-        if available == "player" then
+            qs_utils.remove_from_storage(qs_item)
+        elseif in_storage == 0 then
             ---@diagnostic disable-next-line: need-check-nil
             player_inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
         else
@@ -218,19 +220,18 @@ end
 ---comment
 ---@param entity LuaEntity
 ---@param qs_item QSItem
----@param inventory_type "storage"|"player"|"both"
 ---@param player_inventory? LuaInventory
 ---@return boolean
-function revive_ghost(entity, qs_item, inventory_type, player_inventory)
+function revive_ghost(entity, qs_item, player_inventory)
     local entity_name = storage.prototypes_data[entity.ghost_name].item_name
     local entity_quality = entity.quality.name
     local item_requests = entity.item_requests
     local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
         -- Note: this won't work properly for reviving entities that require multiple items. A problem for future me to solve when the need arises
-        if inventory_type == "storage" or inventory_type == "both" then
+        if not player_inventory then
             qs_utils.remove_from_storage(qs_item)
-        elseif inventory_type == "player" then
+        else
             ---@diagnostic disable-next-line: need-check-nil
             player_inventory.remove({name = entity_name, count = 1, quality = entity_quality})
         end
@@ -238,21 +239,21 @@ function revive_ghost(entity, qs_item, inventory_type, player_inventory)
         -- If there are module requests:
         -- (it gets all requests, but we only care about modules, everything else is outside of the scope of the mod)
         if item_requests and item_requests ~= {} then
+            -- it's nil if the entity doesn't have module inventory or request didn't had modules in it.
+            -- If true or nil we destroy the proxy
             local player_index
             if player_inventory then
                 player_index = player_inventory.player_owner.index
             end
-            -- it's nil if the entity doesn't have module inventory or request didn't had modules in it
-            if add_modules(revived_entity, item_requests, player_inventory) == false then
+            if handle_item_requests(revived_entity, item_requests, player_inventory) == false then
                 tracking.create_tracked_request({
                     entity = revived_entity,
-                    player_index = player_index,
                     item_request_proxy = item_request_proxy,
+                    player_index = player_index,
                     request_type = "item_requests"
                 })
             else
-                ---@diagnostic disable-next-line: need-check-nil
-                item_request_proxy.destroy()
+                if item_request_proxy then item_request_proxy.destroy() end
             end
         end
         return true
@@ -260,41 +261,112 @@ function revive_ghost(entity, qs_item, inventory_type, player_inventory)
     return false
 end
 
-
-
 ---comment
 ---@param entity LuaEntity
 ---@param item_requests table
 ---@param player_inventory? LuaInventory
-function add_modules(entity, item_requests, player_inventory)
-    local module_inventory = entity.get_module_inventory()
-    if not module_inventory then return nil end
-    local satisfied = true
-    local module_contents = module_inventory.get_contents()
-    for _, item in pairs(item_requests) do
-        if utils.is_module(item.name) then
-            local qs_item = {
-                name = item.name,
-                count = item.count,
-                quality = item.quality,
-                type = "item",
-                surface_index = entity.surface_index
-            }
+function handle_item_requests(entity, item_requests, player_inventory)
 
-            qs_item.count = qs_item.count - (module_contents[qs_item.name] or 0)
-            -- First we try to take from the player's inventory if it's provided
-            if player_inventory then
-                process_modules(entity, qs_item, "player", player_inventory)
-                if qs_item.count == 0 then goto continue end
-            end
-            process_modules(entity, qs_item, "storage")
-            if qs_item.count > 0 then satisfied = false end
+    local module_inventory = entity.get_module_inventory()
+    local fuel_inventory = entity.get_fuel_inventory()
+    local ammo_inventory = entity.get_inventory(defines.inventory.turret_ammo)
+    if not module_inventory and not fuel_inventory and not ammo_inventory then return nil end
+    local satisfied = true
+    local player_surface_index
+    if player_inventory then
+        local player = player_inventory.player_owner
+        ---@diagnostic disable-next-line: need-check-nil
+        player_surface_index = player.physical_surface_index
+    end
+
+    local module_contents
+    if module_inventory then
+        module_contents = module_inventory.get_contents()
+    end
+    local fuel_contents
+    if fuel_inventory then
+        fuel_contents = fuel_inventory.get_contents()
+    end
+    local ammo_contents
+    if ammo_inventory then
+        ammo_contents = ammo_inventory.get_contents()
+    end
+
+    local function process_insertion(qs_item, amount, entity_inventory)
+        entity_inventory.insert({name = qs_item.name, count = amount, quality = qs_item.quality})
+    end
+
+    local function process_removal(qs_item, in_storage, in_inventory, entity_inventory)
+        if in_storage > qs_item.count then
+            qs_utils.remove_from_storage(qs_item)
+            process_insertion(qs_item, qs_item.count, entity_inventory)
+            qs_item.count = 0
+        elseif in_storage > 0 then
+            qs_item.count = qs_item.count - in_storage
+            qs_utils.remove_from_storage(qs_item, in_storage)
+            process_insertion(qs_item, in_storage, entity_inventory)
         end
-        ::continue::
+        if qs_item.count > 0 then
+            if in_inventory then
+                if in_inventory > qs_item.count then
+                    ---@diagnostic disable-next-line: need-check-nil
+                    player_inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+                    process_insertion(qs_item, qs_item.count, entity_inventory)
+                    qs_item.count = 0
+                elseif in_inventory > 0 then
+                    ---@diagnostic disable-next-line: need-check-nil
+                    player_inventory.remove({name = qs_item.name, count = in_inventory, quality = qs_item.quality})
+                    qs_item.count = qs_item.count - in_inventory
+                    process_insertion(qs_item, in_inventory, entity_inventory)
+                end
+            end
+        end
+        return qs_item.count == 0
+    end
+
+
+    for _, item in pairs(item_requests) do
+        local qs_item = {
+            name = item.name,
+            count = item.count,
+            quality = item.quality,
+            type = "item",
+            surface_index = entity.surface_index
+        }
+        local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+        if utils.is_module(qs_item.name) and module_inventory and module_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then
+            qs_item.count = qs_item.count - (module_contents[qs_item.name] or 0)
+            satisfied = process_removal(qs_item, in_storage, in_inventory, module_inventory)
+        elseif utils.is_fuel(qs_item.name) and fuel_inventory and fuel_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then
+            qs_item.count = qs_item.count - (fuel_contents[qs_item.name] or 0)
+            satisfied = process_removal(qs_item, in_storage, in_inventory, fuel_inventory)
+        elseif utils.is_ammo(qs_item.name) and ammo_inventory and ammo_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then
+            qs_item.count = qs_item.count - (ammo_contents[qs_item.name] or 0)
+            satisfied = process_removal(qs_item, in_storage, in_inventory, ammo_inventory)
+        end
     end
     return satisfied
+
 end
 
+
+---We put things into target's inventory here
+---QS_Item is a request, this is the item we need to insert
+---entity_inventory is the inventory we need to try insert it into
+---1. Check if we can insert. Can't = return
+---2. Check how many items we have. None = return
+---3. Remove items from storage / player inventory
+---@param qs_item QSItem
+---@param entity_inventory LuaInventory
+---@param player_inventory? LuaInventory
+function process_item_request(qs_item, entity_inventory, player_inventory)
+
+    if not entity_inventory.can_insert({name = qs_item.name, count = qs_item.count}) then return end
+    local count = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+
+
+
+end
 
 
 
@@ -458,7 +530,7 @@ function instant_decliffing(entity)
         type = "item",
         surface_index = entity.surface_index
     }
-    if qs_utils.check_in_storage(qs_item) then
+    if qs_utils.count_in_storage(qs_item) > 0 then
         qs_utils.remove_from_storage(qs_item)
         entity.destroy({raise_destroy = true})
         return true

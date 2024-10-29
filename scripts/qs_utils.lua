@@ -125,36 +125,21 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
 end
 
 ---How many of that item is available in storage (and player_inventory if it's provided)
+---Wait, this one will work even if player is on another surface. But that's okay? Actually, no, it's not
 ---@param qs_item QSItem
 ---@param player_inventory? LuaInventory
-function qs_utils.count_in_storage(qs_item, player_inventory)
-    local available = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
-    if player_inventory and qs_item.type == "item" then
-        available = available + player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+---@param player_surface_index? uint
+---@return uint
+---@return uint|nil
+function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+    local count_in_storage = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
+    local count_in_player_inventory
+    if player_inventory and qs_item.type == "item" and qs_item.surface_index == player_surface_index then
+        count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
     end
-    return available
+    return count_in_storage, count_in_player_inventory
 end
 
-
----Checks is qs_item is available in player's inventory, or in storage and returns which one
----@param qs_item any
----@param player_inventory? any
----@param player_surface_index? any
----@return "storage"|"player"|"both"|nil
-function qs_utils.check_in_storage(qs_item, player_inventory, player_surface_index)
-    if qs_utils.count_in_storage(qs_item) > 0 then
-        return "storage"
-    end
-    if qs_item.type == "item" and player_inventory and qs_item.surface_index == player_surface_index
-    and player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality}) > 0 then
-        return "player"
-    end
-    if qs_item.type == "item" and player_inventory and qs_item.surface_index == player_surface_index
-    and player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality}) + qs_utils.count_in_storage(qs_item) > 0 then
-        return "both"
-    end
-    return nil
-end
 
 ---Returns a table
 ---@param surface_index uint

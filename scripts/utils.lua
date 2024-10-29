@@ -79,6 +79,14 @@ function utils.is_module(item_name)
     return storage.modules[item_name]
 end
 
+function utils.is_ammo(item_name)
+    return prototypes.item[item_name] and prototypes.item[item_name].type == "ammo"
+end
+
+function utils.is_fuel(item_name)
+    return prototypes.item[item_name] and prototypes.item[item_name].fuel_category
+end
+
 ---You can only move buildings, modules, fuel, ammo and tools from the storage into your inventory.
 ---@param item_name any
 ---@return boolean
@@ -93,7 +101,11 @@ function utils.is_removable(item_name)
     return storage.removable[item_name]
 end
 
-
+function utils.get_item_type(qs_item)
+    if utils.is_module(qs_item.name) then return "module" end
+    if utils.is_ammo(qs_item.name) then return "ammo" end
+    if utils.is_fuel(qs_item.name) then return "fuel" end
+end
 
 
 return utils

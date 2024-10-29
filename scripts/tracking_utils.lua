@@ -182,7 +182,7 @@ function tracking.update_request(request_data, request_type, request_id)
         if player_index then
             player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
         end
-        if add_modules(entity, modules, player_inventory) then
+        if handle_item_requests(entity, modules, player_inventory) then
             tracking.remove_tracked_request(request_type, request_id)
             request_data.item_request_proxy.destroy()
         end

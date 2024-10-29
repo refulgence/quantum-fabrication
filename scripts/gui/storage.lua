@@ -193,7 +193,8 @@ function build_tab(player, tabbed_pane, tab_type)
                 end
             elseif tab_type == "placeables" then
                 local placeables_final_flow = content_table.add{type = "flow", direction = "horizontal"}
-                local take_out_caption = {"qf-inventory.take-out-item"}
+                local take_out_caption = {"qf-inventory.take-out-item-quality"}
+                if not script.feature_flags["quality"] then take_out_caption = {"qf-inventory.take-out-item"} end
                 local button_sprite = "qf-vanilla-ghost-entity-icon"
                 local button_tags = {button_type = "take_out_item", item_name = item.name}
                 

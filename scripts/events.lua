@@ -1,7 +1,6 @@
 local utils = require("scripts/utils")
 local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
-local flib_table = require("__flib__.table")
 local tracking = require("scripts/tracking_utils")
 
 ---@class QSPrototypeData
@@ -134,8 +133,6 @@ function initialize_fabricator_inventory(surface_index, value)
         for _, thing in pairs(prototypes[type]) do
             if not thing.parameter then
                 for _, quality in pairs(qualities) do
-                    -- this line makes hesoyam not working, the horror!
-                    if value then value = math.floor((2 ^ math.random(1, 32)) * math.random()) end
                     local qs_item = qs_utils.to_qs_item({
                         name = thing.name,
                         type = type,
@@ -235,35 +232,11 @@ function on_upgrade(event)
     if entity and entity.valid and player_index then
         storage.countdowns.upgrades = 2
         storage.request_player_ids.upgrades = player_index
---[[         if entity.type == "underground-belt" then
-            local connected = entity.neighbours
-            if connected then
-                if instant_upgrade(connected, target, quality, player_index) ~= "success" then
-                    tracking.create_tracked_request({
-                        entity = connected,
-                        player_index = player_index,
-                        target = target,
-                        quality = quality,
-                        request_type = "upgrades"
-                    })
-                end
-            end
-        end
-        if instant_upgrade(entity, target, quality, player_index) ~= "success" then
-            tracking.create_tracked_request({
-                entity = entity,
-                player_index = player_index,
-                target = target,
-                quality = quality,
-                request_type = "upgrades"
-            })
-        end ]]
     end
 end
 
 function on_cancelled_upgrade(event)
     local entity = event.entity
-    local target = event.target
     local player_index = event.player_index
     if entity and entity.valid and player_index then
         tracking.remove_tracked_request("upgrades", entity.unit_number)
@@ -334,43 +307,25 @@ function on_console_command(command)
     local player_index = command.player_index
     local name = command.name
     if name == "qf_hesoyam" then
-        debug_storage(250000, false)
+        debug_storage(250000)
         game.print("CHEAT: Fabricator inventory updated")
-    elseif name == "qf_hesoyam_harder" then
-        debug_storage(250000000, true)
-        game.print("CHEAT: Fabricator inventory updated with a lot of stuff")
-    elseif name == "qf_clear_storage" then
-        storage.fabricator_inventory = {item = {}, fluid = {}}
-        game.print("CHEAT(?): Fabricator inventory cleared")
     elseif name == "qf_update_module_requests" then
         tracking.update_lost_module_requests(game.get_player(player_index))
         game.print("Updating item request proxy tracking")
     elseif name == "qf_reprocess_recipes" then
         reprocess_recipes()
         game.print("Reprocessing recipes...")
-    elseif name == "qf_add_thing" then
-        local qs_item = qs_utils.to_qs_item({
-            name = "iron-gear-wheel",
-            type = "item",
-            count = 10000,
-            quality = "normal",
-            surface_index = 1
-        })
-        qs_utils.add_to_storage(qs_item)
     end
 end
 
 
-
-
-
-function debug_storage(amount, everything)
-    initialize_fabricator_inventory(1, amount)
+function debug_storage(amount)
+    for _, surface in pairs(game.surfaces) do
+        if not surface.platform then
+            initialize_fabricator_inventory(surface.index, amount)
+        end
+    end
 end
-
-
-
-
 
 
 function on_lua_shortcut(event)
@@ -384,9 +339,7 @@ end
 commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
-commands.add_command("qf_clear_storage", nil, on_console_command)
 commands.add_command("qf_reprocess_recipes", nil, on_console_command)
-commands.add_command("qf_add_thing", nil, on_console_command)
 
 
 script.on_nth_tick(11, function(event)

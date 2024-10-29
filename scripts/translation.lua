@@ -6,9 +6,7 @@ local flib_dictionary = require("__flib__.dictionary")
 ---@param type string
 function get_translation(player_index, name, type)
   if not flib_dictionary.get_all(player_index) then return end
-  -- I think there is a way to get language natively? fix later
-  local language = storage.__flib.dictionary.player_languages[player_index]
-  if not language then language = "en" end
+  local language = game.get_player(player_index).locale
   if type == "unknown" then
     if storage.__flib.dictionary.translated[language]["item"][name] then
       return storage.__flib.dictionary.translated[language]["item"][name]

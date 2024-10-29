@@ -101,13 +101,6 @@ function tracking.on_tick_update_requests()
             end)
         end
     end
-
-
---[[     for _, request_type in pairs({"revivals", "destroys", "upgrades"}) do
-        storage.request_ids[request_type] = flib_table.for_n_of(storage.tracked_requests[request_type], storage.request_ids[request_type], 3, function(entity)
-            tracking.on_tick_update_handler(entity, request_type)
-        end)
-    end ]]
 end
 
 
@@ -352,7 +345,6 @@ function tracking.update_entity(entity_data)
         return
     end
 
-    -- Ok, filters are broken because they are tables now, so we need to rework it later
     if entity_data.entity.name == "dedigitizer-reactor" then
         local energy_consumption = Reactor_constants.idle_cost
         local energy_consumption_multiplier = 1
@@ -365,8 +357,6 @@ function tracking.update_entity(entity_data)
                 local fluid_filter
                 local quality_filter
                 local surface_id
-                -- iterate over signals, if set item_filter and fluid_filter to signals with highest count. fields are signal.count for count, signal.signal.name for name and signal.signal.type for type
-
                 local highest_count_item = 0
                 local highest_count_fluid = 0
                 local highest_count_quality = 0

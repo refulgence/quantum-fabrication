@@ -79,7 +79,7 @@ function utils.is_module(item_name)
     return storage.modules[item_name]
 end
 
----You can only remove buildings, modules, fuel, ammo and tools from the storage into your inventory.
+---You can only move buildings, modules, fuel, ammo and tools from the storage into your inventory.
 ---@param item_name any
 ---@return boolean
 function utils.is_removable(item_name)

@@ -68,6 +68,7 @@ On_tick_requests = {
     [1] = "revivals",
     [2] = "destroys",
     [3] = "upgrades",
+    [4] = "repairs",
 }
 
 if not Actual_non_duplicates then Actual_non_duplicates = {} end

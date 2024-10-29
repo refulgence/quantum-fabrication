@@ -9,7 +9,7 @@ local tracking = {}
 ---@class RequestData
 ---@field entity? LuaEntity
 ---@field player_index? uint
----@field request_type "entities"|"revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"
+---@field request_type "entities"|"revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"|"repairs"
 ---@field target? LuaEntityPrototype
 ---@field quality? string
 ---@field item_request_proxy? LuaEntity
@@ -117,17 +117,13 @@ function tracking.on_tick_update_handler(entity, request_type)
             })
         end
         return nil, true, false
-    end
-
-    if request_type == "destroys" then
+    elseif request_type == "destroys" then
         if instant_defabrication(entity, player_index) then
             return nil, true, false
         else
             return nil, false, false
         end
-    end
-
-    if request_type == "upgrades" then
+    elseif request_type == "upgrades" then
         local target, quality_prototype = entity.get_upgrade_target()
         if not target then return nil, true, false end
         local quality
@@ -138,6 +134,12 @@ function tracking.on_tick_update_handler(entity, request_type)
         end
         local status = instant_upgrade(entity, target, quality, player_index)
         if status == "success" then
+            return nil, true, false
+        end
+    elseif request_type == "repairs" then
+        if not instant_repair(entity, player_index) then
+            return nil, false, false
+        else
             return nil, true, false
         end
     end

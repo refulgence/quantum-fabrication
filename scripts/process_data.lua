@@ -16,7 +16,6 @@ function reprocess_recipes()
     process_ingredient_filter()
 end
 
-
 function process_tiles()
     storage.tiles = {}
     storage.tile_link = {}

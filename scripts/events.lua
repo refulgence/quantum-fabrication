@@ -2,6 +2,7 @@ local utils = require("scripts/utils")
 local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
 local tracking = require("scripts/tracking_utils")
+local flib_table = require("__flib__.table")
 
 ---@class QSPrototypeData
 ---@field name string
@@ -64,23 +65,27 @@ function on_init()
         revivals = {},
         destroys = {},
         cliffs = {},
+        repairs = {},
     }
     storage.countdowns = {
         tile_creation = nil,
         revivals = nil,
         destroys = nil,
         upgrades = nil,
+        in_combat = nil,
     }
     storage.request_ids = {
         cliffs = 0,
         revivals = 1,
         destroys = 1,
         upgrades = 1,
+        repairs = 1,
     }
     storage.request_player_ids = {
         revivals = 1,
         destroys = 1,
         upgrades = 1,
+        repairs = 1,
     }
     ---@type table <string, table<uint, EntityData>>
     storage.tracked_entities = {}
@@ -244,6 +249,18 @@ function on_cancelled_upgrade(event)
 end
 
 
+function on_entity_died(event)
+    --storage.countdowns.in_combat = 30
+end
+
+function on_entity_damaged(event)
+    local entity = event.entity
+    if entity.force.name == "player" and entity.unit_number then
+        tracking.create_tracked_request({request_type = "repairs", entity = entity, player_index = event.player_index})
+        storage.countdowns.in_combat = 30
+    end
+end
+
 
 function on_player_created(event)
     storage.player_gui[event.player_index] = {
@@ -342,6 +359,14 @@ commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_reprocess_recipes", nil, on_console_command)
 
 
+script.on_nth_tick(5, function(event)
+    if next(storage.tracked_requests["repairs"]) and not storage.countdowns.in_combat then
+        storage.request_ids["repairs"] = flib_table.for_n_of(storage.tracked_requests["repairs"], storage.request_ids["repairs"], 2, function(request_table)
+            return tracking.on_tick_update_handler(request_table.entity, "repairs")
+        end)
+    end
+end)
+
 script.on_nth_tick(11, function(event)
     for type, countdown in pairs(storage.countdowns) do
         if countdown then
@@ -401,4 +426,11 @@ script.on_event(defines.events.on_marked_for_deconstruction, on_deconstructed)
 
 script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
+
+
+
+
+
+script.on_event(defines.events.on_entity_died, on_entity_died)
+script.on_event(defines.events.on_entity_damaged, on_entity_damaged)
  

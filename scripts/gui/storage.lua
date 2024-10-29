@@ -72,6 +72,7 @@ function build_tab(player, tabbed_pane, tab_type)
     }
     tab_content.style.height = QF_GUI.tabbed_pane.height
     tab_content.style.minimal_width = QF_GUI.tabbed_pane.width
+    tab_content.style.padding = 4
 
     local scroll_pane = tab_content.add{
         type = "scroll-pane",
@@ -89,12 +90,6 @@ function build_tab(player, tabbed_pane, tab_type)
     if column_count > QS_MAX_COLUMN_COUNT then column_count = QS_MAX_COLUMN_COUNT end
     if tab_type == "others" then
         column_count = column_count - 1
-        --local others_tab_label_1 = scroll_pane.add{type="label", caption = {"qf-inventory.others-tab-caption-1"}}
-        --others_tab_label_1.style.font = "default-bold"
-        --others_tab_label_1.style.single_line = false
-        --local others_tab_label_2 = scroll_pane.add{type="label", caption = {"qf-inventory.others-tab-caption-2"}}
-        --others_tab_label_2.style.font = "default-bold"
-        --others_tab_label_2.style.single_line = false
     end
 
     local content_table
@@ -113,6 +108,7 @@ function build_tab(player, tabbed_pane, tab_type)
         }
     end
     content_table.style.vertical_spacing = 0
+    content_table.style.bottom_margin = 8
 
     local sorted_list = storage.sorted_lists[player.index][tab_type]
     local fabricator_inventory = storage.fabricator_inventory[player.surface.index]
@@ -205,7 +201,7 @@ function build_tab(player, tabbed_pane, tab_type)
                 local item_take_out_button = placeables_final_flow.add{
                     type = "sprite-button",
                     style = "frame_action_button",
-                    sprite = button_sprite,
+                    sprite = "utility/downloading",
                     tooltip = take_out_caption
                 }
                 item_take_out_button.style.horizontal_align = "right"

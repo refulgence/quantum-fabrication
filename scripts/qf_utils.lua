@@ -86,6 +86,13 @@ function qf_utils.get_craftable_recipe(qs_item, player_inventory, decraft)
     return nil
 end
 
+function qf_utils.can_fabricate(item_name)
+    if storage.tiles[item_name] then
+        return false
+    end
+    return true
+end
+
 ---Fabricates a recipe. That recipe must be already checked or we could dip into negative storage and other funny stuff
 ---@param recipe table
 ---@param quality string

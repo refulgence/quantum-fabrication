@@ -1,4 +1,5 @@
 local flib_format = require("__flib__.format")
+local qf_utils = require("scripts/qf_utils")
 
 ---comment
 ---@param player LuaPlayer
@@ -42,6 +43,8 @@ function build_main_tooltip(player, item_name, recipe_name)
     item_description_label.style.single_line = false
     item_description_label.style.bottom_padding = 6
 
+
+
     local recipe_frame = tooltip_frame.add{
         type = "frame",
         name = "recipe_frame",
@@ -56,12 +59,16 @@ function build_main_tooltip(player, item_name, recipe_name)
     QF_GUI.tooltip_frame.required_label_width = 60
     QF_GUI.tooltip_frame.available_label_width = 65
 
+
+
     local column_count
     if #ingredients > 12 then
         column_count = 4
     else
         column_count = 2
     end
+
+
 
     item_description_label.style.maximal_width = 150 * column_count
 
@@ -128,6 +135,18 @@ function build_main_tooltip(player, item_name, recipe_name)
         amount_label.style.horizontal_align = "right"
     end
 
+    if not qf_utils.can_fabricate(item_name) then
+        recipe_frame.visible = false
+        local cant_fabricate_label = tooltip_frame.add{
+            type = "label",
+            caption = {"qf-inventory.cannot-fabricate"}
+        }
+        cant_fabricate_label.style.left_padding = 6
+        cant_fabricate_label.style.single_line = false
+        cant_fabricate_label.style.bottom_padding = 6
+        cant_fabricate_label.style.font_color = {0.8, 0.8, 0.4}
+        goto continue
+    end
 
     if storage.duplicate_recipes[item_name] then
         local duplicate_label_caption = {"qf-inventory.tooltip-dupe"}
@@ -140,6 +159,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         duplicate_label.style.single_line = false
     end
 
+    ::continue::
 
     local label_height_approximate = 28
 

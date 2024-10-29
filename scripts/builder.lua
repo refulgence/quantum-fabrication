@@ -250,6 +250,9 @@ function revive_ghost(entity, qs_item, inventory_type, player_inventory)
                     item_request_proxy = item_request_proxy,
                     request_type = "item_requests"
                 })
+            else
+                ---@diagnostic disable-next-line: need-check-nil
+                item_request_proxy.destroy()
             end
         end
         return true

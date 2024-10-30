@@ -2,7 +2,7 @@ local utils = require("scripts/utils")
 
 ---@class QSItem Format for items/fluids used in storage and fabrication
 ---@field name string
----@field count? int One of count or amount is required. Think about a way to change it
+---@field count int One of count or amount is required. Think about a way to change it
 ---@field amount? int
 ---@field type "item"|"fluid"
 ---@field quality? string Quality name
@@ -32,6 +32,44 @@ end
 function qs_utils.remove_from_storage(qs_item, count_override)
     if not qs_item then return end
     storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - (count_override or (qs_item.count or qs_item.amount))
+end
+
+---comment
+---@param qs_item QSItem
+---@param available? {storage: uint, inventory: uint|nil}
+---@param player_inventory? LuaInventory
+---@param count_override? uint
+---@return uint --number of items removed from the storage
+---@return uint|nil --number of items removed from the inventory
+---@return boolean
+function qs_utils.advanced_remove_from_storage(qs_item, available, player_inventory, count_override)
+    local to_remove = count_override or qs_item.count
+    local removed_from_storage, removed_from_inventory = 0, 0
+    if not available then
+        available = {}
+        available.storage, available.inventory = qs_utils.count_in_storage(qs_item, player_inventory)
+    end
+    if available.storage > to_remove then
+        removed_from_storage = to_remove
+        qs_utils.remove_from_storage(qs_item, to_remove)
+        return removed_from_storage, removed_from_inventory, true
+    else
+        removed_from_storage = available.storage
+        qs_utils.remove_from_storage(qs_item, available.storage)
+        to_remove = to_remove - available.storage
+    end
+    if player_inventory then
+        if available.inventory > to_remove then
+            removed_from_inventory = to_remove
+            player_inventory.remove({name = qs_item.name, count = to_remove, quality = qs_item.quality})
+            return removed_from_storage, removed_from_inventory, true
+        else
+            removed_from_inventory = available.inventory
+            player_inventory.remove({name = qs_item.name, count = available.inventory, quality = qs_item.quality})
+            to_remove = to_remove - available.inventory
+        end
+    end
+    return removed_from_storage, removed_from_inventory, false
 end
 
 
@@ -110,7 +148,7 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
                 end
                 return status
             else
-                qs_utils.add_to_storage({surface_index = qs_item.surface_index, name = name, amount = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid"})
+                qs_utils.add_to_storage({surface_index = qs_item.surface_index, name = name, count = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid"})
             end
         end
         ---@diagnostic disable-next-line: assign-type-mismatch
@@ -134,8 +172,11 @@ end
 function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
     local count_in_storage = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
     local count_in_player_inventory
-    if player_inventory and qs_item.type == "item" and qs_item.surface_index == player_surface_index then
-        count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+    if player_inventory and qs_item.type == "item" then
+        if not player_surface_index then player_surface_index = player_inventory.player_owner.physical_surface_index end
+        if qs_item.surface_index == player_surface_index then
+            count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+        end
     end
     return count_in_storage, count_in_player_inventory
 end
@@ -149,6 +190,7 @@ function qs_utils.get_available_tiles(surface_index)
     for tile_name, _ in pairs(storage.tiles) do
         result[tile_name] = qs_utils.count_in_storage({
             name = tile_name,
+            count = 1,
             surface_index = surface_index,
             quality = QS_DEFAULT_QUALITY,
             type = "item",
@@ -193,8 +235,7 @@ function qs_utils.to_qs_item(item, surface_index_override, quality)
     end
     return {
         name = item.name,
-        count = item.count,
-        amount = item.amount,
+        count = item.count or item.amount,
         type = item.type or "item",
         quality = qs_quality,
         surface_index = surface_index_override or item.surface_index

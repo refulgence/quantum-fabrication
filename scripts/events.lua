@@ -377,6 +377,8 @@ script.on_nth_tick(11, function(event)
                     instant_tileation()
                 elseif type == "revivals" or type == "destroys" or type == "upgrades" then
                     register_request_table(type)
+                elseif type == "in_combat" then
+                    register_request_table("revivals")
                 end
             end
         end

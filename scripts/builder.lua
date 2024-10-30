@@ -212,6 +212,10 @@ end
 function instant_repair(entity, player_index)
     if entity.health == entity.max_health then return true end
     local qs_item
+    local player = game.get_player(player_index)
+    local player_inventory
+    local player_surface_index
+    local in_storage, in_inventory
 
     for _, repair_tool in pairs(prototypes.get_item_filtered{{filter = "type", type = "repair-tool"}}) do
         for _, quality in pairs(utils.get_qualities()) do
@@ -223,14 +227,11 @@ function instant_repair(entity, player_index)
                 surface_index = entity.surface_index,
                 durability = repair_tool.get_durability(quality.name)
             }
-            local player = game.get_player(player_index)
-            local player_inventory
-            local player_surface_index
             if player then
                 player_inventory = player.get_inventory(defines.inventory.character_main)
                 player_surface_index = player.physical_surface_index
             end
-            local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+            in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
             if in_storage > 0 or (in_inventory and in_inventory > 0) then
                 goto continue
             else
@@ -241,15 +242,12 @@ function instant_repair(entity, player_index)
     ::continue::
     if not qs_item then return false end
 
+    -- Since we can't emulate durability (I mean, we can, but...) we'll just make repair packs randomly break based on health healed
+    -- It's not 100% accurate, but it works
     local to_heal = entity.max_health - entity.health
-    local chance_to_break
-    if qs_item.durability then
-        chance_to_break = (to_heal / (qs_item.durability * 2))
-    else
-        chance_to_break = 0.1
-    end
+    local chance_to_break = (to_heal / (qs_item.durability * 2))
     if math.random() < chance_to_break then
-        qs_utils.remove_from_storage(qs_item)
+        qs_utils.advanced_remove_from_storage(qs_item, {storage = in_storage, inventory = in_inventory}, player_inventory)
     end
     entity.health = entity.max_health
     return true

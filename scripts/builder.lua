@@ -8,9 +8,7 @@ local flib_table = require("__flib__.table")
 ---@param entity LuaEntity Entity to fabricate
 ---@param player_index? int
 function instant_fabrication(entity, player_index)
-
     local surface_index = entity.surface_index
-
     if not storage.prototypes_data[entity.ghost_name] then return false end
 
     local qs_item = {
@@ -309,11 +307,9 @@ end
 ---comment
 ---@param entity LuaEntity
 ---@param qs_item QSItem
----@param player_inventory? LuaInventory
----@return boolean
+---@param player_inventory? LuaInventory only sent if we are intending to take items from the inventory
+---@return boolean --true if it was revived, false otherwise
 function revive_ghost(entity, qs_item, player_inventory)
-    local entity_name = storage.prototypes_data[entity.ghost_name].item_name
-    local entity_quality = entity.quality.name
     local item_requests = entity.item_requests
     local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
@@ -322,14 +318,11 @@ function revive_ghost(entity, qs_item, player_inventory)
             qs_utils.remove_from_storage(qs_item)
         else
             ---@diagnostic disable-next-line: need-check-nil
-            player_inventory.remove({name = entity_name, count = 1, quality = entity_quality})
+            player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
         end
 
-        -- If there are module requests:
-        -- (it gets all requests, but we only care about modules, everything else is outside of the scope of the mod)
-        if item_requests and item_requests ~= {} then
-            -- it's nil if the entity doesn't have module inventory or request didn't had modules in it.
-            -- If true or nil we destroy the proxy
+        
+        if next(item_requests) ~= nil then
             local player_index
             if player_inventory then
                 player_index = player_inventory.player_owner.index
@@ -355,7 +348,6 @@ end
 ---@param item_requests table
 ---@param player_inventory? LuaInventory
 function handle_item_requests(entity, item_requests, player_inventory)
-
     local module_inventory = entity.get_module_inventory()
     local fuel_inventory = entity.get_fuel_inventory()
     local ammo_inventory = entity.get_inventory(defines.inventory.turret_ammo)
@@ -413,7 +405,6 @@ function handle_item_requests(entity, item_requests, player_inventory)
         return qs_item.count == 0
     end
 
-
     for _, item in pairs(item_requests) do
         local qs_item = {
             name = item.name,
@@ -435,7 +426,6 @@ function handle_item_requests(entity, item_requests, player_inventory)
         end
     end
     return satisfied
-
 end
 
 

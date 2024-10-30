@@ -475,7 +475,7 @@ function instant_deforestation(entity, player_index)
     if prototype.type == "item-entity" then
         local qs_item = {
             name = entity.stack.name,
-            count = entity.stack.count,
+            count = entity.stack.count or 1,
             type = "item",
             quality = entity.stack.quality or QS_DEFAULT_QUALITY,
             surface_index = surface_index

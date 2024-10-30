@@ -69,6 +69,7 @@ function on_init()
     }
     storage.countdowns = {
         tile_creation = nil,
+        tile_removal = nil,
         revivals = nil,
         destroys = nil,
         upgrades = nil,
@@ -162,7 +163,7 @@ function on_built_entity(event)
             storage.countdowns.revivals = 2
             storage.request_player_ids.revivals = event.player_index
         elseif event.entity.type == "tile-ghost" then
-            storage.countdowns.tile_creation = 20
+            storage.countdowns.tile_creation = 10
             goto continue
         end
         on_created(event)
@@ -198,14 +199,6 @@ function on_deconstructed(event)
     local entity = event.entity
     local player_index = event.player_index
     if entity and entity.valid and player_index then
-        if entity.type == "cliff" then
-            tracking.create_tracked_request({
-                entity = entity,
-                player_index = player_index,
-                request_type = "cliffs"
-            })
-            return
-        end
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
@@ -213,7 +206,15 @@ function on_deconstructed(event)
                     storage.countdowns.destroys = 2
                     storage.request_player_ids.destroys = player_index
                 end
-            elseif entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
+            elseif entity.type == "deconstructible-tile-proxy" then
+                storage.countdowns.tile_removal = 10
+            elseif entity.type == "cliff" then
+                tracking.create_tracked_request({
+                    entity = entity,
+                    player_index = player_index,
+                    request_type = "cliffs"
+                })
+            else  --if entity.prototype.type == "tree" or entity.prototype.type == "simple-entity" or entity.prototype.type == "item-entity" or entity.prototype.type == "fish" or entity.prototype.type == "plant" then
                 instant_deforestation(entity, player_index)
             end
         end
@@ -379,6 +380,8 @@ script.on_nth_tick(11, function(event)
                     register_request_table(type)
                 elseif type == "in_combat" then
                     register_request_table("revivals")
+                elseif type == "tile_removal" then
+                    instant_detileation()
                 end
             end
         end

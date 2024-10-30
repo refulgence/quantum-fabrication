@@ -76,6 +76,49 @@ function instant_defabrication(entity, player_index)
 end
 
 
+function instant_detileation()
+
+    local function add_to_storage(indices, surface_index)
+        for name, value in pairs(indices) do
+            qs_utils.add_to_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
+        end
+    end
+
+    local function set_hidden_tiles(surface, tiles)
+        for _, tile in pairs(tiles) do
+            if tile.double_hidden_tile then
+                surface.set_hidden_tile(tile.position, tile.double_hidden_tile)
+            end
+        end
+    end
+
+    for _, surface in pairs(game.surfaces) do
+        local tiles = surface.find_tiles_filtered({to_be_deconstructed = true})
+        local final_tiles = {}
+        local indices = {}
+        local final_index = 1
+        for _, tile in pairs(tiles) do
+            local hidden_tile = tile.hidden_tile
+            local double_hidden_tile = tile.double_hidden_tile
+            if hidden_tile then
+                final_tiles[final_index] = {
+                    name = hidden_tile,
+                    position = tile.position,
+                    double_hidden_tile = double_hidden_tile
+                }
+                final_index = final_index + 1
+            end
+            indices[storage.tile_link[tile.name]] = (indices[storage.tile_link[tile.name]] or 0) + 1
+        end
+        surface.set_tiles(final_tiles)
+        set_hidden_tiles(surface, final_tiles)
+        add_to_storage(indices, surface.index)
+    end
+
+
+end
+
+
 ---Unlike others, this one doesn't care for player inventories
 function instant_tileation()
     
@@ -93,18 +136,18 @@ function instant_tileation()
             local tile_availability = qs_utils.get_available_tiles(surface.index)
             local final_tiles = {}
             local indices = {}
-            local indices_overall = 1
+            local overall_index = 1
             for tile_name, _ in pairs(storage.tiles) do
                 indices[tile_name] = 0
             end
             for _, tile in pairs(tiles) do
                 local tile_name = storage.tile_link[tile.ghost_name]
                 if tile_availability[tile_name] > indices[tile_name] then
-                    final_tiles[indices_overall] = {
+                    final_tiles[overall_index] = {
                         name = tile.ghost_name,
                         position = tile.position
                     }
-                    indices_overall = indices_overall + 1
+                    overall_index = overall_index + 1
                     indices[tile_name] = indices[tile_name] + 1
                 else
                     schedule_retileation = true
@@ -425,20 +468,21 @@ end
 
 ---comment
 ---@param entity LuaEntity
----@param player_index int
+---@param player_index? int
 function instant_deforestation(entity, player_index)
     local player_inventory
+    local prototype = entity.prototype
     if player_index then
         player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
     end
     local surface_index = entity.surface_index
-    if entity.prototype.loot then
-        process_loot(entity.prototype.loot, player_inventory, surface_index)
+    if prototype.loot then
+        process_loot(prototype.loot, player_inventory, surface_index)
     end
-    if entity.prototype.mineable_properties and entity.prototype.mineable_properties.products then
-        process_mining(entity.prototype.mineable_properties, player_inventory, surface_index)
+    if prototype.mineable_properties and prototype.mineable_properties.products then
+        process_mining(prototype.mineable_properties, player_inventory, surface_index)
     end
-    if entity.prototype.type == "item-entity" then
+    if prototype.type == "item-entity" then
         local qs_item = {
             name = entity.stack.name,
             count = entity.stack.count,

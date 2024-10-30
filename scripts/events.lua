@@ -180,7 +180,7 @@ function on_created(event)
     end
 end
 
-function on_pre_mined(event)
+function on_pre_player_mined_item(event)
     local entity = event.entity
     local player_index = event.player_index
     if entity and entity.valid and player_index then
@@ -195,7 +195,7 @@ function on_pre_mined(event)
     end
 end
 
-function on_deconstructed(event)
+function on_marked_for_deconstruction(event)
     local entity = event.entity
     local player_index = event.player_index
     if entity and entity.valid and player_index then
@@ -426,8 +426,8 @@ script.on_event(defines.events.on_entity_died, on_destroyed)
 script.on_event(defines.events.script_raised_destroy, on_destroyed)
 script.on_event(defines.events.on_player_mined_entity, on_destroyed)
 
-script.on_event(defines.events.on_pre_player_mined_item, on_pre_mined)
-script.on_event(defines.events.on_marked_for_deconstruction, on_deconstructed)
+script.on_event(defines.events.on_pre_player_mined_item, on_pre_player_mined_item)
+script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_deconstruction)
 
 script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)

@@ -5,6 +5,7 @@ function process_data()
     initialize_surfaces()
     reprocess_recipes()
     process_item_group_order()
+    update_planet_surface_link()
 end
 
 function reprocess_recipes()
@@ -25,6 +26,8 @@ function process_tiles()
         storage.tile_link[tile.name] = tile.items_to_place_this[1].name
     end
 end
+
+
 
 ---Creates sorted lists to be used later in storage gui
 ---@param player_indices? table|uint

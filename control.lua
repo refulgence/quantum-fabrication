@@ -5,6 +5,8 @@ if script.active_mods["pyalienlife"] then require("compatibility/pyalienlife") e
 require "scripts/constants"
 require "scripts/process_data"
 require "scripts/builder"
+require "scripts/debuilder"
+require "scripts/space_platforms"
 
 require "scripts/translation"
 require "scripts/gui/events"

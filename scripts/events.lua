@@ -75,6 +75,9 @@ function on_init()
         upgrades = nil,
         in_combat = nil,
     }
+    storage.space_countdowns = {
+        space_sendoff = nil,
+    }
     storage.request_ids = {
         cliffs = 0,
         revivals = 1,
@@ -122,6 +125,7 @@ end
 function on_surface_created(event)
     local surface = game.surfaces[event.surface_index]
     initialize_surface(surface)
+    update_planet_surface_link()
 end
 
 
@@ -436,6 +440,8 @@ script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
 
 
 
+
+
+
 script.on_event(defines.events.on_entity_died, on_entity_died)
 script.on_event(defines.events.on_entity_damaged, on_entity_damaged)
- 

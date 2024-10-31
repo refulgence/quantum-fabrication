@@ -3,7 +3,6 @@ local utils = require("scripts/utils")
 ---@class QSItem Format for items/fluids used in storage and fabrication
 ---@field name string
 ---@field count int One of count or amount is required. Think about a way to change it
----@field amount? int
 ---@field type "item"|"fluid"
 ---@field quality? string Quality name
 ---@field surface_index uint Surface where this item/fluid is stored or processed
@@ -22,7 +21,7 @@ local qs_utils = {}
 ---@param count_override? int
 function qs_utils.add_to_storage(qs_item, try_defabricate, count_override)
     if not qs_item then return end
-    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + (count_override or (qs_item.count or qs_item.amount))
+    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] + (count_override or qs_item.count)
     if try_defabricate and settings.global["qf-allow-decrafting"].value and not storage.tiles[qs_item.name] then decraft(qs_item) end
 end
 
@@ -31,7 +30,7 @@ end
 ---@param count_override? int
 function qs_utils.remove_from_storage(qs_item, count_override)
     if not qs_item then return end
-    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - (count_override or (qs_item.count or qs_item.amount))
+    storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - (count_override or qs_item.count)
 end
 
 ---comment
@@ -88,7 +87,7 @@ function qs_utils.add_to_player_inventory(player_inventory, qs_item)
     end
 end
 
----TODO: initialize fabricator_inventory for newly created surfaces, so we won't have to do throught this thing again and again
+---Initializes the storage table for this particular element.
 ---@param qs_item QSItem
 function qs_utils.storage_item_check(qs_item)
     qs_utils.set_default_quality(qs_item)
@@ -118,7 +117,7 @@ end
 ---@return StorageStatusTable
 function qs_utils.pull_from_storage(qs_item, target_inventory)
     local available = qs_utils.count_in_storage(qs_item)
-    local to_be_provided = qs_item.count or qs_item.amount
+    local to_be_provided = qs_item.count
     local status = {empty_storage = false, full_inventory = false}
     if available == 0 then
         status.empty_storage = true
@@ -141,7 +140,7 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
             if name == qs_item.name then
                 ---@diagnostic disable-next-line: assign-type-mismatch
                 local inserted = target_inventory.insert_fluid{name = qs_item.name, amount = to_be_provided}
-                qs_item.amount = inserted
+                qs_item.count = inserted
                 qs_utils.remove_from_storage(qs_item)
                 if inserted < to_be_provided then
                     status.full_inventory = true
@@ -153,7 +152,7 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
         end
         ---@diagnostic disable-next-line: assign-type-mismatch
         local inserted = target_inventory.insert_fluid{name = qs_item.name, amount = to_be_provided}
-        qs_item.amount = inserted
+        qs_item.count = inserted
         qs_utils.remove_from_storage(qs_item)
         if inserted < to_be_provided then
             status.full_inventory = true

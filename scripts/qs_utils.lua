@@ -87,7 +87,7 @@ function qs_utils.add_to_player_inventory(player_inventory, qs_item)
     end
 end
 
----Initializes the storage table for this particular element.
+---Initializes the storage table for this particular item.
 ---@param qs_item QSItem
 function qs_utils.storage_item_check(qs_item)
     qs_utils.set_default_quality(qs_item)

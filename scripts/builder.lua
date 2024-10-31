@@ -477,7 +477,7 @@ function instant_deforestation(entity, player_index)
             name = entity.stack.name,
             count = entity.stack.count or 1,
             type = "item",
-            quality = entity.stack.quality or QS_DEFAULT_QUALITY,
+            quality = entity.stack.quality.name or QS_DEFAULT_QUALITY,
             surface_index = surface_index
         }
         qs_utils.add_to_player_inventory(player_inventory, qs_item)

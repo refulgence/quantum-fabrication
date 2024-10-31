@@ -1,4 +1,5 @@
 local qs_utils = require("scripts/qs_utils")
+local qf_utils = require("scripts/qf_utils")
 local flib_table = require("__flib__.table")
 
 
@@ -80,13 +81,24 @@ end
 ---@param platform_payloads { hub_inventory: LuaInventory, rocket_silo: LuaEntity, qs_items: QSItem[] }[]
 ---@return boolean
 function send_to_space(platform_payloads)
-    local status = true
+    local sent_everything = true
     for _, payload in pairs(platform_payloads) do
         local hub_inventory = payload.hub_inventory
         for _, qs_item in pairs(payload.qs_items) do
+            local storage_index = payload.rocket_silo.surface_index
+            if qs_item.count > qs_utils.count_in_storage(qs_item) then
+                local recipe = qf_utils.get_craftable_recipe(qs_item)
+                if recipe then
+                    if qs_item.count > qf_utils.how_many_can_craft(recipe, qs_item.quality, storage_index) then
+                        sent_everything = false
+                        goto continue
+                    else
+                        qf_utils.fabricate_recipe(recipe, qs_item.quality, storage_index, nil, qs_item.count)
+                    end
+                end
+            end
             local transfer_cost = get_space_transfer_cost(qs_item, payload.rocket_silo)
             local rocket_parts_recipe = prototypes.recipe["rocket-part"]
-            local storage_index = payload.rocket_silo.surface_index
             if can_afford_space_transfer(transfer_cost, rocket_parts_recipe, storage_index) then
                 for _, ingredient in pairs(rocket_parts_recipe.ingredients) do
                     local qs_item_rocket_part_ingredient = {
@@ -100,18 +112,19 @@ function send_to_space(platform_payloads)
                 end
                 local pull_result = qs_utils.pull_from_storage(qs_item, hub_inventory)
                 if pull_result.full_inventory then
-                    status = false
+                    sent_everything = false
                     break
                 end
                 if pull_result.empty_storage then
-                    status = false
+                    sent_everything = false
                 end
             else
-                status = false
+                sent_everything = false
             end
+            ::continue::
         end
     end
-    return status
+    return sent_everything
 end
 
 
@@ -121,8 +134,6 @@ end
 function get_space_transfer_cost(qs_item, rocket_silo)
     local cost
     local weigth = qs_item.count * prototypes.item[qs_item.name].weight
-
-        
     local rocket_parts_per_launch = rocket_silo.prototype.rocket_parts_required
     local rocket_weight_limit = 1000000
     local productivity = 1 + rocket_silo.productivity_bonus
@@ -133,7 +144,6 @@ end
 ---@param cost uint
 ---@param storage_index uint
 function can_afford_space_transfer(cost, recipe, storage_index)
-    local rocket_parts_recipe = prototypes.recipe["rocket-part"]
     for _, ingredient in pairs(recipe.ingredients) do
         local qs_item = {
             name = ingredient.name,

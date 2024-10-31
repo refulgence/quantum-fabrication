@@ -9,8 +9,8 @@ local qf_utils = {}
 ---comment
 ---@param recipe table
 ---@param quality string
----@param player_inventory? LuaInventory
 ---@param surface_index uint
+---@param player_inventory? LuaInventory
 ---@return int
 function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory)
     local result

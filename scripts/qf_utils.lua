@@ -1,5 +1,6 @@
 local qs_utils = require("scripts/qs_utils")
 local flib_table = require("__flib__.table")
+local utils = require("scripts/utils")
 
 ---@class qf_utils
 local qf_utils = {}
@@ -11,8 +12,9 @@ local qf_utils = {}
 ---@param quality string
 ---@param surface_index uint
 ---@param player_inventory? LuaInventory
+---@param multiply_by_product_amount? boolean
 ---@return int
-function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory)
+function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory, multiply_by_product_amount)
     local result
     for _, ingredient in pairs(recipe.ingredients) do
         local qs_item = qs_utils.to_qs_item({
@@ -30,6 +32,14 @@ function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inve
                 result = math.floor(available / qs_item.count)
             else
                 result = math.min(result, math.floor(available / qs_item.count))
+            end
+        end
+    end
+    if multiply_by_product_amount then
+        for _, product in pairs(recipe.products) do
+            if product.amount > 1 and utils.is_placeable(product.name) then
+                result = result * product.amount
+                break
             end
         end
     end

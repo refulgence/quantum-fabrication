@@ -20,9 +20,12 @@ function build_main_storage_gui(player, storage_flow_parent)
         direction = "horizontal"
     }
     storage_titlebar.style.height = QF_GUI.titlebar.height
+
+    local storage_index = get_storage_index(nil, player)
+
     storage_titlebar.add{
         type = "label",
-        caption = {"", {"qf-inventory.storage-frame-title"}, " #", player.surface.index},
+        caption = {"", {"qf-inventory.storage-frame-title"}, " #", storage_index},
         style = "frame_title"
     }
     local draggable_space = storage_titlebar.add{
@@ -110,8 +113,10 @@ function build_tab(player, tabbed_pane, tab_type)
     content_table.style.vertical_spacing = 0
     content_table.style.bottom_margin = 8
 
+    local storage_index = get_storage_index(nil, player)
+
     local sorted_list = storage.sorted_lists[player.index][tab_type]
-    local fabricator_inventory = storage.fabricator_inventory[player.surface.index]
+    local fabricator_inventory = storage.fabricator_inventory[storage_index]
     for _, item in pairs(sorted_list) do
         if Filtered_data[player.index][tab_type][item.name] then
             local item_type = item.type
@@ -193,21 +198,24 @@ function build_tab(player, tabbed_pane, tab_type)
                 end
             elseif tab_type == "placeables" then
                 local placeables_final_flow = content_table.add{type = "flow", direction = "horizontal"}
-                local take_out_caption = {"qf-inventory.take-out-item-quality"}
-                if not script.feature_flags["quality"] then take_out_caption = {"qf-inventory.take-out-item"} end
-                local button_sprite = "qf-vanilla-ghost-entity-icon"
-                local button_tags = {button_type = "take_out_item", item_name = item.name}
-                
-        
-                local item_take_out_button = placeables_final_flow.add{
-                    type = "sprite-button",
-                    style = "frame_action_button",
-                    sprite = "utility/downloading",
-                    tooltip = take_out_caption
-                }
-                item_take_out_button.style.horizontal_align = "right"
-                item_take_out_button.style.size = QF_GUI.tabbed_pane.button_size
-                item_take_out_button.tags = button_tags
+
+                if not player.surface.platform then
+                    local take_out_caption = {"qf-inventory.take-out-item-quality"}
+                    if not script.feature_flags["quality"] then take_out_caption = {"qf-inventory.take-out-item"} end
+                    local button_sprite = "qf-vanilla-ghost-entity-icon"
+                    local button_tags = {button_type = "take_out_item", item_name = item.name}
+                    
+                    
+                    local item_take_out_button = placeables_final_flow.add{
+                        type = "sprite-button",
+                        style = "frame_action_button",
+                        sprite = "utility/downloading",
+                        tooltip = take_out_caption
+                    }
+                    item_take_out_button.style.horizontal_align = "right"
+                    item_take_out_button.style.size = QF_GUI.tabbed_pane.button_size
+                    item_take_out_button.tags = button_tags
+                end
             end
 
             ::continue::

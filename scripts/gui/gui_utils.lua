@@ -113,9 +113,9 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
         return
     end
     if storage.player_gui[player_index].options.calculate_numbers then
-        Craft_data[player_index][surface_index][recipe_name][quality_name] = qf_utils.how_many_can_craft(recipe, quality_name, surface_index, player_inventory) + available
+        Craft_data[player_index][surface_index][recipe_name][quality_name] = qf_utils.how_many_can_craft(recipe, quality_name, surface_index, player_inventory, true) + available
     else
-        if qf_utils.is_recipe_craftable(recipe, quality_name, surface_index, player_inventory) then
+        if qf_utils.is_recipe_craftable(recipe, quality_name, surface_index, player_inventory, true) then
             Craft_data[player_index][surface_index][recipe_name][quality_name] = 1
         else
             Craft_data[player_index][surface_index][recipe_name][quality_name] = 0

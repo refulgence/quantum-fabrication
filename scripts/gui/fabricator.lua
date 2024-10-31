@@ -44,7 +44,7 @@ function build_main_gui(player)
 
     build_main_recipe_gui(player, recipe_flow)
 
-    if storage.player_gui[player.index].show_storage and not player.surface.platform then
+    if storage.player_gui[player.index].show_storage then
         build_main_storage_gui(player, storage_flow)
         storage_flow.visible = true
     else
@@ -129,14 +129,19 @@ function build_titlebar(player, titlebar_flow_parent)
 
     local surface = player.surface
     local titlebar_caption
-    local toggle_storage_tooltip
+    local toggle_storage_tooltip = {"qf-inventory.toggle-storage-button-tooltip"}
     if surface.platform then
-        titlebar_caption = {"", {"qf-inventory.recipe-frame-title-ghost"}, ": ", {"surface-name.space-platform"}}
-        toggle_storage_tooltip = {"qf-inventory.toggle-storage-button-tooltip-platform"}
-        toggle_storage_button.enabled = false
+        local space_location = surface.platform.space_location
+        if space_location then
+            local planet_name = space_location.localised_name
+            titlebar_caption = {"", {"qf-inventory.recipe-frame-title"}, ": Above ", planet_name}
+        else
+            titlebar_caption = {"", {"qf-inventory.recipe-frame-title-ghost"}, ": ", {"surface-name.space-platform"}}
+            toggle_storage_tooltip = {"qf-inventory.toggle-storage-button-tooltip-platform"}
+            toggle_storage_button.enabled = false
+        end
     else
         titlebar_caption = {"", {"qf-inventory.recipe-frame-title"}, ": ", surface.localised_name or surface.planet.prototype.localised_name}
-        toggle_storage_tooltip = {"qf-inventory.toggle-storage-button-tooltip"}
     end
 
     toggle_storage_button.tooltip = toggle_storage_tooltip
@@ -272,10 +277,11 @@ end
 ---@param recipe_frame LuaGuiElement
 function build_main_recipe_item_list_gui(player, recipe_frame)
 
-    local surface_index = player.surface.index
+    local surface_index = get_storage_index(nil, player) or player.surface.index
     local quality_name = storage.player_gui[player.index].quality.name
     local player_index = player.index
     local player_inventory = player.get_inventory(defines.inventory.character_main)
+    if player.surface.platform then player_inventory = player.surface.platform.hub.get_inventory(defines.inventory.hub_main) end
 
     if recipe_frame.recipe_item_scroll_pane then recipe_frame.recipe_item_scroll_pane.destroy() end
 

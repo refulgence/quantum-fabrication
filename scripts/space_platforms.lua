@@ -14,13 +14,21 @@ function update_planet_surface_link()
 end
 
 
----If the platform is stopped by a planet, we give that planet's surface index
----@param platform LuaSpacePlatform
+---Returns a linked surface index for a given space location, or for a thing the player is looking at
+---@param space_location_prototype? LuaSpaceLocationPrototype
+---@param player? LuaPlayer
 ---@return uint|nil
-function get_storage_index(platform)
+function get_storage_index(space_location_prototype, player)
     local index
-    if platform.space_location then
-        index = storage.planet_surface_link[platform.space_location.name]
+    if space_location_prototype then
+        index = storage.planet_surface_link[space_location_prototype.name]
+    elseif player then
+        local player_surface = player.surface
+        if player_surface.platform then
+            index = storage.planet_surface_link[player_surface.platform.space_location.name]
+        else
+            index = player_surface.index
+        end
     end
     return index
 end
@@ -32,7 +40,7 @@ function get_space_requests()
     for _, surface in pairs(game.surfaces) do
         local platform = surface.platform
         if platform then
-            local storage_index = get_storage_index(platform)
+            local storage_index = get_storage_index(platform.space_location)
             if storage_index then
                 local rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
                 if rocket_silo then
@@ -89,7 +97,7 @@ function send_to_space(platform_payloads)
             if qs_item.count > qs_utils.count_in_storage(qs_item) then
                 local recipe = qf_utils.get_craftable_recipe(qs_item)
                 if recipe then
-                    if qs_item.count > qf_utils.how_many_can_craft(recipe, qs_item.quality, storage_index) then
+                    if qs_item.count > qf_utils.how_many_can_craft(recipe, qs_item.quality, storage_index, nil, true) then
                         sent_everything = false
                         goto continue
                     else

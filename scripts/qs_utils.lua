@@ -172,9 +172,16 @@ function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_ind
     local count_in_storage = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
     local count_in_player_inventory
     if player_inventory and qs_item.type == "item" then
-        if not player_surface_index then player_surface_index = player_inventory.player_owner.physical_surface_index end
-        if qs_item.surface_index == player_surface_index then
-            count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+        if not player_surface_index then
+            local player = player_inventory.player_owner
+            if player then
+                player_surface_index = player_inventory.player_owner.physical_surface_index
+                if qs_item.surface_index == player_surface_index then
+                    count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+                end
+            else
+                count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+            end
         end
     end
     return count_in_storage, count_in_player_inventory

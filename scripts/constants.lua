@@ -77,3 +77,4 @@ if not Autocraft_blacklist then Autocraft_blacklist = {} end
 if not Recipe_blacklist then Recipe_blacklist = {} end
 
 QS_DEFAULT_QUALITY = "normal"
+QS_ROCKET_PART_RECIPE = prototypes.recipe["rocket-part"]

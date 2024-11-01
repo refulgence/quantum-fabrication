@@ -1,5 +1,6 @@
 local utils = require("scripts/utils")
 local flib_format = require("__flib__.format")
+local qf_utils = require("scripts/qf_utils")
 
 ---comment
 ---@param player LuaPlayer
@@ -36,6 +37,19 @@ function build_main_storage_gui(player, storage_flow_parent)
     draggable_space.style.horizontally_stretchable = true
     draggable_space.style.height = QF_GUI.dragspace.height
     storage_titlebar.drag_target = player.gui.screen.qf_fabricator_frame
+
+    if player.surface.platform then
+        ---@diagnostic disable-next-line: param-type-mismatch
+        local numbers = qf_utils.how_many_can_craft(QS_ROCKET_PART_RECIPE, "normal", storage_index)
+        local rocket_parts_label = storage_titlebar.add{
+            type = "label",
+            caption = {"", "[item=rocket-part]", "x", numbers},
+            style = "frame_title",
+            tooltip = {"qf-inventory.rocket-parts-hover"}
+        }
+    end
+
+
     
     local storage_frame = storage_flow.add{type = "frame", name = "storage_frame", direction = "vertical", style="inside_shallow_frame"}
     storage_frame.style.height = QF_GUI.storage_frame.height

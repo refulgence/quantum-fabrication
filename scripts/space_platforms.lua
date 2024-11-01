@@ -106,7 +106,7 @@ function send_to_space(platform_payloads)
                 end
             end
             local transfer_cost = get_space_transfer_cost(qs_item, payload.rocket_silo)
-            local rocket_parts_recipe = prototypes.recipe["rocket-part"]
+            local rocket_parts_recipe = QS_ROCKET_PART_RECIPE
             if can_afford_space_transfer(transfer_cost, rocket_parts_recipe, storage_index) then
                 for _, ingredient in pairs(rocket_parts_recipe.ingredients) do
                     local qs_item_rocket_part_ingredient = {

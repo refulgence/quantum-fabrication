@@ -38,6 +38,7 @@ function build_main_storage_gui(player, storage_flow_parent)
     draggable_space.style.height = QF_GUI.dragspace.height
     storage_titlebar.drag_target = player.gui.screen.qf_fabricator_frame
 
+    
     if player.surface.platform then
         ---@diagnostic disable-next-line: param-type-mismatch
         local numbers = qf_utils.how_many_can_craft(QS_ROCKET_PART_RECIPE, "normal", storage_index)

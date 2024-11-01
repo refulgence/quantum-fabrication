@@ -35,6 +35,7 @@ function build_main_gui(player)
     }
     storage_flow.style.height = QF_GUI.storage_frame.height
     storage_flow.style.minimal_width = QF_GUI.storage_frame.width
+    storage_flow.visible = false
 
     -- Titlebar
     build_titlebar(player, recipe_flow)
@@ -44,11 +45,11 @@ function build_main_gui(player)
 
     build_main_recipe_gui(player, recipe_flow)
 
-    if storage.player_gui[player.index].show_storage then
+
+
+    if storage.player_gui[player.index].show_storage and (not player.surface.platform or player.surface.platform.space_location) then
         build_main_storage_gui(player, storage_flow)
         storage_flow.visible = true
-    else
-        storage_flow.visible = false
     end
 
     player.opened = main_frame

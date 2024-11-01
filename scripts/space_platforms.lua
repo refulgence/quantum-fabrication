@@ -24,7 +24,7 @@ function get_storage_index(space_location_prototype, player)
         index = storage.planet_surface_link[space_location_prototype.name]
     elseif player then
         local player_surface = player.surface
-        if player_surface.platform then
+        if player_surface.platform and player_surface.platform.space_location then
             index = storage.planet_surface_link[player_surface.platform.space_location.name]
         else
             index = player_surface.index

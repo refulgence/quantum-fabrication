@@ -86,7 +86,7 @@ function instant_tileation()
                 remove_from_storage(indices, surface.index)
             end
         else
-            --send_tiles_to_space(surface)
+            storage.space_countdowns.space_sendoff = 2
         end
     end
     if schedule_retileation then

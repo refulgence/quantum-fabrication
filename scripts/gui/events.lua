@@ -94,7 +94,7 @@ function on_gui_click(event)
         qs_utils.take_from_storage(qs_item, player)
     elseif element_tags.button_type == "take_out_ghost" then
         player.clear_cursor()
-        player.cursor_ghost = element_tags.item_name
+        player.cursor_ghost = {name = element_tags.item_name, quality = storage.player_gui[event.player_index].quality.name}
         toggle_qf_gui(player)
     elseif element.name == "qf_options_button" then
         toggle_options_gui(player)

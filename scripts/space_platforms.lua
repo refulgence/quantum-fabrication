@@ -138,7 +138,7 @@ end
 
 ---@param qs_item QSItem
 ---@param rocket_silo LuaEntity
----@return uint --number of rocket parts to pay
+---@return uint --number of rocket parts to pay rounded down unless it's less than 1
 function get_space_transfer_cost(qs_item, rocket_silo)
     local cost
     local weigth = qs_item.count * prototypes.item[qs_item.name].weight
@@ -146,7 +146,8 @@ function get_space_transfer_cost(qs_item, rocket_silo)
     local rocket_weight_limit = 1000000
     local productivity = 1 + rocket_silo.productivity_bonus
     cost = rocket_parts_per_launch * weigth / rocket_weight_limit / productivity
-    return math.ceil(cost)
+    if cost < 1 then return 1 end
+    return math.floor(cost)
 end
 
 ---@param cost uint

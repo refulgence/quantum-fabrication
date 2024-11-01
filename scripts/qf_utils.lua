@@ -24,14 +24,14 @@ function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inve
             quality = quality,
             surface_index = surface_index
         })
-        local available = qs_utils.count_in_storage(qs_item, player_inventory)
-        if available < qs_item.count then
+        local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
+        if total < qs_item.count then
             return 0
         else
             if not result then
-                result = math.floor(available / qs_item.count)
+                result = math.floor(total / qs_item.count)
             else
-                result = math.min(result, math.floor(available / qs_item.count))
+                result = math.min(result, math.floor(total / qs_item.count))
             end
         end
     end
@@ -67,7 +67,8 @@ function qf_utils.is_recipe_craftable(recipe, quality, surface_index, player_inv
             quality = quality,
             surface_index = surface_index
         })
-        if qs_utils.count_in_storage(qs_item, player_inventory) < qs_item.count then
+        local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
+        if total < qs_item.count then
             return false
         end
     end

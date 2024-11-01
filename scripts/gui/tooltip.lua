@@ -96,8 +96,7 @@ function build_main_tooltip(player, item_name, recipe_name)
             quality = actual_quality,
             surface_index = surface_index
         }
-        local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player.get_main_inventory())
-        local available = in_storage + in_inventory
+        local _, _, available = qs_utils.count_in_storage(qs_item, player.get_main_inventory())
         local ingredient_caption = {"", icon, localised_name}
         local font_color = {1.0, 1.0, 1.0}
         if available / required < 10 then

@@ -194,7 +194,7 @@ function instant_repair(entity, player_index)
     local player = game.get_player(player_index)
     local player_inventory
     local player_surface_index
-    local in_storage, in_inventory
+    local in_storage, in_inventory, available
 
     for _, repair_tool in pairs(prototypes.get_item_filtered{{filter = "type", type = "repair-tool"}}) do
         for _, quality in pairs(utils.get_qualities()) do
@@ -210,8 +210,8 @@ function instant_repair(entity, player_index)
                 player_inventory = player.get_inventory(defines.inventory.character_main)
                 player_surface_index = player.physical_surface_index
             end
-            in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
-            if in_storage > 0 or (in_inventory and in_inventory > 0) then
+            in_storage, in_inventory, available = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+            if available > 0 then
                 goto continue
             else
                 qs_item = nil

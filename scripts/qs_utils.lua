@@ -168,6 +168,7 @@ end
 ---@param player_surface_index? uint
 ---@return uint
 ---@return uint|nil
+---@return uint
 function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
     local count_in_storage = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
     local count_in_player_inventory
@@ -184,7 +185,7 @@ function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_ind
             end
         end
     end
-    return count_in_storage, count_in_player_inventory
+    return count_in_storage, count_in_player_inventory, count_in_storage + (count_in_player_inventory or 0)
 end
 
 

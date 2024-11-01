@@ -1,5 +1,6 @@
 local flib_format = require("__flib__.format")
 local qf_utils = require("scripts/qf_utils")
+local qs_utils = require("scripts/qs_utils")
 
 ---comment
 ---@param player LuaPlayer
@@ -74,6 +75,7 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     local surface_index = player.surface.index
     local quality = storage.player_gui[player.index].quality.name
+    local player_inventory = player.get_main_inventory()
 
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
@@ -87,7 +89,15 @@ function build_main_tooltip(player, item_name, recipe_name)
         local localised_name = prototypes[ingredient.type][ingredient.name].localised_name
 
         local required = ingredient.amount
-        local available = storage.fabricator_inventory[surface_index][ingredient.type][ingredient.name][actual_quality] or 0
+        local qs_item = {
+            name = ingredient.name,
+            type = ingredient.type,
+            count = required,
+            quality = actual_quality,
+            surface_index = surface_index
+        }
+        local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player.get_main_inventory())
+        local available = in_storage + in_inventory
         local ingredient_caption = {"", icon, localised_name}
         local font_color = {1.0, 1.0, 1.0}
         if available / required < 10 then

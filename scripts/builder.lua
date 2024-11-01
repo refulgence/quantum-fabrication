@@ -338,12 +338,16 @@ function handle_item_requests(entity, item_requests, player_inventory)
     end
 
     for _, item in pairs(item_requests) do
+        local surface_index = entity.surface_index
+        if entity.surface.platform then
+            surface_index = get_storage_index(entity.surface.platform.space_location) or entity.surface_index
+        end
         local qs_item = {
             name = item.name,
             count = item.count,
             quality = item.quality,
             type = "item",
-            surface_index = entity.surface_index
+            surface_index = surface_index
         }
         local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
         if utils.is_module(qs_item.name) and module_inventory and module_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then

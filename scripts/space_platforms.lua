@@ -43,47 +43,44 @@ function get_space_requests()
             if storage_index then
                 local rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
                 if rocket_silo then
-                    local hub = platform.hub
-                    if hub then
-                        local hub_inventory = hub.get_inventory(defines.inventory.hub_main)
-                        local entity_targets = surface.find_entities_filtered({name = "entity-ghost"})
-                        local qs_items_result = {}
-                        for _, entity_target in pairs(entity_targets) do
-                            local ghost_name = entity_target.ghost_name
-                            if qs_items_result[ghost_name] then
-                                qs_items_result[ghost_name].count = qs_items_result[ghost_name].count + 1
-                            else
-                                qs_items_result[ghost_name] = {
-                                    name = ghost_name,
-                                    count = 1,
-                                    surface_index = storage_index,
-                                    quality = entity_target.quality.name or QS_DEFAULT_QUALITY,
-                                    type = "item"
-                                }
-                            end
-                        end
-                        local tile_target_count = surface.count_tiles_filtered({has_tile_ghost = true})
-                        if tile_target_count > 0 then
-                            qs_items_result["space-platform-foundation"] = {
-                                name = "space-platform-foundation",
-                                count = tile_target_count,
-                                quality = QS_DEFAULT_QUALITY,
+                    local hub_inventory = platform.hub.get_inventory(defines.inventory.hub_main)
+                    local entity_targets = surface.find_entities_filtered({name = "entity-ghost"})
+                    local qs_items_result = {}
+                    for _, entity_target in pairs(entity_targets) do
+                        local ghost_name = entity_target.ghost_name
+                        if qs_items_result[ghost_name] then
+                            qs_items_result[ghost_name].count = qs_items_result[ghost_name].count + 1
+                        else
+                            qs_items_result[ghost_name] = {
+                                name = ghost_name,
+                                count = 1,
                                 surface_index = storage_index,
+                                quality = entity_target.quality.name or QS_DEFAULT_QUALITY,
                                 type = "item"
                             }
                         end
-                        if hub_inventory then
-                            for index, qs_item in pairs(qs_items_result) do
-                                qs_item.count = qs_item.count - hub_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
-                                if qs_item.count <= 0 then qs_items_result[index] = nil end
-                            end
-                        end
-                        result[#result+1] = {
-                            hub_inventory = platform.hub.get_inventory(defines.inventory.hub_main),
-                            qs_items = qs_items_result,
-                            rocket_silo = rocket_silo
+                    end
+                    local tile_target_count = surface.count_tiles_filtered({has_tile_ghost = true})
+                    if tile_target_count > 0 then
+                        qs_items_result[QS_SPACE_FOUNDATION_NAME] = {
+                            name = QS_SPACE_FOUNDATION_NAME,
+                            count = tile_target_count,
+                            quality = QS_DEFAULT_QUALITY,
+                            surface_index = storage_index,
+                            type = "item"
                         }
                     end
+                    if hub_inventory then
+                        for index, qs_item in pairs(qs_items_result) do
+                            qs_item.count = qs_item.count - hub_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+                            if qs_item.count <= 0 then qs_items_result[index] = nil end
+                        end
+                    end
+                    result[#result+1] = {
+                        hub_inventory = hub_inventory,
+                        qs_items = qs_items_result,
+                        rocket_silo = rocket_silo
+                    }
                 end
             end
         end
@@ -150,11 +147,11 @@ end
 ---@return uint --number of rocket parts to pay rounded down unless it's less than 1
 function get_space_transfer_cost(qs_item, rocket_silo)
     local cost
-    local weigth = qs_item.count * prototypes.item[qs_item.name].weight
+    local weight = qs_item.count * prototypes.item[qs_item.name].weight
     local rocket_parts_per_launch = rocket_silo.prototype.rocket_parts_required
-    local rocket_weight_limit = 1000000
+    local rocket_weight_limit = QS_ROCKET_WEIGHT_LIMIT
     local productivity = 1 + rocket_silo.productivity_bonus
-    cost = rocket_parts_per_launch * weigth / rocket_weight_limit / productivity
+    cost = rocket_parts_per_launch * weight / rocket_weight_limit / productivity
     if cost < 1 then return 1 end
     return math.floor(cost)
 end

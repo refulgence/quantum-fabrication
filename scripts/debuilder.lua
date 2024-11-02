@@ -7,10 +7,8 @@ local qf_utils = require("scripts/qf_utils")
 function instant_defabrication(entity, player_index)
     if not storage.prototypes_data[entity.name] then return false end
     if entity.surface.platform then return true end
-
+    
     local surface_index = entity.surface_index
-
-
     local qs_item = {
         name = storage.prototypes_data[entity.name].item_name,
         count = 1,

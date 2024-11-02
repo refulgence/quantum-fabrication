@@ -3,10 +3,13 @@ local qf_utils = require("scripts/qf_utils")
 
 ---@param entity LuaEntity
 ---@param player_index? int id of a player who placed the order
+---@return boolean --returns false if defabrication failed AND we'll need to retry later; true otherwise
 function instant_defabrication(entity, player_index)
     if not storage.prototypes_data[entity.name] then return false end
+    if entity.surface.platform then return true end
 
     local surface_index = entity.surface_index
+
 
     local qs_item = {
         name = storage.prototypes_data[entity.name].item_name,
@@ -43,26 +46,28 @@ function instant_detileation()
     end
 
     for _, surface in pairs(game.surfaces) do
-        local tiles = surface.find_tiles_filtered({to_be_deconstructed = true})
-        local final_tiles = {}
-        local indices = {}
-        local final_index = 1
-        for _, tile in pairs(tiles) do
-            local hidden_tile = tile.hidden_tile
-            local double_hidden_tile = tile.double_hidden_tile
-            if hidden_tile then
-                final_tiles[final_index] = {
-                    name = hidden_tile,
-                    position = tile.position,
-                    double_hidden_tile = double_hidden_tile
-                }
-                final_index = final_index + 1
+        if not surface.platform then
+            local tiles = surface.find_tiles_filtered({to_be_deconstructed = true})
+            local final_tiles = {}
+            local indices = {}
+            local final_index = 1
+            for _, tile in pairs(tiles) do
+                local hidden_tile = tile.hidden_tile
+                local double_hidden_tile = tile.double_hidden_tile
+                if hidden_tile then
+                    final_tiles[final_index] = {
+                        name = hidden_tile,
+                        position = tile.position,
+                        double_hidden_tile = double_hidden_tile
+                    }
+                    final_index = final_index + 1
+                end
+                indices[storage.tile_link[tile.name]] = (indices[storage.tile_link[tile.name]] or 0) + 1
             end
-            indices[storage.tile_link[tile.name]] = (indices[storage.tile_link[tile.name]] or 0) + 1
+            surface.set_tiles(final_tiles)
+            set_hidden_tiles(surface, final_tiles)
+            add_to_storage(indices, surface.index)
         end
-        surface.set_tiles(final_tiles)
-        set_hidden_tiles(surface, final_tiles)
-        add_to_storage(indices, surface.index)
     end
 end
 

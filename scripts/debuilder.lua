@@ -194,6 +194,7 @@ function instant_decliffing(entity)
         name = cliff_explosive,
         count = 1,
         type = "item",
+        quality = QS_DEFAULT_QUALITY,
         surface_index = entity.surface_index
     }
     if qs_utils.count_in_storage(qs_item) > 0 then

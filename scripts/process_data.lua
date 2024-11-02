@@ -1,4 +1,5 @@
 local utils = require("scripts/utils")
+local flib_table = require("__flib__.table")
 
 --- These functions are only done on init and when configuration changes
 function process_data()
@@ -293,7 +294,19 @@ function unpack_recipe(recipe)
 
     for _, ingredient in pairs(recipe.ingredients) do
         if utils.is_placeable(ingredient.name) and not storage.tiles[ingredient.name] and not Unpacking_blacklist[ingredient.name] then
-            new_ingredients = utils.merge_tables_no_index(new_ingredients, unpack_recipe(get_unpacking_recipe(ingredient.name)).ingredients)
+            local unpacked_recipe = flib_table.deep_copy(unpack_recipe(get_unpacking_recipe(ingredient.name)))
+            new_new_ingredients = unpacked_recipe.ingredients
+            local product_multiplier = 1
+            for _, product in pairs(unpacked_recipe.products) do
+                if utils.is_placeable(product.name) then
+                    product_multiplier = product.amount
+                    break
+                end
+            end
+            for _, new_ingredient in pairs(new_new_ingredients) do
+                new_ingredient.amount = math.ceil(new_ingredient.amount * ingredient.amount / product_multiplier)
+            end
+            new_ingredients = utils.merge_tables_no_index(new_ingredients, new_new_ingredients)
         else
             table.insert(new_ingredients, ingredient)
         end

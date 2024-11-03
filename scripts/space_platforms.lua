@@ -55,31 +55,31 @@ function process_space_requests()
                         local qs_items_result = {}
                         local index = 1
                         if requester_point and requester_point.filters then
-                        for _, filter in pairs(requester_point.filters) do
-                            ---@diagnostic disable-next-line: need-check-nil
-                            local requested = filter.count - hub_inventory.get_item_count(filter.name)
-                            if requested > 0 then
-                                local qs_item = {
-                                    name = filter.name,
-                                    count = requested,
-                                    quality = filter.quality,
-                                    surface_index = storage_index,
-                                    type = "item"
-                                }
-                                qs_items_result[index] = qs_item
-                                index = index + 1
+                            for _, filter in pairs(requester_point.filters) do
+                                ---@diagnostic disable-next-line: need-check-nil
+                                local requested = filter.count - hub_inventory.get_item_count(filter.name)
+                                if requested > 0 then
+                                    local qs_item = {
+                                        name = filter.name,
+                                        count = requested,
+                                        quality = filter.quality,
+                                        surface_index = storage_index,
+                                        type = "item"
+                                    }
+                                    qs_items_result[index] = qs_item
+                                    index = index + 1
+                                end
                             end
+                            result[#result+1] = {
+                                hub_inventory = hub_inventory,
+                                qs_items = qs_items_result,
+                                rocket_silo = rocket_silo
+                            }
                         end
-                        result[#result+1] = {
-                            hub_inventory = hub_inventory,
-                            qs_items = qs_items_result,
-                            rocket_silo = rocket_silo
-                        }
                     end
                 end
             end
         end
-    end
     end
     ---If we failed to send everything, then we'll reset coundown to attempt later
     if not send_to_space(result) then
@@ -198,8 +198,17 @@ function on_entity_logistic_slot_changed(event)
     end
 end
 
+function on_space_platform_changed_state(event)
+    local platform = event.platform
+    local old_state = event.old_state
+    local state = platform.state
+    if old_state == defines.space_platform_state.on_the_path and state == defines.space_platform_state.waiting_at_station then
+        storage.space_countdowns.space_sendoff = 5
+    end
+end
 
 
 
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, on_entity_logistic_slot_changed)
+script.on_event(defines.events.on_space_platform_changed_state, on_space_platform_changed_state)

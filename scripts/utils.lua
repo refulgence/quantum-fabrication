@@ -44,18 +44,6 @@ function utils.get_qualities()
     return quality_names
 end
 
----comment
----@return table <uint, string>
-function utils.get_surfaces()
-    local surfaces = {}
-    for name, surface in pairs(game.surfaces) do
-        if not surface.platform then
-            surfaces[surface.index] = name
-        end
-    end
-    return surfaces
-end
-
 
 ---@param item_name string
 ---@return boolean

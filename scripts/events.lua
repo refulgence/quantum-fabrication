@@ -346,6 +346,8 @@ function on_console_command(command)
     elseif name == "qf_reprocess_recipes" then
         reprocess_recipes()
         game.print("Reprocessing recipes...")
+    elseif name == "qf_debug_command" then
+        process_space_requests()
     end
 end
 
@@ -370,7 +372,8 @@ end
 commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
-commands.add_command("qf_reprocess_recipes", nil, on_console_command)
+commands.add_command("qf_debug_command", nil, on_console_command)
+
 
 
 
@@ -436,7 +439,6 @@ script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_decon
 
 script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
-
 
 --script.on_event(defines.events.on_entity_died, on_entity_died)
 script.on_event(defines.events.on_entity_damaged, on_entity_damaged)

@@ -52,7 +52,6 @@ function process_space_requests()
                     if hub then
                         local hub_inventory = hub.get_inventory(defines.inventory.hub_main)
                         local requester_point = hub.get_requester_point()
-                        game.print("Got it!")
                         local qs_items_result = {}
                         local index = 1
                         ---@diagnostic disable-next-line: need-check-nil
@@ -81,6 +80,7 @@ function process_space_requests()
             end
         end
     end
+    ---If we failed to send everything, then we'll reset coundown to attempt later
     if not send_to_space(result) then
         storage.space_countdowns.space_sendoff = 60
     end

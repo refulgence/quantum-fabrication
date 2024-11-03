@@ -2,7 +2,13 @@ local qs_utils = require("scripts/qs_utils")
 local qf_utils = require("scripts/qf_utils")
 local flib_table = require("__flib__.table")
 
+---@class PlatformPayload
+---@field hub_inventory LuaInventory
+---@field qs_items QSItem[]
+---@field rocket_silo LuaEntity
 
+
+--{ hub_inventory: LuaInventory, rocket_silo: LuaEntity, qs_items: QSItem[] }[]
 ---Updates a table that links planets to their surface (so we'd have a shortcut)
 function update_planet_surface_link()
     storage.planet_surface_link = {}
@@ -33,8 +39,7 @@ function get_storage_index(space_location_prototype, player)
 end
 
 
----comment
-function get_space_requests()
+function process_space_requests()
     local result = {}
     for _, surface in pairs(game.surfaces) do
         local platform = surface.platform
@@ -43,56 +48,48 @@ function get_space_requests()
             if storage_index then
                 local rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
                 if rocket_silo then
-                    local hub_inventory = platform.hub.get_inventory(defines.inventory.hub_main)
-                    local entity_targets = surface.find_entities_filtered({name = "entity-ghost"})
-                    local qs_items_result = {}
-                    for _, entity_target in pairs(entity_targets) do
-                        local ghost_name = entity_target.ghost_name
-                        if qs_items_result[ghost_name] then
-                            qs_items_result[ghost_name].count = qs_items_result[ghost_name].count + 1
-                        else
-                            qs_items_result[ghost_name] = {
-                                name = ghost_name,
-                                count = 1,
-                                surface_index = storage_index,
-                                quality = entity_target.quality.name or QS_DEFAULT_QUALITY,
-                                type = "item"
-                            }
+                    local hub = platform.hub
+                    if hub then
+                        local hub_inventory = hub.get_inventory(defines.inventory.hub_main)
+                        local requester_point = hub.get_requester_point()
+                        game.print("Got it!")
+                        local qs_items_result = {}
+                        local index = 1
+                        ---@diagnostic disable-next-line: need-check-nil
+                        for _, filter in pairs(requester_point.filters) do
+                            ---@diagnostic disable-next-line: need-check-nil
+                            local requested = filter.count - hub_inventory.get_item_count(filter.name)
+                            if requested > 0 then
+                                local qs_item = {
+                                    name = filter.name,
+                                    count = requested,
+                                    quality = filter.quality,
+                                    surface_index = storage_index,
+                                    type = "item"
+                                }
+                                qs_items_result[index] = qs_item
+                                index = index + 1
+                            end
                         end
-                    end
-                    local tile_target_count = surface.count_tiles_filtered({has_tile_ghost = true})
-                    if tile_target_count > 0 then
-                        qs_items_result[QS_SPACE_FOUNDATION_NAME] = {
-                            name = QS_SPACE_FOUNDATION_NAME,
-                            count = tile_target_count,
-                            quality = QS_DEFAULT_QUALITY,
-                            surface_index = storage_index,
-                            type = "item"
+                        result[#result+1] = {
+                            hub_inventory = hub_inventory,
+                            qs_items = qs_items_result,
+                            rocket_silo = rocket_silo
                         }
                     end
-                    if hub_inventory then
-                        for index, qs_item in pairs(qs_items_result) do
-                            qs_item.count = qs_item.count - hub_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
-                            if qs_item.count <= 0 then qs_items_result[index] = nil end
-                        end
-                    end
-                    result[#result+1] = {
-                        hub_inventory = hub_inventory,
-                        qs_items = qs_items_result,
-                        rocket_silo = rocket_silo
-                    }
                 end
             end
         end
     end
-    ---If we failed to send everything, then we'll reset coundown to attempt later
     if not send_to_space(result) then
         storage.space_countdowns.space_sendoff = 60
     end
 end
 
+
+
 ---Returns true if everything was sent and false if it wasn't
----@param platform_payloads { hub_inventory: LuaInventory, rocket_silo: LuaEntity, qs_items: QSItem[] }[]
+---@param platform_payloads PlatformPayload[]
 ---@return boolean
 function send_to_space(platform_payloads)
     local sent_everything = true
@@ -178,20 +175,30 @@ end
 
 ---Special space-specific countdown handling.
 script.on_nth_tick(17, function(event)
-    if not storage.space_countdowns then
-        storage.space_countdowns = {
-            space_sendoff = nil,
-        }
-    end
     for type, countdown in pairs(storage.space_countdowns) do
         if countdown then
             storage.space_countdowns[type] = storage.space_countdowns[type] - 1
             if countdown == 0 then
                 storage.space_countdowns[type] = nil
                 if type == "space_sendoff" then
-                    get_space_requests()
+                    process_space_requests()
                 end
             end
         end
     end
 end)
+
+
+
+function on_entity_logistic_slot_changed(event)
+    local entity = event.entity
+    if entity.valid and entity.type == "space-platform-hub" then
+        storage.space_countdowns.space_sendoff = 5
+    end
+end
+
+
+
+
+
+script.on_event(defines.events.on_entity_logistic_slot_changed, on_entity_logistic_slot_changed)

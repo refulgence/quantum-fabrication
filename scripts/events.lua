@@ -315,7 +315,7 @@ end
 
 function on_entity_damaged(event)
     local entity = event.entity
-    if entity.force.name == "player" and entity.unit_number then
+    if entity.force.name == "player" and entity.unit_number and not storage.tracked_requests["repairs"][entity.unit_number] then
         tracking.create_tracked_request({request_type = "repairs", entity = entity, player_index = event.player_index})
         storage.countdowns.in_combat = 30
     end
@@ -489,5 +489,5 @@ script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_decon
 script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
 
---script.on_event(defines.events.on_entity_died, on_entity_died)
-script.on_event(defines.events.on_entity_damaged, on_entity_damaged)
+
+script.on_event(defines.events.on_entity_damaged, on_entity_damaged, {{filter = "type", type = "unit", invert = true}})

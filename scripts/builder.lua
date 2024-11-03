@@ -58,35 +58,32 @@ function instant_tileation()
         end
     end
 
-    for _, surface in pairs(game.surfaces) do
-        if not surface.platform then
-            local tiles = surface.find_entities_filtered({name = "tile-ghost"})
-            if tiles then
-                local tile_availability = qs_utils.get_available_tiles(surface.index)
-                local final_tiles = {}
-                local indices = {}
-                local overall_index = 1
-                for tile_name, _ in pairs(storage.tiles) do
-                    indices[tile_name] = 0
-                end
-                for _, tile in pairs(tiles) do
-                    local tile_name = storage.tile_link[tile.ghost_name]
-                    if tile_availability[tile_name] > indices[tile_name] then
-                        final_tiles[overall_index] = {
-                            name = tile.ghost_name,
-                            position = tile.position
-                        }
-                        overall_index = overall_index + 1
-                        indices[tile_name] = indices[tile_name] + 1
-                    else
-                        schedule_retileation = true
-                    end
-                end
-                surface.set_tiles(final_tiles)
-                remove_from_storage(indices, surface.index)
+    for _, surface_data in pairs(storage.surface_data.planets) do
+        local surface = surface_data.surface
+        local tiles = surface.find_entities_filtered({name = "tile-ghost"})
+        if tiles then
+            local tile_availability = qs_utils.get_available_tiles(surface.index)
+            local final_tiles = {}
+            local indices = {}
+            local overall_index = 1
+            for tile_name, _ in pairs(storage.tiles) do
+                indices[tile_name] = 0
             end
-        else
-            storage.space_countdowns.space_sendoff = 2
+            for _, tile in pairs(tiles) do
+                local tile_name = storage.tile_link[tile.ghost_name]
+                if tile_availability[tile_name] > indices[tile_name] then
+                    final_tiles[overall_index] = {
+                        name = tile.ghost_name,
+                        position = tile.position
+                    }
+                    overall_index = overall_index + 1
+                    indices[tile_name] = indices[tile_name] + 1
+                else
+                    schedule_retileation = true
+                end
+            end
+            surface.set_tiles(final_tiles)
+            remove_from_storage(indices, surface.index)
         end
     end
     if schedule_retileation then
@@ -174,13 +171,9 @@ end
 ---@param request_type "revivals"|"destroys"|"upgrades"
 function register_request_table(request_type)
     local result = {}
-    for _, surface in pairs(game.surfaces) do
-        if not surface.platform then
-            local targets = surface.find_entities_filtered(Request_table_filter_link[request_type])
-            result = flib_table.array_merge({result, targets})
-        else
-            storage.space_countdowns.space_sendoff = 2
-        end
+    for _, surface_data in pairs(storage.surface_data.planets) do
+        local targets = surface_data.surface.find_entities_filtered(Request_table_filter_link[request_type])
+        result = flib_table.array_merge({result, targets})
     end
     storage.tracked_requests[request_type] = result
 end

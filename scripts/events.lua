@@ -31,6 +31,21 @@ local flib_table = require("__flib__.table")
 ---@field order string
 ---@field priority_style string
 
+---@class SurfacePlatformData
+---@field surface_index uint
+---@field surface LuaSurface
+---@field type "platform"
+---@field platform LuaSpacePlatform
+---@field hub LuaEntity
+---@field hub_inventory? LuaInventory
+
+---@class SurfacePlanetData
+---@field surface_index uint
+---@field surface LuaSurface
+---@field type "planet"
+---@field planet LuaPlanet
+---@field rocket_silo? LuaEntity
+
 
 function on_init()
     flib_dictionary.on_init()
@@ -99,11 +114,18 @@ function on_init()
         ["digitizer-chest"] = {},
         ["dedigitizer-reactor"] = {},
     }
+    ---@type { platforms: SurfacePlatformData[], planets: SurfacePlanetData[] }
+    storage.surface_data = {
+        platforms = {},
+        planets = {},
+    }
     ---@type table <string, QSPrototypeData>
     storage.prototypes_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
 end
+
+
 
 function on_config_changed()
     flib_dictionary.on_configuration_changed()
@@ -121,11 +143,38 @@ function initialize_surfaces()
     end
 end
 
+
+---@param surface LuaSurface
 function initialize_surface(surface)
-    if not surface.platform then
-        local surface_index = surface.index
+    local surface_platform = surface.platform
+    local surface_planet = surface.planet
+    local surface_index = surface.index
+
+    local data = {
+        surface_index = surface_index,
+        surface = surface,
+    }
+
+    if not surface_platform then
+        data.type = "planets"
         initialize_fabricator_inventory(surface_index)
+        local rocket_silo = surface.find_entities_filtered({type = "rocket-silo", limit = 1})[1]
+        if rocket_silo then
+            data.rocket_silo = rocket_silo
+        end
+        if surface_planet then
+            data.planet = surface_planet
+        end
+    else
+        data.type = "platforms"
+        data.platform = surface_platform
+        local hub = surface_platform.hub
+        if hub then
+            data.hub = hub
+            data.hub_inventory = hub.get_inventory(defines.inventory.hub_main)
+        end
     end
+    storage.surface_data[data.type][surface_index] = data
 end
 
 function on_surface_created(event)
@@ -353,10 +402,8 @@ end
 
 
 function debug_storage(amount)
-    for _, surface in pairs(game.surfaces) do
-        if not surface.platform then
-            initialize_fabricator_inventory(surface.index, amount)
-        end
+    for surface_index, _ in pairs(storage.surface_data.planets) do
+            initialize_fabricator_inventory(surface_index, amount)
     end
 end
 
@@ -386,8 +433,10 @@ script.on_nth_tick(11, function(event)
                 storage.countdowns[type] = nil
                 if type == "tile_creation" then
                     instant_tileation()
+                    storage.space_countdowns.space_sendoff = 2
                 elseif type == "revivals" or type == "destroys" or type == "upgrades" then
                     register_request_table(type)
+                    storage.space_countdowns.space_sendoff = 2
                 elseif type == "in_combat" then
                     register_request_table("revivals")
                 elseif type == "tile_removal" then

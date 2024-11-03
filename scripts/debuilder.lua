@@ -43,29 +43,28 @@ function instant_detileation()
         end
     end
 
-    for _, surface in pairs(game.surfaces) do
-        if not surface.platform then
-            local tiles = surface.find_tiles_filtered({to_be_deconstructed = true})
-            local final_tiles = {}
-            local indices = {}
-            local final_index = 1
-            for _, tile in pairs(tiles) do
-                local hidden_tile = tile.hidden_tile
-                local double_hidden_tile = tile.double_hidden_tile
-                if hidden_tile then
-                    final_tiles[final_index] = {
-                        name = hidden_tile,
-                        position = tile.position,
-                        double_hidden_tile = double_hidden_tile
-                    }
-                    final_index = final_index + 1
-                end
-                indices[storage.tile_link[tile.name]] = (indices[storage.tile_link[tile.name]] or 0) + 1
+    for surface_index, surface_data in pairs(storage.surface_data.planets) do
+        local surface = surface_data.surface
+        local tiles = surface.find_tiles_filtered({to_be_deconstructed = true})
+        local final_tiles = {}
+        local indices = {}
+        local final_index = 1
+        for _, tile in pairs(tiles) do
+            local hidden_tile = tile.hidden_tile
+            local double_hidden_tile = tile.double_hidden_tile
+            if hidden_tile then
+                final_tiles[final_index] = {
+                    name = hidden_tile,
+                    position = tile.position,
+                    double_hidden_tile = double_hidden_tile
+                }
+                final_index = final_index + 1
             end
-            surface.set_tiles(final_tiles)
-            set_hidden_tiles(surface, final_tiles)
-            add_to_storage(indices, surface.index)
+            indices[storage.tile_link[tile.name]] = (indices[storage.tile_link[tile.name]] or 0) + 1
         end
+        surface.set_tiles(final_tiles)
+        set_hidden_tiles(surface, final_tiles)
+        add_to_storage(indices, surface_index)
     end
 end
 

@@ -6,6 +6,7 @@ local flib_table = require("__flib__.table")
 ---@field hub_inventory LuaInventory
 ---@field qs_items QSItem[]
 ---@field rocket_silo LuaEntity
+---@field storage_index uint
 
 
 --{ hub_inventory: LuaInventory, rocket_silo: LuaEntity, qs_items: QSItem[] }[]
@@ -41,45 +42,52 @@ end
 
 function process_space_requests()
     local result = {}
-    for _, surface in pairs(game.surfaces) do
-        local platform = surface.platform
-        if platform then
-            local storage_index = get_storage_index(platform.space_location)
-            if storage_index then
-                local rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
-                if rocket_silo then
-                    local hub = platform.hub
-                    if hub then
-                        local hub_inventory = hub.get_inventory(defines.inventory.hub_main)
-                        local requester_point = hub.get_requester_point()
-                        local qs_items_result = {}
-                        local index = 1
-                        if requester_point and requester_point.filters then
-                            for _, filter in pairs(requester_point.filters) do
-                                ---@diagnostic disable-next-line: need-check-nil
-                                local requested = filter.count - hub_inventory.get_item_count(filter.name)
-                                if requested > 0 then
-                                    local qs_item = {
-                                        name = filter.name,
-                                        count = requested,
-                                        quality = filter.quality,
-                                        surface_index = storage_index,
-                                        type = "item"
-                                    }
-                                    qs_items_result[index] = qs_item
-                                    index = index + 1
-                                end
-                            end
-                            result[#result+1] = {
-                                hub_inventory = hub_inventory,
-                                qs_items = qs_items_result,
-                                rocket_silo = rocket_silo
+    local platforms = storage.surface_data.platforms
+    local planets = storage.surface_data.planets
+    for _, platform_data in pairs(platforms) do
+        local platform = platform_data.platform
+        local storage_index = get_storage_index(platform.space_location)
+        if storage_index then
+            local hub = platform_data.hub
+            if hub then
+                local hub_inventory = hub.get_inventory(defines.inventory.hub_main)
+                local requester_point = hub.get_requester_point()
+                local qs_items_result = {}
+                local index = 1
+                if requester_point and requester_point.filters then
+                    for _, filter in pairs(requester_point.filters) do
+                        ---@diagnostic disable-next-line: need-check-nil
+                        local requested = filter.count - hub_inventory.get_item_count(filter.name)
+                        if requested > 0 then
+                            local qs_item = {
+                                name = filter.name,
+                                count = requested,
+                                quality = filter.quality,
+                                surface_index = storage_index,
+                                type = "item"
                             }
+                            qs_items_result[index] = qs_item
+                            index = index + 1
                         end
                     end
+                    if not planets[storage_index].rocket_silo then
+                        local rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
+                        if rocket_silo then
+                            planets[storage_index].rocket_silo = rocket_silo
+                        else
+                            goto continue
+                        end
+                    end
+                    result[#result + 1] = {
+                        hub_inventory = hub_inventory,
+                        qs_items = qs_items_result,
+                        rocket_silo = planets[storage_index].rocket_silo,
+                        storage_index = storage_index
+                    }
                 end
             end
         end
+        ::continue::
     end
     ---If we failed to send everything, then we'll reset coundown to attempt later
     if not send_to_space(result) then
@@ -96,9 +104,9 @@ function send_to_space(platform_payloads)
     local sent_everything = true
     for _, payload in pairs(platform_payloads) do
         local hub_inventory = payload.hub_inventory
+        local storage_index = payload.storage_index
         for _, qs_item in pairs(payload.qs_items) do
-            local storage_index = payload.rocket_silo.surface_index
-            if qs_item.count > qs_utils.count_in_storage(qs_item) then
+            if qs_item.count > qs_utils.count_in_storage(qs_item) and hub_inventory.get_insertable_count({name = qs_item.name, quality = qs_item.quality}) >= qs_item.count then
                 local recipe = qf_utils.get_craftable_recipe(qs_item)
                 if recipe then
                     if qs_item.count > qf_utils.how_many_can_craft(recipe, qs_item.quality, storage_index, nil, true) then

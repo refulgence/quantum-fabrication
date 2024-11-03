@@ -54,7 +54,7 @@ function process_space_requests()
                         local requester_point = hub.get_requester_point()
                         local qs_items_result = {}
                         local index = 1
-                        ---@diagnostic disable-next-line: need-check-nil
+                        if requester_point and requester_point.filters then
                         for _, filter in pairs(requester_point.filters) do
                             ---@diagnostic disable-next-line: need-check-nil
                             local requested = filter.count - hub_inventory.get_item_count(filter.name)
@@ -79,6 +79,7 @@ function process_space_requests()
                 end
             end
         end
+    end
     end
     ---If we failed to send everything, then we'll reset coundown to attempt later
     if not send_to_space(result) then

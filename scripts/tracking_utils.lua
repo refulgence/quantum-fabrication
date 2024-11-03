@@ -139,6 +139,15 @@ script.on_nth_tick(19, function(event)
     end
 end)
 
+script.on_nth_tick(18, function(event)
+    if next(storage.tracked_entities["digitizer-chest"]) then
+        storage.request_ids["digitizer-chest"] = flib_table.for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
+            if not entity_data.entity.valid then return nil, true, false end
+            tracking.update_entity(entity_data)
+        end)
+    end
+end)
+
 
 function tracking.update_item_request_proxy(request_table)
     local entity = request_table.entity
@@ -199,19 +208,9 @@ function tracking.on_tick_update_handler(entity, request_type)
         if status == "success" then
             return nil, true, false
         end
---[[     elseif request_type == "repairs" then
-        if not instant_repair(entity, player_index) then
-            return nil, false, false
-        else
-            return nil, true, false
-        end ]]
     end
 
 end
-
-
-
-
 
 
 ---@param request_data RequestData
@@ -250,7 +249,6 @@ end
 ---@param request_data RequestData
 function tracking.add_tracked_entity(request_data)
     local entity = request_data.entity
-    if not storage.tracked_entities[entity.name] then storage.tracked_entities[entity.name] = {} end
 
     local entity_data = {
         entity = entity,
@@ -318,20 +316,10 @@ function tracking.remove_tracked_entity(entity)
 end
 
 
----@param tick uint
----@param entity_names? table
-function tracking.update_tracked_entities(tick, entity_names)
-    local smoothing = tick % Update_rate.entities.slots
-    if not entity_names then entity_names = {"dedigitizer-reactor", "digitizer-chest"} end
-    for _, entity_name in pairs(entity_names) do
-        local entities = storage.tracked_entities[entity_name]
-        if entities then
-            for entity_id, entity_data in pairs(entities) do
-                if entity_data.lag_id == smoothing then
-                    tracking.update_entity(entity_data)
-                end
-            end
-        end
+function tracking.update_tracked_reactors()
+    local entities = storage.tracked_entities["dedigitizer-reactor"]
+    for _, entity_data in pairs(entities) do
+        tracking.update_entity(entity_data)
     end
 end
 

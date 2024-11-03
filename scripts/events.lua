@@ -86,6 +86,7 @@ function on_init()
         destroys = 1,
         upgrades = 1,
         repairs = 1,
+        ["digitizer-chest"] = 1,
     }
     storage.request_player_ids = {
         revivals = 1,
@@ -94,7 +95,10 @@ function on_init()
         repairs = 1,
     }
     ---@type table <string, table<uint, EntityData>>
-    storage.tracked_entities = {}
+    storage.tracked_entities = {
+        ["digitizer-chest"] = {},
+        ["dedigitizer-reactor"] = {},
+    }
     ---@type table <string, QSPrototypeData>
     storage.prototypes_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
@@ -393,8 +397,7 @@ end)
 
 
 script.on_nth_tick(Update_rate.requests.rate, function(event) tracking.update_tracked_requests(event.tick) end)
-script.on_nth_tick(Update_rate.entities.rate, function(event) tracking.update_tracked_entities(event.tick, {"digitizer-chest"}) end)
-script.on_nth_tick(Update_rate.reactors,      function(event) tracking.update_tracked_entities(0, {"dedigitizer-reactor"}) end)
+script.on_nth_tick(Update_rate.reactors, tracking.update_tracked_reactors)
 
 script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)
     if storage.options.auto_recheck_item_request_proxies then tracking.update_lost_module_requests(game.connected_players[1]) end

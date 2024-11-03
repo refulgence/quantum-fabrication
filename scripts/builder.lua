@@ -36,7 +36,7 @@ function instant_fabrication(entity, player_index)
     -- If it is, then just use it to instantly revive the entity
     if in_storage > 0 then
         return revive_ghost(entity, qs_item)
-    elseif in_inventory and in_inventory > 0 then
+    elseif in_inventory > 0 then
         return revive_ghost(entity, qs_item, player_inventory)
     end
 
@@ -124,10 +124,10 @@ function instant_upgrade(entity, target, quality, player_index)
     }
 
     -- Check if requested item is available
-    local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+    local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
     local recipe
     -- If it's not, then we'll check for a recipe and return if it's not available either
-    if in_storage == 0 and (not in_inventory or in_inventory == 0) then
+    if total == 0 then
         recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)
         if not recipe then return "no_recipe" end
     end
@@ -320,18 +320,16 @@ function handle_item_requests(entity, item_requests, player_inventory)
             process_insertion(qs_item, in_storage, entity_inventory)
         end
         if qs_item.count > 0 then
-            if in_inventory then
-                if in_inventory > qs_item.count then
-                    ---@diagnostic disable-next-line: need-check-nil
-                    player_inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
-                    process_insertion(qs_item, qs_item.count, entity_inventory)
-                    qs_item.count = 0
-                elseif in_inventory > 0 then
-                    ---@diagnostic disable-next-line: need-check-nil
-                    player_inventory.remove({name = qs_item.name, count = in_inventory, quality = qs_item.quality})
-                    qs_item.count = qs_item.count - in_inventory
-                    process_insertion(qs_item, in_inventory, entity_inventory)
-                end
+            if in_inventory > qs_item.count then
+                ---@diagnostic disable-next-line: need-check-nil
+                player_inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+                process_insertion(qs_item, qs_item.count, entity_inventory)
+                qs_item.count = 0
+            elseif in_inventory > 0 then
+                ---@diagnostic disable-next-line: need-check-nil
+                player_inventory.remove({name = qs_item.name, count = in_inventory, quality = qs_item.quality})
+                qs_item.count = qs_item.count - in_inventory
+                process_insertion(qs_item, in_inventory, entity_inventory)
             end
         end
         return qs_item.count == 0

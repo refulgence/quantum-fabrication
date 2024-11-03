@@ -75,7 +75,7 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     local surface_index = player.surface.index
     local quality = storage.player_gui[player.index].quality.name
-    local player_inventory = player.get_main_inventory()
+    --local player_inventory = player.get_main_inventory()
 
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 

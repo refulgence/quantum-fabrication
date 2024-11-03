@@ -116,15 +116,15 @@ end
 ---@param target_inventory LuaInventory | LuaEntity
 ---@return StorageStatusTable
 function qs_utils.pull_from_storage(qs_item, target_inventory)
-    local available = qs_utils.count_in_storage(qs_item)
+    local in_storage = qs_utils.count_in_storage(qs_item)
     local to_be_provided = qs_item.count
     local status = {empty_storage = false, full_inventory = false}
-    if available == 0 then
+    if in_storage == 0 then
         status.empty_storage = true
         return status
     end
-    if available < to_be_provided then
-        to_be_provided = available
+    if in_storage < to_be_provided then
+        to_be_provided = in_storage
         status.empty_storage = true
     end
     if qs_item.type == "item" then
@@ -167,25 +167,25 @@ end
 ---@param player_inventory? LuaInventory
 ---@param player_surface_index? uint
 ---@return uint
----@return uint|nil
+---@return uint
 ---@return uint
 function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
-    local count_in_storage = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
-    local count_in_player_inventory
+    local in_storage = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality]
+    local in_player_inventory = 0
     if player_inventory and qs_item.type == "item" then
         if not player_surface_index then
             local player = player_inventory.player_owner
             if player then
-                player_surface_index = player_inventory.player_owner.physical_surface_index
-                if qs_item.surface_index == player_surface_index then
-                    count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
-                end
+                player_surface_index = player.physical_surface_index
             else
-                count_in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+                return in_storage, 0, in_storage
             end
         end
+        if qs_item.surface_index == player_surface_index then
+            in_player_inventory = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
+        end
     end
-    return count_in_storage, count_in_player_inventory, count_in_storage + (count_in_player_inventory or 0)
+    return in_storage, in_player_inventory, in_storage + in_player_inventory
 end
 
 
@@ -258,11 +258,11 @@ function qs_utils.take_from_storage(qs_item, player)
     local prototype = prototypes.item[item_name]
     if not prototype then return end
     local player_inventory = player.get_inventory(defines.inventory.character_main)
-    local available = qs_utils.count_in_storage(qs_item)
-    if available == 0 then return end
+    local in_storage = qs_utils.count_in_storage(qs_item)
+    if in_storage == 0 then return end
     local stack_size = prototype.stack_size
-    if available < stack_size then
-        stack_size = available
+    if in_storage < stack_size then
+        stack_size = in_storage
     end
     local inserted = player_inventory.insert({name = item_name, count = stack_size, quality = quality_name})
     qs_utils.remove_from_storage(qs_item, inserted)

@@ -60,8 +60,8 @@ function tracking.add_request(request_data)
     end
 
     if request_type == "cliffs" then
-        storage.request_ids[request_type] = storage.request_ids[request_type] + 1
-        index = storage.request_ids[request_type]
+        storage.cliff_ids = storage.cliff_ids + 1
+        index = storage.cliff_ids
     else
         index = request_table.entity.unit_number
     end
@@ -71,8 +71,8 @@ function tracking.add_request(request_data)
 end
 
 
----@param request_type any
----@param request_id any
+---@param request_type "revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"|"repairs"
+---@param request_id uint
 function tracking.remove_tracked_request(request_type, request_id)
     storage.tracked_requests[request_type][request_id] = nil
 end
@@ -102,6 +102,69 @@ function tracking.on_tick_update_requests()
         end
     end
 end
+
+script.on_nth_tick(5, function(event)
+    if next(storage.tracked_requests["repairs"]) and not storage.countdowns.in_combat then
+        storage.request_ids["repairs"] = flib_table.for_n_of(storage.tracked_requests["repairs"], storage.request_ids["repairs"], 2, function(request_table)
+            if not request_table.entity.valid then return nil, true, false end
+            local player_index = storage.request_player_ids["repairs"]
+            if instant_repair(request_table.entity, player_index) then
+                return nil, true, false
+            else
+                return nil, false, false
+            end
+        end)
+    end
+end)
+
+script.on_nth_tick(9, function(event)
+    if next(storage.tracked_requests["item_requests"]) then
+        storage.request_ids["item_requests"] = flib_table.for_n_of(storage.tracked_requests["item_requests"], storage.request_ids["item_requests"], 2, function(request_table)
+            return tracking.update_item_request_proxy(request_table)
+        end)
+    end
+end)
+
+
+script.on_nth_tick(17, function(event)
+    if next(storage.tracked_requests["cliffs"]) then
+        storage.request_ids["cliffs"] = flib_table.for_n_of(storage.tracked_requests["cliffs"], storage.request_ids["cliffs"], 3, function(request_table)
+            if not request_table.entity.valid then return nil, true, false end
+            if instant_decliffing(request_table.entity) then
+                return nil, true, false
+            else
+                return nil, false, false
+            end
+        end)
+    end
+end)
+
+
+function tracking.update_item_request_proxy(request_table)
+    local entity = request_table.entity
+    if not entity.valid then return nil, true, false end
+    local item_request_proxy = request_table.item_request_proxy
+    local player_index = request_table.player_index
+    
+    if not item_request_proxy or not item_request_proxy.valid then
+        return nil, true, false
+    end
+    local modules = item_request_proxy.item_requests
+    if not modules then
+        request_table.item_request_proxy.destroy()
+        return nil, true, false
+    end
+    local player_inventory
+    if player_index then
+        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+    end
+    if handle_item_requests(entity, modules, player_inventory) then
+        request_table.item_request_proxy.destroy()
+        return nil, true, false
+    end
+    return nil, false, false
+end
+
 
 
 function tracking.on_tick_update_handler(entity, request_type)
@@ -136,12 +199,12 @@ function tracking.on_tick_update_handler(entity, request_type)
         if status == "success" then
             return nil, true, false
         end
-    elseif request_type == "repairs" then
+--[[     elseif request_type == "repairs" then
         if not instant_repair(entity, player_index) then
             return nil, false, false
         else
             return nil, true, false
-        end
+        end ]]
     end
 
 end
@@ -159,34 +222,9 @@ function tracking.update_request(request_data, request_type, request_id)
     if not entity or not entity.valid then tracking.remove_tracked_request(request_type, request_id) return end
     local player_index = request_data.player_index
 
-    if request_type == "upgrades" then
-
-    elseif request_type == "construction" then
+    if request_type == "construction" then
         if instant_fabrication(entity, player_index) then
             tracking.remove_tracked_request(request_type, request_id)
-        end
-    elseif request_type == "cliffs" then
-        if instant_decliffing(entity) then
-            tracking.remove_tracked_request(request_type, request_id)
-        end
-    elseif request_type == "item_requests" then
-        if not request_data.item_request_proxy or not request_data.item_request_proxy.valid then
-            tracking.remove_tracked_request(request_type, request_id)
-            return
-        end
-        local modules = request_data.item_request_proxy.item_requests
-        if not modules then
-            tracking.remove_tracked_request(request_type, request_id)
-            request_data.item_request_proxy.destroy()
-            return
-        end
-        local player_inventory
-        if player_index then
-            player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
-        end
-        if handle_item_requests(entity, modules, player_inventory) then
-            tracking.remove_tracked_request(request_type, request_id)
-            request_data.item_request_proxy.destroy()
         end
     end
 end
@@ -206,13 +244,6 @@ function tracking.update_lost_module_requests(player)
         end
     end
 end
-
-
-
-
-
-
-
 
 
 ---Adds an entity to be tracked and creates necessary hidden entities

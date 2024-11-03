@@ -55,7 +55,7 @@ function on_init()
     storage.player_gui = {}
     ---@type table <string, boolean>
     storage.options = {}
-    storage.options.auto_recheck_item_request_proxies = false
+    storage.options.auto_recheck_item_request_proxies = true
     storage.sorted_lists = {}
     ---@type table <string, table<uint, RequestData>>
     storage.tracked_requests = {
@@ -78,8 +78,10 @@ function on_init()
     storage.space_countdowns = {
         space_sendoff = nil,
     }
+    --Because cliffs do not have unit number
+    storage.cliff_ids = 0
     storage.request_ids = {
-        cliffs = 0,
+        cliffs = 1,
         revivals = 1,
         destroys = 1,
         upgrades = 1,
@@ -288,7 +290,8 @@ function on_player_created(event)
 end
 
 
-
+---@param player_index uint
+---@param sort_type "item_name"|"amount"|"localised_name"
 function sort_ingredients(player_index, sort_type)
     for _, recipe in pairs(storage.unpacked_recipes) do
         if sort_type == "item_name" then
@@ -315,6 +318,8 @@ function post_research_recheck()
     process_recipe_enablement()
 end
 
+
+--TODO: test if this is doing anything useful at all
 function on_research_changed(event)
     Research_finished = true
 end
@@ -364,13 +369,7 @@ commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_reprocess_recipes", nil, on_console_command)
 
 
-script.on_nth_tick(5, function(event)
-    if next(storage.tracked_requests["repairs"]) and not storage.countdowns.in_combat then
-        storage.request_ids["repairs"] = flib_table.for_n_of(storage.tracked_requests["repairs"], storage.request_ids["repairs"], 2, function(request_table)
-            return tracking.on_tick_update_handler(request_table.entity, "repairs")
-        end)
-    end
-end)
+
 
 script.on_nth_tick(11, function(event)
     for type, countdown in pairs(storage.countdowns) do
@@ -437,11 +436,5 @@ script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
 
 
-
-
-
-
-
-
-script.on_event(defines.events.on_entity_died, on_entity_died)
+--script.on_event(defines.events.on_entity_died, on_entity_died)
 script.on_event(defines.events.on_entity_damaged, on_entity_damaged)

@@ -218,14 +218,16 @@ end
 
 function tracking.update_lost_module_requests(player)
     for _, surface in pairs(game.surfaces) do
-        for _, entity in pairs(surface.find_entities_filtered{name = "item-request-proxy"}) do
-            if not storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] or storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] ~= {} then
-                tracking.create_tracked_request({
-                    entity = entity.proxy_target,
-                    player_index = player.index,
-                    item_request_proxy = entity,
-                    request_type = "item_requests"
-                })
+        if not surface.platform then
+            for _, entity in pairs(surface.find_entities_filtered{name = "item-request-proxy"}) do
+                if not storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] or storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] ~= {} then
+                    tracking.create_tracked_request({
+                        entity = entity.proxy_target,
+                        player_index = player.index,
+                        item_request_proxy = entity,
+                        request_type = "item_requests"
+                    })
+                end
             end
         end
     end

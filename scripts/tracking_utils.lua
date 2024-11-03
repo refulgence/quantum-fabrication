@@ -78,20 +78,7 @@ function tracking.remove_tracked_request(request_type, request_id)
 end
 
 
----@param tick uint
----@param request_types? table
-function tracking.update_tracked_requests(tick, request_types)
-    local smoothing = tick % Update_rate.requests.slots
-    if not request_types then request_types = {"construction", "item_requests", "cliffs"} end
-    for _, request_type in pairs(request_types) do
-        local requests = storage.tracked_requests[request_type]
-        for request_id, request_data in pairs(requests) do
-            if request_data.lag_id == smoothing then
-                tracking.update_request(request_data, request_type, request_id)
-            end
-        end
-    end
-end
+
 
 function tracking.on_tick_update_requests()
     for i = 1, 3 do
@@ -144,6 +131,21 @@ script.on_nth_tick(18, function(event)
         storage.request_ids["digitizer-chest"] = flib_table.for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
             if not entity_data.entity.valid then return nil, true, false end
             tracking.update_entity(entity_data)
+        end)
+    end
+end)
+
+script.on_nth_tick(8, function(event)
+    if next(storage.tracked_requests["construction"]) then
+        storage.request_ids["construction"] = flib_table.for_n_of(storage.tracked_requests["construction"], storage.request_ids["construction"], 3, function(request_table)
+            local entity = request_table.entity
+            local player_index = request_table.player_index
+            if not entity.valid then return nil, true, false end
+            if instant_fabrication(entity, player_index) then
+                return nil, true, false
+            else
+                return nil, false, false
+            end
         end)
     end
 end)
@@ -212,21 +214,6 @@ function tracking.on_tick_update_handler(entity, request_type)
 
 end
 
-
----@param request_data RequestData
----@param request_type "construction"|"item_requests"|"upgrades"|"revivals"|"destroys"|"cliffs"
----@param request_id uint
-function tracking.update_request(request_data, request_type, request_id)
-    local entity = request_data.entity
-    if not entity or not entity.valid then tracking.remove_tracked_request(request_type, request_id) return end
-    local player_index = request_data.player_index
-
-    if request_type == "construction" then
-        if instant_fabrication(entity, player_index) then
-            tracking.remove_tracked_request(request_type, request_id)
-        end
-    end
-end
 
 
 function tracking.update_lost_module_requests(player)

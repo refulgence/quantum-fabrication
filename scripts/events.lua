@@ -396,7 +396,6 @@ script.on_nth_tick(11, function(event)
 end)
 
 
-script.on_nth_tick(Update_rate.requests.rate, function(event) tracking.update_tracked_requests(event.tick) end)
 script.on_nth_tick(Update_rate.reactors, tracking.update_tracked_reactors)
 
 script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)

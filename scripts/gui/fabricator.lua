@@ -41,7 +41,10 @@ function build_main_gui(player)
     build_titlebar(player, recipe_flow)
 
     -- Recipe GUI
-    gui_utils.get_filtered_data(player, "")
+    if not Filtered_data_ok or not Filtered_data then
+        gui_utils.get_filtered_data(player, "")
+        Filtered_data_ok = true
+    end
 
     build_main_recipe_gui(player, recipe_flow)
 

@@ -17,13 +17,16 @@ local qf_utils = {}
 function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory, multiply_by_product_amount)
     local result
     for _, ingredient in pairs(recipe.ingredients) do
-        local qs_item = qs_utils.to_qs_item({
+        local qs_item = {
             name = ingredient.name,
             count = ingredient.amount,
             type = ingredient.type,
             quality = quality,
             surface_index = surface_index
-        })
+        }
+        if qs_item.type == "fluid" then
+            qs_item.quality = QS_DEFAULT_QUALITY
+        end
         local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
         if total < qs_item.count then
             return 0
@@ -60,13 +63,16 @@ function qf_utils.is_recipe_craftable(recipe, quality, surface_index, player_inv
         ingredients = recipe.products
     end
     for _, ingredient in pairs(ingredients) do
-        local qs_item = qs_utils.to_qs_item({
+        local qs_item = {
             name = ingredient.name,
             count = ingredient.amount,
             type = ingredient.type,
             quality = quality,
             surface_index = surface_index
-        })
+        }
+        if qs_item.type == "fluid" then
+            qs_item.quality = QS_DEFAULT_QUALITY
+        end
         local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
         if total < qs_item.count then
             return false
@@ -126,13 +132,16 @@ function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_invent
     end
 
     for _, ingredient in pairs(ingredients) do
-        local qs_item = qs_utils.to_qs_item({
+        local qs_item = {
             name = ingredient.name,
             type = ingredient.type,
             count = ingredient.amount * multiplier,
             quality = quality,
             surface_index = surface_index
-        })
+        }
+        if qs_item.type == "fluid" then
+            qs_item.quality = QS_DEFAULT_QUALITY
+        end
 
         local player_item_count
         if player_inventory and qs_item.type == "item" then
@@ -156,13 +165,16 @@ function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_invent
     end
     -- This doesn't work for products with variable amounts. Let's just pretend recipes with such products do not exist for now
     for _, product in pairs(products) do
-        local qs_item = qs_utils.to_qs_item({
+        local qs_item = {
             name = product.name,
             type = product.type,
             count = product.amount * multiplier,
             quality = quality,
             surface_index = surface_index
-        })
+        }
+        if qs_item.type == "fluid" then
+            qs_item.quality = QS_DEFAULT_QUALITY
+        end
             qs_utils.add_to_storage(qs_item, false)
     end
 end

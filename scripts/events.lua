@@ -198,13 +198,16 @@ function initialize_fabricator_inventory(surface_index, value)
         for _, thing in pairs(prototypes[type]) do
             if not thing.parameter then
                 for _, quality in pairs(qualities) do
-                    local qs_item = qs_utils.to_qs_item({
+                    local qs_item = {
                         name = thing.name,
                         type = type,
                         count = value,
                         quality = quality.name,
                         surface_index = surface_index
-                    })
+                    }
+                    if qs_item.type == "fluid" then
+                        qs_item.quality = QS_DEFAULT_QUALITY
+                    end
                     qs_utils.storage_item_check(qs_item)
                     if value then
                         qs_utils.add_to_storage(qs_item)

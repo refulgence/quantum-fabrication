@@ -136,7 +136,7 @@ function build_tab(player, tabbed_pane, tab_type)
         if Filtered_data[player.index][tab_type][item.name] then
             local item_type = item.type
             local item_name = item.name
-            local item_name_caption = {"", "["..item_type.."="..item_name.."] ", prototypes[item_type][item_name].localised_name}
+            local item_name_caption = {"", "["..item_type.."="..item_name.."] ", item.localised_name}
 
             local skip = true
             local amount_captions = {}

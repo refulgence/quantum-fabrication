@@ -58,13 +58,13 @@ function process_sorted_lists(player_indices)
             for item_name, item in pairs(list) do
                 if not item.parameter then
                     if storage.ingredient[item_name] then
-                        sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type}
+                        sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
                     end
                     if utils.is_removable(item_name) then
-                        sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type}
+                        sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
                     end
                     if not utils.is_removable(item_name) and not storage.ingredient[item_name] then
-                        sorted_others[#sorted_others + 1] = {name = item_name, type = item_type}
+                        sorted_others[#sorted_others + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
                     end
                 end
             end

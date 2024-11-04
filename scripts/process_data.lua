@@ -47,6 +47,7 @@ function process_sorted_lists(player_indices)
 
     for _, player_index in pairs(player_indices) do
         storage.sorted_lists[player_index] = {}
+        local locale = game.get_player(player_index).locale
         local sorted_materials = {}
         local sorted_placeables = {}
         local sorted_others = {}
@@ -69,9 +70,9 @@ function process_sorted_lists(player_indices)
                 end
             end
         end
-        table.sort(sorted_materials, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
-        table.sort(sorted_placeables, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
-        table.sort(sorted_others, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+        table.sort(sorted_materials, function(a, b) return get_translation(a.name, "unknown", locale) < get_translation(b.name, "unknown", locale) end)
+        table.sort(sorted_placeables, function(a, b) return get_translation(a.name, "unknown", locale) < get_translation(b.name, "unknown", locale) end)
+        table.sort(sorted_others, function(a, b) return get_translation(a.name, "unknown", locale) < get_translation(b.name, "unknown", locale) end)
         storage.sorted_lists[player_index] = {
             materials = sorted_materials,
             placeables = sorted_placeables,

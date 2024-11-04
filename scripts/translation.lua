@@ -1,20 +1,18 @@
 local flib_dictionary = require("__flib__.dictionary")
 
 ---comment
----@param player_index int
 ---@param name string
 ---@param type string
-function get_translation(player_index, name, type)
-  if not flib_dictionary.get_all(player_index) then return end
-  local language = game.get_player(player_index).locale
+---@param locale string
+function get_translation(name, type, locale)
   if type == "unknown" then
-    if storage.__flib.dictionary.translated[language]["item"][name] then
-      return storage.__flib.dictionary.translated[language]["item"][name]
+    if storage.__flib.dictionary.translated[locale]["item"][name] then
+      return storage.__flib.dictionary.translated[locale]["item"][name]
     else
-      return storage.__flib.dictionary.translated[language]["fluid"][name]
+      return storage.__flib.dictionary.translated[locale]["fluid"][name]
     end
   end
-  return storage.__flib.dictionary.translated[language][type][name]
+  return storage.__flib.dictionary.translated[locale][type][name]
 end
 
 ---comment

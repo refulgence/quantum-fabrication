@@ -352,7 +352,8 @@ function sort_ingredients(player_index, sort_type)
         elseif sort_type == "amount" then
             table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.amount < b.amount end)
         elseif sort_type == "localised_name" then
-            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(player_index, a.name, "unknown") < get_translation(player_index, b.name, "unknown") end)
+            local locale = game.get_player(player_index).locale
+            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(a.name, "unknown", locale) < get_translation(b.name, "unknown", locale) end)
         end
     end
 end

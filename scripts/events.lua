@@ -373,6 +373,7 @@ function on_tick(event)
 end
 
 function post_research_recheck()
+    Filtered_data_ok = false
     process_ingredient_filter()
     process_recipe_enablement()
 end

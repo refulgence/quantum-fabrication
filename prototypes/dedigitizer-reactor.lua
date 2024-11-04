@@ -261,4 +261,34 @@ local technology = {
     order = "e-p-b-c-t"
   }
 
-  data:extend{item,entity,recipe,technology,container_entity,fluid_container_entity}
+if mods["space-age"] then
+  technology.prerequisites = {"uranium-processing", "matter-digitization", "quantum-processor"}
+  technology.unit =
+  {
+    ingredients =
+    {
+      {"automation-science-pack", 1},
+      {"logistic-science-pack", 1},
+      {"chemical-science-pack", 1},
+      {"production-science-pack", 1},
+      {"utility-science-pack", 1},
+      {"space-science-pack", 1},
+      {"metallurgic-science-pack", 1},
+      {"agricultural-science-pack", 1},
+      {"electromagnetic-science-pack", 1},
+      {"cryogenic-science-pack", 1}
+    },
+    time = 60,
+    count = 1000
+  }
+  recipe.ingredients =
+  {
+    {type = "item", name = "refined-concrete", amount = 800},
+    {type = "item", name = "tungsten-plate", amount = 800},
+    {type = "item", name = "quantum-processor", amount = 800},
+    {type = "item", name = "superconductor", amount = 800}
+  }
+end
+
+
+data:extend{item,entity,recipe,technology,container_entity,fluid_container_entity}

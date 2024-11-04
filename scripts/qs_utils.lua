@@ -191,17 +191,19 @@ end
 
 ---Returns a table
 ---@param surface_index uint
+---@param player_inventory? LuaInventory
+---@param player_surface_index? uint
 ---@return table
-function qs_utils.get_available_tiles(surface_index)
+function qs_utils.get_available_tiles(surface_index, player_inventory, player_surface_index)
     local result = {}
     for tile_name, _ in pairs(storage.tiles) do
-        result[tile_name] = qs_utils.count_in_storage({
+        _, _, result[tile_name] = qs_utils.count_in_storage({
             name = tile_name,
             count = 1,
             surface_index = surface_index,
             quality = QS_DEFAULT_QUALITY,
             type = "item",
-        })
+        }, player_inventory, player_surface_index)
     end
     return result
 end

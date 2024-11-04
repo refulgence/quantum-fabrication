@@ -104,9 +104,9 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
         quality = quality_name,
         surface_index = surface_index
     }
-    local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
+    local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
     if storage.tiles[recipe.placeable_product] then
-        Craft_data[player_index][surface_index][recipe_name][quality_name] = in_storage
+        Craft_data[player_index][surface_index][recipe_name][quality_name] = total
         return
     end
     if storage.player_gui[player_index].options.calculate_numbers then

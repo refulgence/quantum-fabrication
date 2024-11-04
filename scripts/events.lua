@@ -108,6 +108,7 @@ function on_init()
         destroys = 1,
         upgrades = 1,
         repairs = 1,
+        tiles = 1,
     }
     ---@type table <string, table<uint, EntityData>>
     storage.tracked_entities = {
@@ -226,6 +227,7 @@ function on_built_entity(event)
             storage.request_player_ids.revivals = event.player_index
         elseif event.entity.type == "tile-ghost" then
             storage.countdowns.tile_creation = 10
+            storage.request_player_ids.tiles = event.player_index
             goto continue
         end
         on_created(event)

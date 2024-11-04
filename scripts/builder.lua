@@ -51,11 +51,18 @@ end
 ---Unlike others, this one doesn't care for player inventories
 function instant_tileation()
     local schedule_retileation = false
+    local player = game.get_player(storage.request_player_ids.tiles)
+    local player_inventory
+    local player_surface_index
+    if player then
+        player_inventory = player.get_inventory(defines.inventory.character_main)
+        player_surface_index = player.physical_surface_index
+    end
     
     local function remove_from_storage(indices, surface_index)
         for name, value in pairs(indices) do
             if value > 0 then
-            qs_utils.remove_from_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
+                qs_utils.remove_from_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
             end
         end
     end
@@ -64,7 +71,7 @@ function instant_tileation()
         local surface = surface_data.surface
         local tiles = surface.find_entities_filtered({name = "tile-ghost"})
         if tiles then
-            local tile_availability = qs_utils.get_available_tiles(surface.index)
+            local tile_availability = qs_utils.get_available_tiles(surface.index, player_inventory, player_surface_index)
             local final_tiles = {}
             local indices = {}
             local overall_index = 1

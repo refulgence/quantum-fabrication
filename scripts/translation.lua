@@ -33,9 +33,3 @@ function build_dictionaries()
     end
   end
 end
-
-function on_player_dictionaries_ready(event)
-  process_sorted_lists(event.player_index)
-end
-
-script.on_event(flib_dictionary.on_player_dictionaries_ready, on_player_dictionaries_ready)

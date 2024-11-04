@@ -207,7 +207,7 @@ end
 function erase_non_duplicates(recipes)
     storage.duplicate_recipes = {}
     for product, recipe_names in pairs(recipes) do
-        if #recipe_names > 1 and not Actual_non_duplicates[product] then
+        if #recipe_names > 1 and not Actual_non_duplicates[product] and not storage.tiles[product] then
             storage.duplicate_recipes[product] = recipe_names
         end
     end

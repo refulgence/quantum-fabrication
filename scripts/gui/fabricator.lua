@@ -106,11 +106,6 @@ function build_titlebar(player, titlebar_flow_parent)
 
 
     -- Reset filter and search bar
-    titlebar_flow.add{
-        type = "button",
-        name = "filter_reset_button",
-        caption = {"qf-inventory.reset-filter"}
-    }
     local searchbar = titlebar_flow.add{
         type = "textfield",
         name = "searchbar",

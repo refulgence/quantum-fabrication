@@ -186,10 +186,10 @@ end
 ---comment
 ---@param player LuaPlayer
 ---@param filter string | table
----@param reset_searchbar boolean
+---@param reset_searchbar string|nil
 function gui_utils.apply_gui_filter(player, filter, reset_searchbar, reset_materials)
     gui_utils.get_filtered_data(player, filter)
-    if reset_searchbar then player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.titlebar_flow.searchbar.text = "" end
+    if reset_searchbar then player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.titlebar_flow.searchbar.text = reset_searchbar end
     if reset_materials and storage.player_gui[player.index].show_storage then
         build_main_storage_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.storage_flow)
     end

@@ -9,6 +9,7 @@ local gui_utils = {}
 ---comment
 ---@param player LuaPlayer
 function toggle_qf_gui(player)
+    if not flib_dictionary.get_all(player.index) then return end
     local main_frame = player.gui.screen.qf_fabricator_frame
     if Research_finished then post_research_recheck() Research_finished = false end
     storage.player_gui[player.index].tooltip_workaround = 0
@@ -16,11 +17,7 @@ function toggle_qf_gui(player)
         if not Craft_data then Craft_data = {} end
         if not Craft_data[player.index] then Craft_data[player.index] = {} end
         if not storage.sorted_lists[player.index] then
-            if flib_dictionary.get_all(player.index) then
             process_sorted_lists(player.index)
-            else
-                return
-            end
         end
         build_main_gui(player)
     else

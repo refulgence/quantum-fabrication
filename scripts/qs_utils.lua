@@ -48,7 +48,7 @@ function qs_utils.advanced_remove_from_storage(qs_item, available, player_invent
         available = {}
         available.storage, available.inventory = qs_utils.count_in_storage(qs_item, player_inventory)
     end
-    if available.storage > to_remove then
+    if available.storage >= to_remove then
         removed_from_storage = to_remove
         qs_utils.remove_from_storage(qs_item, to_remove)
         return removed_from_storage, removed_from_inventory, true
@@ -58,7 +58,7 @@ function qs_utils.advanced_remove_from_storage(qs_item, available, player_invent
         to_remove = to_remove - available.storage
     end
     if player_inventory then
-        if available.inventory > to_remove then
+        if available.inventory >= to_remove then
             removed_from_inventory = to_remove
             player_inventory.remove({name = qs_item.name, count = to_remove, quality = qs_item.quality})
             return removed_from_storage, removed_from_inventory, true

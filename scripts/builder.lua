@@ -54,7 +54,9 @@ function instant_tileation()
     
     local function remove_from_storage(indices, surface_index)
         for name, value in pairs(indices) do
+            if value > 0 then
             qs_utils.remove_from_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
+            end
         end
     end
 

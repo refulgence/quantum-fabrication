@@ -181,22 +181,22 @@ function can_afford_space_transfer(cost, recipe, storage_index)
     return true
 end
 
-
----Special space-specific countdown handling.
-script.on_nth_tick(17, function(event)
-    for type, countdown in pairs(storage.space_countdowns) do
-        if countdown then
-            storage.space_countdowns[type] = storage.space_countdowns[type] - 1
-            if countdown == 0 then
-                storage.space_countdowns[type] = nil
-                if type == "space_sendoff" then
-                    process_space_requests()
+if settings.startup["qf-enable-space-transfer"].value then
+    ---Special space-specific countdown handling.
+    script.on_nth_tick(17, function(event)
+        for type, countdown in pairs(storage.space_countdowns) do
+            if countdown then
+                storage.space_countdowns[type] = storage.space_countdowns[type] - 1
+                if countdown == 0 then
+                    storage.space_countdowns[type] = nil
+                    if type == "space_sendoff" then
+                        process_space_requests()
+                    end
                 end
             end
         end
-    end
-end)
-
+    end)
+end
 
 
 function on_entity_logistic_slot_changed(event)

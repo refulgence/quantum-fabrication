@@ -135,9 +135,13 @@ function build_main_tooltip(player, item_name, recipe_name)
     main_product_label.style.font = "default-bold"
 
     for _, product in pairs(products) do
+        local actual_quality = quality
+        if product.type == "fluid" then
+            actual_quality = QS_DEFAULT_QUALITY
+        end
         local product_label_flow = product_flow.add{type = "flow", direction = "horizontal"}
-        local icon = "["..product.type.."="..product.name..",quality="..quality.."] "
-        local localised_name = prototypes.item[product.name].localised_name
+        local icon = "["..product.type.."="..product.name..",quality="..actual_quality.."] "
+        local localised_name = prototypes[product.type][product.name].localised_name
         local product_caption = {"", icon, localised_name}
         local amount = product.amount
         local product_label = product_label_flow.add{type = "label", caption = product_caption}

@@ -8,3 +8,9 @@ Version: 2.0.1
 Date: 05.11.2024
   Bugfixes:
     - Fixed a crash when enabling the mod in the middle of a run.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.2
+Date: 05.11.2024
+  Bugfixes:
+    - Sending things to space now costs accurate amount of space parts.
+    - Added migration to apply 2.0.1 fix for players who saved the game during 2.0.0 (and therefore would not be initializing anymore)

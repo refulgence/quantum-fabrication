@@ -74,7 +74,7 @@ function gui_utils.auto_position_tooltip(player, button_index)
     y = y + button_index.y * 40 + 15 + 40
     -- Step 4: adjusting for screen resolution
     if x + tooltip_frame.tags.width > player.display_resolution.width then
-        x = x - tooltip_frame.tags.width - 15 - 15 - 40
+        x = x - tooltip_frame.tags.width - 15 - 15 - 60
     end
     if y + tooltip_frame.tags.heigth > player.display_resolution.height then
         y = player.display_resolution.height - tooltip_frame.tags.heigth

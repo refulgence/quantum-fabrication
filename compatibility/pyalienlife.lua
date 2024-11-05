@@ -123,7 +123,7 @@ pyalienlife["autocraft blacklist"] = {
     }
 }
 
-pyalienlife["recipe blackliste"] = {
+pyalienlife["recipe blacklist"] = {
     ["nuclear-reactor-mox-mk01-uncraft"] = true,
     ["nuclear-reactor-mox-mk02-uncraft"] = true,
     ["nuclear-reactor-mox-mk03-uncraft"] = true,
@@ -140,4 +140,4 @@ if not Autocraft_blacklist then Autocraft_blacklist = {} end
 Autocraft_blacklist = utils.merge_tables(Autocraft_blacklist, pyalienlife["autocraft blacklist"])
 
 if not Recipe_blacklist then Recipe_blacklist = {} end
-Recipe_blacklist = utils.merge_tables(Recipe_blacklist, pyalienlife["recipe blackliste"])
+Recipe_blacklist = utils.merge_tables(Recipe_blacklist, pyalienlife["recipe blacklist"])

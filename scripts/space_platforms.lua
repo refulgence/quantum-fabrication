@@ -96,71 +96,99 @@ function process_space_requests()
 end
 
 
-
 ---Returns true if everything was sent and false if it wasn't
 ---@param platform_payloads PlatformPayload[]
 ---@return boolean
 function send_to_space(platform_payloads)
     local sent_everything = true
+
+    ---@param transfer_cost uint
+    ---@param ingredients table
+    ---@param storage_index uint
+    local function pay_rocket_parts(transfer_cost, ingredients, storage_index)
+        for _, ingredient in pairs(ingredients) do
+            qs_utils.remove_from_storage({
+                name = ingredient.name,
+                count = ingredient.amount * transfer_cost,
+                type = ingredient.type,
+                quality = QS_DEFAULT_QUALITY,
+                surface_index = storage_index
+            })
+        end
+    end
+
     for _, payload in pairs(platform_payloads) do
         local hub_inventory = payload.hub_inventory
         local storage_index = payload.storage_index
         for _, qs_item in pairs(payload.qs_items) do
-            if qs_item.count > qs_utils.count_in_storage(qs_item) and hub_inventory.get_insertable_count({name = qs_item.name, quality = qs_item.quality}) >= qs_item.count then
-                local recipe = qf_utils.get_craftable_recipe(qs_item)
-                if recipe then
-                    if qs_item.count > qf_utils.how_many_can_craft(recipe, qs_item.quality, storage_index, nil, true) then
-                        sent_everything = false
-                        goto continue
-                    else
-                        qf_utils.fabricate_recipe(recipe, qs_item.quality, storage_index, nil, qs_item.count)
-                    end
-                end
-            end
-            local transfer_cost = get_space_transfer_cost(qs_item, payload.rocket_silo)
+            -- How many items are needed and available
+            local to_insert = qs_item.count
+            local available = qs_utils.count_in_storage(qs_item)
+            local insertable = hub_inventory.get_insertable_count({name = qs_item.name, quality = qs_item.quality})
             local rocket_parts_recipe = QS_ROCKET_PART_RECIPE
-            if can_afford_space_transfer(transfer_cost, rocket_parts_recipe, storage_index) then
-                for _, ingredient in pairs(rocket_parts_recipe.ingredients) do
-                    local qs_item_rocket_part_ingredient = {
-                        name = ingredient.name,
-                        count = ingredient.amount * transfer_cost,
-                        type = ingredient.type,
-                        quality = QS_DEFAULT_QUALITY,
-                        surface_index = storage_index
-                    }
-                    qs_utils.remove_from_storage(qs_item_rocket_part_ingredient)
-                end
-                local pull_result = qs_utils.pull_from_storage(qs_item, hub_inventory)
-                if pull_result.full_inventory then
-                    sent_everything = false
-                    break
-                end
-                if pull_result.empty_storage then
-                    sent_everything = false
-                end
-            else
+            local available_parts = qf_utils.how_many_can_craft(rocket_parts_recipe, "normal", storage_index)
+            local cost_per_item = get_space_transfer_cost(qs_item, payload.rocket_silo)
+            local sendable = math.floor(available_parts / cost_per_item)
+            if sendable == 0 or insertable == 0 then
+                sent_everything = false
+                goto continue
+            end
+            -- Cannot send more items then can get inserted in the hub (common sense)
+            if to_insert > insertable then
+                to_insert = insertable
                 sent_everything = false
             end
+            -- Cannot send more items than we have rocket parts for
+            if to_insert > sendable then
+                to_insert = sendable
+                sent_everything = false
+            end
+            -- If we don't have enough items, check if we could fabricate the missing ones
+            if to_insert > available then
+                local recipe = qf_utils.get_craftable_recipe(qs_item)
+                if recipe then
+                    local craftable = qf_utils.how_many_can_craft(recipe, qs_item.quality, storage_index, nil, true)
+                    if craftable >= to_insert - available then
+                        qf_utils.fabricate_recipe(recipe, qs_item.quality, storage_index, nil, to_insert - available)
+                        goto sending
+                    elseif craftable > 0 then
+                        qf_utils.fabricate_recipe(recipe, qs_item.quality, storage_index, nil, craftable)
+                        to_insert = available + craftable
+                        sent_everything = false
+                        goto sending
+                    end
+                end
+                to_insert = available
+                sent_everything = false
+            end
+            if to_insert == 0 then
+                sent_everything = false
+                goto continue
+            end
+            ::sending::
+            -- Ok, now we know exactly how many items we can send to space, so let's do it!
+            qs_item.count = to_insert
+            pay_rocket_parts(math.ceil(cost_per_item * to_insert), rocket_parts_recipe.ingredients, storage_index)
+            qs_utils.pull_from_storage(qs_item, hub_inventory)
             ::continue::
         end
     end
     return sent_everything
 end
 
----Calculates how many rocket parts are needed to transfer given items
+
+---Returns how many rocket parts are needed to transfer a single item
 ---@param qs_item QSItem
 ---@param rocket_silo LuaEntity
----@return uint --number of rocket parts to pay rounded down unless it's less than 1
+---@return double
 function get_space_transfer_cost(qs_item, rocket_silo)
-    local cost
-    local weight = qs_item.count * prototypes.item[qs_item.name].weight
+    local weight = prototypes.item[qs_item.name].weight
     local rocket_parts_per_launch = rocket_silo.prototype.rocket_parts_required
     local rocket_weight_limit = QS_ROCKET_WEIGHT_LIMIT
     local productivity = 1 + rocket_silo.productivity_bonus
-    cost = rocket_parts_per_launch * weight / rocket_weight_limit / productivity
-    if cost < 1 then return 1 end
-    return math.floor(cost)
+    return rocket_parts_per_launch / (rocket_weight_limit / weight) / productivity
 end
+
 
 ---Takes a recipe for rocket parts and checks if it's more than the cost
 ---@param cost uint

@@ -1,3 +1,5 @@
 Quantum Fabrication
 
-A Factorio mod that adds RTS-like entity construction
+A Factorio mod that adds instant entity construction and other stuff.
+
+https://mods.factorio.com/mod/quantum-fabricator

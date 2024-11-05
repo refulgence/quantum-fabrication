@@ -167,6 +167,7 @@ function build_tab(player, tabbed_pane, tab_type)
             }
             item_name_label.style.font = "default-bold"
             item_name_label.style.horizontal_align = "left"
+            item_name_label.style.maximal_width = 300
 
             --Quality things
             for _, amount_caption in pairs(amount_captions) do

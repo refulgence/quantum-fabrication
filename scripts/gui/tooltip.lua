@@ -63,7 +63,9 @@ function build_main_tooltip(player, item_name, recipe_name)
 
 
     local column_count
-    if #ingredients > 12 then
+    if #ingredients > 24 then
+        column_count = 6
+    elseif #ingredients > 12 then
         column_count = 4
     else
         column_count = 2

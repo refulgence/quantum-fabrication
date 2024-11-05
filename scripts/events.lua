@@ -124,9 +124,36 @@ function on_init()
     storage.prototypes_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
+    init_players()
 end
 
+function init_players()
+    for _, player in pairs(game.players) do
+        on_player_created({player_index = player.index})
+    end
+end
 
+function on_player_created(event)
+    if not storage.player_gui[event.player_index] then
+        storage.player_gui[event.player_index] = {
+            item_group_selection = 1,
+            selected_tab_index = 1,
+            tooltip_workaround = 0,
+            show_storage = false,
+            quality = {
+                index = 1,
+                name = "normal"
+            },
+            fabricator_gui_position = nil,
+            options = {
+                calculate_numbers = true,
+                mark_red = true,
+                sort_ingredients = 1
+            },
+            gui = {}
+        }
+    end
+end
 
 function on_config_changed()
     flib_dictionary.on_configuration_changed()
@@ -329,25 +356,7 @@ function on_entity_damaged(event)
 end
 
 
-function on_player_created(event)
-    storage.player_gui[event.player_index] = {
-        item_group_selection = 1,
-        selected_tab_index = 1,
-        tooltip_workaround = 0,
-        show_storage = false,
-        quality = {
-            index = 1,
-            name = "normal"
-        },
-        fabricator_gui_position = nil,
-        options = {
-            calculate_numbers = true,
-            mark_red = true,
-            sort_ingredients = 1
-        },
-        gui = {}
-    }
-end
+
 
 
 ---@param player_index uint

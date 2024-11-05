@@ -1,9 +1,9 @@
 {
   "name": "quantum-fabricator",
-  "version": "1.0.3",
-  "title": "Quantum Fabrication",
+  "version": "2.0.0",
+  "title": "Quantum Fabricator",
   "author": "Tename",
   "factorio_version": "2.0",
-  "dependencies": ["base >= 1.1", "flib >= 0.14.2"],
-  "description": "Say goodbye to construction robots and malls! Thanks to magical powers of quantum fabrication all ghost entities you place are automatically constructed from available materials and deconstructing buildings will fully refund their cost in materials. Read the mod portal page for more info."
+  "dependencies": ["base >= 2.0", "flib >= 0.14.2"],
+  "description": "Makes construction bots and malls mostly obsolete by automatically crafting and building ghosts for you. Will handle most things construction bots are doing, like deconstruction, upgrades, placing/removing tiles, inserting modules and repairs."
 }

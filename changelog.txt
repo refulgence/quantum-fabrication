@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.0
-Date: 05.10.2024
+Version: 2.0.0
+Date: 05.11.2024
   Major Features:
-    - Initial working release
+    - Initial public release. Yay.

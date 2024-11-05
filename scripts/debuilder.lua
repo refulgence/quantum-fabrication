@@ -187,7 +187,8 @@ end
 
 ---Handles removing cliffs via explosions
 ---@param entity LuaEntity
-function instant_decliffing(entity)
+---@param player_index uint
+function instant_decliffing(entity, player_index)
     if not entity or not entity.valid then return true end
     local entity_prototype = entity.prototype
     local cliff_explosive = entity_prototype.cliff_explosive_prototype
@@ -199,8 +200,20 @@ function instant_decliffing(entity)
         quality = QS_DEFAULT_QUALITY,
         surface_index = entity.surface_index
     }
-    if qs_utils.count_in_storage(qs_item) > 0 then
-        qs_utils.remove_from_storage(qs_item)
+    local player = game.get_player(player_index)
+    local player_inventory
+    if player then
+        player_inventory = player.get_inventory(defines.inventory.character_main)
+    end
+    local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
+    if total > 0 then
+        if in_storage > 0 then
+            qs_utils.remove_from_storage(qs_item)
+        else
+            -- We already know it's not nil because count_in_storage says so
+            ---@diagnostic disable-next-line: need-check-nil
+            player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
+        end
         entity.destroy({raise_destroy = true})
         return true
     end

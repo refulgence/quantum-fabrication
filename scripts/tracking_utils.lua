@@ -117,7 +117,7 @@ script.on_nth_tick(19, function(event)
     if next(storage.tracked_requests["cliffs"]) then
         storage.request_ids["cliffs"] = flib_table.for_n_of(storage.tracked_requests["cliffs"], storage.request_ids["cliffs"], 3, function(request_table)
             if not request_table.entity.valid then return nil, true, false end
-            if instant_decliffing(request_table.entity) then
+            if instant_decliffing(request_table.entity, request_table.player_index) then
                 return nil, true, false
             else
                 return nil, false, false

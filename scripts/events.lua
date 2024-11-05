@@ -273,7 +273,7 @@ function on_marked_for_deconstruction(event)
             elseif entity.type == "deconstructible-tile-proxy" then
                 storage.countdowns.tile_removal = 10
             elseif entity.type == "cliff" then
-                if not instant_decliffing(entity) then
+                if not instant_decliffing(entity, player_index) then
                     tracking.create_tracked_request({
                         entity = entity,
                         player_index = player_index,

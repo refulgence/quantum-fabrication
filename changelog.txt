@@ -14,3 +14,8 @@ Date: 05.11.2024
   Bugfixes:
     - Sending things to space now costs accurate amount of space parts.
     - Added migration to apply 2.0.1 fix for players who saved the game during 2.0.0 (and therefore would not be initializing anymore)
+---------------------------------------------------------------------------------------------------
+Version: 2.0.3
+Date: 06.11.2024
+  Bugfixes:
+    - Possible fix for a crash involving LinkedChestAndPipe mod

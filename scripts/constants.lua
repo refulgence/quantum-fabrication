@@ -71,6 +71,16 @@ On_tick_requests = {
     [4] = "repairs",
 }
 
+Transport_belt_types = {
+    ["transport-belt"] = true,
+    ["underground-belt"] = true,
+    ["splitter"] = true,
+    ["loader"] = true,
+    ["loader-1x1"] = true,
+    ["linked-belt"] = true,
+    ["lane-splitter"] = true
+}
+
 if not Actual_non_duplicates then Actual_non_duplicates = {} end
 if not Unpacking_blacklist then Unpacking_blacklist = {} end
 if not Autocraft_blacklist then Autocraft_blacklist = {} end

@@ -24,6 +24,9 @@ function instant_defabrication(entity, player_index)
     end
     qs_utils.add_to_storage(qs_item, true)
     process_inventory(entity, player_inventory, surface_index)
+    if Transport_belt_types[entity.type] then
+        process_transport_line(entity, player_inventory, surface_index)
+    end
     return entity.destroy({raise_destroy = true})
 end
 
@@ -105,6 +108,27 @@ function process_inventory(entity, player_inventory, surface_index)
     end
 end
 
+---comment
+---@param entity LuaEntity
+---@param player_inventory? LuaInventory
+---@param surface_index uint
+function process_transport_line(entity, player_inventory, surface_index)
+    local max_lines = entity.get_max_transport_line_index()
+    for line = 1, max_lines do
+        local transport_line = entity.get_transport_line(line)
+        local contents = transport_line.get_contents()
+        for _, item in pairs(contents) do
+            local qs_item = {
+                name = item.name,
+                count = item.count,
+                type = "item",
+                quality = item.quality,
+                surface_index = surface_index
+            }
+            qs_utils.add_to_player_inventory(player_inventory, qs_item)
+        end
+    end
+end
 
 ---comment
 ---@param entity LuaEntity

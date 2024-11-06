@@ -28,3 +28,8 @@ Date: 06.11.2024
     - Fixed a bug with batches of buildings not getting defabricated if you lacked materials to fabricate them.
     - Fixed a bug with deconstruction of belts erasing all items they carry.
     - Fixed a bug with fabrication prioritising player's inventory over the Storage.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.5
+Date: 06.11.2024
+  Bugfixes:
+    - Allow GUI to open before translation finishes.

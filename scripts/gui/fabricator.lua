@@ -206,7 +206,6 @@ function build_main_recipe_gui(player, recipe_frame_parent)
 
         local group_table = extra_frame.add{
             type = "table",
-            name = "group_table",
             column_count = group_table_columns,
             style = "qf_item_group_table"
         }

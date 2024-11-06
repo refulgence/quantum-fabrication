@@ -118,17 +118,17 @@ end
 ---@param multiplier? int
 ---@param decraft? boolean
 function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_inventory, multiplier, decraft)
-    if multiplier and multiplier ~= 1 then
-        multiplier = math.min(multiplier, qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory))
-    else
-        multiplier = 1
-    end
-
     local ingredients = recipe.ingredients
     local products = recipe.products
     if decraft then
         products = recipe.ingredients
         ingredients = recipe.products
+    end
+
+    if multiplier and multiplier ~= 1 then
+        multiplier = math.min(multiplier, qf_utils.how_many_can_craft({ingredients = ingredients, products = products}, quality, surface_index, player_inventory))
+    else
+        multiplier = 1
     end
 
     for _, ingredient in pairs(ingredients) do

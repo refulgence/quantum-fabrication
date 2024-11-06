@@ -150,7 +150,8 @@ function on_player_created(event)
                 mark_red = true,
                 sort_ingredients = 1
             },
-            gui = {}
+            gui = {},
+            translation_complete = false,
         }
     end
 end
@@ -369,7 +370,7 @@ function sort_ingredients(player_index, sort_type)
             table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.amount < b.amount end)
         elseif sort_type == "localised_name" then
             local locale = game.get_player(player_index).locale
-            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(a.name, "unknown", locale) < get_translation(b.name, "unknown", locale) end)
+            table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return get_translation(player_index, a.name, "unknown", locale) < get_translation(player_index, b.name, "unknown", locale) end)
         end
     end
 end

@@ -9,7 +9,6 @@ local gui_utils = {}
 ---comment
 ---@param player LuaPlayer
 function toggle_qf_gui(player)
-    if not flib_dictionary.get_all(player.index) then return end
     local main_frame = player.gui.screen.qf_fabricator_frame
     if Research_finished then post_research_recheck() Research_finished = false end
     storage.player_gui[player.index].tooltip_workaround = 0
@@ -153,7 +152,7 @@ function gui_utils.get_filtered_data(player, filter)
     if type(filter) == "string" then
         for name, recipe in pairs(recipes) do
             if storage.unpacked_recipes[name].enabled then
-                local localised_name = get_translation(name, "recipe", locale)
+                local localised_name = get_translation(player_index, name, "recipe", locale)
                 if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
                     add_entry(recipe)
                 end
@@ -161,7 +160,7 @@ function gui_utils.get_filtered_data(player, filter)
         end
         for _, tabbed_type in pairs({"materials", "placeables", "others"}) do
             for _, thing in pairs(storage.sorted_lists[player_index][tabbed_type]) do
-                local localised_name = get_translation(thing.name, "unknown", locale)
+                local localised_name = get_translation(player_index, thing.name, "unknown", locale)
                 if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
                     Filtered_data[player_index][tabbed_type][thing.name] = true
                 end

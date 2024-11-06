@@ -1,10 +1,12 @@
 local flib_dictionary = require("__flib__.dictionary")
 
 ---comment
+---@param player_index uint
 ---@param name string
 ---@param type string
 ---@param locale string
-function get_translation(name, type, locale)
+function get_translation(player_index, name, type, locale)
+  if not storage.player_gui[player_index].translation_complete then return name end
   if type == "unknown" then
     if storage.__flib.dictionary.translated[locale]["item"][name] then
       return storage.__flib.dictionary.translated[locale]["item"][name]
@@ -33,3 +35,10 @@ function build_dictionaries()
     end
   end
 end
+
+function on_player_dictionaries_ready(event)
+  storage.player_gui[event.player_index].translation_complete = true
+  process_sorted_lists(event.player_index)
+end
+
+script.on_event(flib_dictionary.on_player_dictionaries_ready, on_player_dictionaries_ready)

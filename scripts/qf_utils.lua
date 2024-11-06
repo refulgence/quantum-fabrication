@@ -143,25 +143,22 @@ function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_invent
             qs_item.quality = QS_DEFAULT_QUALITY
         end
 
-        local player_item_count
-        if player_inventory and qs_item.type == "item" then
-            player_item_count = player_inventory.get_item_count({name = qs_item.name, quality = qs_item.quality})
-        end
-
-        if player_item_count and player_item_count > 0 then
-            if player_item_count >= qs_item.count then
-                ---@diagnostic disable-next-line: need-check-nil
-                player_inventory.remove({name = ingredient.name, count = qs_item.count, quality = quality})
-            else
-                ---@diagnostic disable-next-line: need-check-nil
-                player_inventory.remove({name = ingredient.name, count = player_item_count, quality = quality})
-                qs_item.count = qs_item.count - player_item_count
+        local in_storage = qs_utils.count_in_storage(qs_item, player_inventory, surface_index)
+        if in_storage > 0 then
+            if in_storage >= qs_item.count then
                 qs_utils.remove_from_storage(qs_item)
+            else
+                qs_utils.remove_from_storage(qs_item, in_storage)
+                qs_item.count = qs_item.count - in_storage
+                if player_inventory then
+                    player_inventory.remove({name = ingredient.name, count = qs_item.count, quality = quality})
+                end
             end
         else
-            qs_utils.remove_from_storage(qs_item)
+            if player_inventory then
+                player_inventory.remove({name = ingredient.name, count = qs_item.count, quality = quality})
+            end
         end
-
     end
     -- This doesn't work for products with variable amounts. Let's just pretend recipes with such products do not exist for now
     for _, product in pairs(products) do

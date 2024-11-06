@@ -13,9 +13,18 @@ Version: 2.0.2
 Date: 05.11.2024
   Bugfixes:
     - Sending things to space now costs accurate amount of space parts.
-    - Added migration to apply 2.0.1 fix for players who saved the game during 2.0.0 (and therefore would not be initializing anymore)
+    - Added migration to apply 2.0.1 fix for players who saved the game during 2.0.0 (and therefore would not be initializing anymore).
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.3
 Date: 06.11.2024
   Bugfixes:
-    - Possible fix for a crash involving LinkedChestAndPipe mod
+    - Possible fix for a crash involving LinkedChestAndPipe mod.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.4
+Date: 06.11.2024
+  Minor Features:
+    - Added an option to specify where you want the mined items to go - to the Storage or to your inventory (this only affects items you directly mine with right click). Sending items to the Storage breaks the Undo functionality so it's off by default, but you can turn it on if you prefer the old behavior.
+  Bugfixes:
+    - Fixed a bug with batches of buildings not getting defabricated if you lacked materials to fabricate them.
+    - Fixed a bug with deconstruction of belts erasing all items they carry.
+    - Fixed a bug with fabrication prioritising player's inventory over the Storage.

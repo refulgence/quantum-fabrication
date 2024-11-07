@@ -48,7 +48,6 @@ function instant_fabrication(entity, player_index)
 end
 
 
----Unlike others, this one doesn't care for player inventories
 function instant_tileation()
     local schedule_retileation = false
     local player = game.get_player(storage.request_player_ids.tiles)
@@ -62,7 +61,13 @@ function instant_tileation()
     local function remove_from_storage(indices, surface_index)
         for name, value in pairs(indices) do
             if value > 0 then
-                qs_utils.remove_from_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
+                qs_utils.advanced_remove_from_storage({
+                    name = name,
+                    type = "item",
+                    count = value,
+                    surface_index = surface_index,
+                    quality = QS_DEFAULT_QUALITY
+                }, nil, player_inventory)
             end
         end
     end

@@ -41,7 +41,7 @@ function build_main_gui(player)
     build_titlebar(player, recipe_flow)
 
     -- Recipe GUI
-    if not Filtered_data_ok or not Filtered_data then
+    if not Filtered_data_ok or not storage.filtered_data then
         gui_utils.get_filtered_data(player, "")
         Filtered_data_ok = true
     end
@@ -186,8 +186,8 @@ function build_main_recipe_gui(player, recipe_frame_parent)
 
     if not storage.item_group_order then process_item_group_order() end
 
-    local size = Filtered_data[player.index].size
-    local filter = Filtered_data[player.index].content
+    local size = storage.filtered_data[player.index].size
+    local filter = storage.filtered_data[player.index].content
 
     if filter and size and size > 0 then
 
@@ -289,7 +289,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
         direction = "vertical"
     }
     recipe_item_scroll_pane.style.width = QF_GUI.recipe_frame.width
-    recipe_item_scroll_pane.style.natural_height = QF_GUI.recipe_frame.height - (75 * Filtered_data[player.index].size) - 10
+    recipe_item_scroll_pane.style.natural_height = QF_GUI.recipe_frame.height - (75 * storage.filtered_data[player.index].size) - 10
     recipe_item_scroll_pane.style.vertically_stretchable = true
     recipe_item_scroll_pane.style.vertically_squashable = true
     recipe_item_scroll_pane.style.horizontally_squashable = true
@@ -307,12 +307,12 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     recipe_item_frame.style.vertically_squashable = true
     recipe_item_frame.style.horizontally_squashable = true
     recipe_item_frame.style.horizontally_stretchable = true
-    recipe_item_frame.style.natural_height = QF_GUI.recipe_frame.height - (75 * Filtered_data[player.index].size) - 10
+    recipe_item_frame.style.natural_height = QF_GUI.recipe_frame.height - (75 * storage.filtered_data[player.index].size) - 10
     --recipe_item_frame.style.vertical_spacing = 4
     recipe_item_frame.style.margin = 10
 
     local current_selection = storage.player_gui[player.index].item_group_selection
-    local filter = Filtered_data[player.index].content
+    local filter = storage.filtered_data[player.index].content
 
     local y_index = 0
     
@@ -345,16 +345,16 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
 
 
                 if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
-                    if not Craft_data[player.index][surface_index] or not Craft_data[player.index][surface_index][recipe_name] or not Craft_data[player.index][surface_index][recipe_name][quality_name] then
+                    if not storage.craft_data[player.index][surface_index] or not storage.craft_data[player.index][surface_index][recipe_name] or not storage.craft_data[player.index][surface_index][recipe_name][quality_name] then
                         gui_utils.get_craft_data(player_index, player_inventory, surface_index, quality_name, recipe_name)
                     end
-                    if Craft_data[player.index][surface_index][recipe_name][quality_name] == 0 then
+                    if storage.craft_data[player.index][surface_index][recipe_name][quality_name] == 0 then
                         if storage.player_gui[player.index].options.mark_red then
                             item_button.style = "flib_slot_button_red"
                         end
                     end
                     if storage.player_gui[player.index].options.calculate_numbers then
-                        item_button.number = Craft_data[player.index][surface_index][recipe_name][quality_name]
+                        item_button.number = storage.craft_data[player.index][surface_index][recipe_name][quality_name]
                     end
                 end
 

@@ -133,7 +133,7 @@ function build_tab(player, tabbed_pane, tab_type)
     local sorted_list = storage.sorted_lists[player.index][tab_type]
     local fabricator_inventory = storage.fabricator_inventory[storage_index]
     for _, item in pairs(sorted_list) do
-        if Filtered_data[player.index][tab_type][item.name] then
+        if storage.filtered_data[player.index][tab_type][item.name] then
             local item_type = item.type
             local item_name = item.name
             local item_name_caption = {"", "["..item_type.."="..item_name.."] ", item.localised_name}

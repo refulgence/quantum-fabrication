@@ -122,6 +122,8 @@ function on_init()
     }
     ---@type table <string, QSPrototypeData>
     storage.prototypes_data = {}
+    storage.craft_data = {}
+    storage.filtered_data = {}
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
     init_players()

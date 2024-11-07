@@ -70,8 +70,9 @@ function process_space_requests()
                             index = index + 1
                         end
                     end
-                    if not planets[storage_index].rocket_silo then
-                        local rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
+                    local rocket_silo = planets[storage_index].rocket_silo
+                    if not rocket_silo or not rocket_silo.valid then
+                        rocket_silo = game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo", limit = 1})[1]
                         if rocket_silo then
                             planets[storage_index].rocket_silo = rocket_silo
                         else
@@ -81,7 +82,7 @@ function process_space_requests()
                     result[#result + 1] = {
                         hub_inventory = hub_inventory,
                         qs_items = qs_items_result,
-                        rocket_silo = planets[storage_index].rocket_silo,
+                        rocket_silo = rocket_silo,
                         storage_index = storage_index
                     }
                 end

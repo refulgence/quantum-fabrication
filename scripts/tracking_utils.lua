@@ -33,6 +33,7 @@ local tracking = {}
 ---Creates a request to be executed later if conditions are met
 ---@param request_data RequestData
 function tracking.create_tracked_request(request_data)
+    if not request_data.entity.valid then return end
     local request_type = request_data.request_type
     if request_type == "entities" then
         tracking.add_tracked_entity(request_data)

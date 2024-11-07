@@ -48,3 +48,9 @@ Version: 2.0.8
 Date: 07.11.2024
   Bugfixes:
     - Fixed a crash related to entities combining into bigger entities while being built
+---------------------------------------------------------------------------------------------------
+Version: 2.0.9
+Date: ??.11.2024
+  Bugfixes:
+    - Fixed a crash caused by sending things to space after removing the original rocket silo
+    - Fixed a bug with deconstruction orders created by other mods not getting processed right away

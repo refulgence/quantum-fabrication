@@ -33,3 +33,8 @@ Version: 2.0.5
 Date: 06.11.2024
   Bugfixes:
     - Allow GUI to open before translation finishes.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.6
+Date: 07.11.2024
+  Bugfixes:
+    - Fixed a bug with tile placement not fully considering player's inventory, possibly resulting in negative count for the items in the Storage with a bunch of side effects.

@@ -144,7 +144,7 @@ function build_tab(player, tabbed_pane, tab_type)
             for _, quality in pairs(qualities) do
                 if item.type == "item" or quality.name == QS_DEFAULT_QUALITY then
                     local amount = fabricator_inventory[item_type][item_name][quality.name]
-                    if amount > 0 then
+                    if amount ~= 0 then
                         skip = false
                         amount_captions[#amount_captions + 1] = {caption = "x" .. flib_format.number(amount, true) .. quality.icon, quality = quality.name}
                     else

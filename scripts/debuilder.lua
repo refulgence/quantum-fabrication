@@ -212,7 +212,7 @@ end
 
 ---Handles removing cliffs via explosions
 ---@param entity LuaEntity
----@param player_index uint
+---@param player_index? uint
 function instant_decliffing(entity, player_index)
     if not entity or not entity.valid then return true end
     local entity_prototype = entity.prototype
@@ -225,10 +225,9 @@ function instant_decliffing(entity, player_index)
         quality = QS_DEFAULT_QUALITY,
         surface_index = entity.surface_index
     }
-    local player = game.get_player(player_index)
     local player_inventory
-    if player then
-        player_inventory = player.get_inventory(defines.inventory.character_main)
+    if player_index then
+        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
     end
     local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
     if total > 0 then

@@ -290,7 +290,7 @@ end
 function on_marked_for_deconstruction(event)
     local entity = event.entity
     local player_index = event.player_index
-    if entity and entity.valid and player_index then
+    if entity and entity.valid then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name

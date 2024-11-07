@@ -173,7 +173,8 @@ function process_loot(loot, player_inventory, surface_index)
                 name = item.item,
                 count = math.random(item.count_min, item.count_max),
                 type = "item",
-                surface_index = surface_index
+                surface_index = surface_index,
+                quality = QS_DEFAULT_QUALITY
             }
             qs_utils.add_to_player_inventory(player_inventory, qs_item)
         end

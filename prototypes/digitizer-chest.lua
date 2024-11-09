@@ -107,15 +107,6 @@ entity.picture =
           width = 34,
           height = 38,
           shift = util.by_pixel(0, -0.2),
-          hr_version =
-          {
-            filename = "__quantum-fabricator__/graphics/entity/digitizer-chest/hr-digitizer-chest.png", --
-            priority = "extra-high",
-            width = 66,
-            height = 74,
-            shift = util.by_pixel(-0.25, -0.2),
-            scale = 0.5
-          }
         },
         {
           filename = "__quantum-fabricator__/graphics/entity/digitizer-chest/digitizer-chest-shadow.png", --
@@ -124,16 +115,6 @@ entity.picture =
           height = 24,
           shift = util.by_pixel(12, 5),
           draw_as_shadow = true,
-          hr_version =
-          {
-            filename = "__quantum-fabricator__/graphics/entity/digitizer-chest/hr-digitizer-chest-shadow.png", --
-            priority = "extra-high",
-            width = 112,
-            height = 46,
-            shift = util.by_pixel(12, 4.5),
-            draw_as_shadow = true,
-            scale = 0.5
-          }
         }
       }
     }

@@ -161,6 +161,8 @@ end
 function on_config_changed()
     for _, player in pairs(game.players) do
         storage.player_gui[player.index].translation_complete = false
+        local main_frame = player.gui.screen.qf_fabricator_frame
+        if main_frame then main_frame.destroy() end
     end
     flib_dictionary.on_configuration_changed()
     build_dictionaries()

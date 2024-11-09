@@ -159,6 +159,9 @@ function on_player_created(event)
 end
 
 function on_config_changed()
+    for _, player in pairs(game.players) do
+        storage.player_gui[player.index].translation_complete = false
+    end
     flib_dictionary.on_configuration_changed()
     build_dictionaries()
     process_data()

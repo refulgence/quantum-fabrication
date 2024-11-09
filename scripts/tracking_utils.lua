@@ -27,9 +27,13 @@ local tracking = {}
 ---@field fluid_filter? string
 ---@field item_transfer_status? string
 ---@field fluid_transfer_status? string
+---@field burnt_result_inventory? LuaInventory
 
 ---@class EntitySettings
 ---@field intake_limit? uint
+---@field item_filter? { name: string, quality: string }
+---@field fluid_filter? string
+---@field surface_index? uint
 
 ---Creates a request to be executed later if conditions are met
 ---@param request_data RequestData
@@ -278,13 +282,13 @@ function tracking.add_tracked_entity(request_data)
             position = position,
             force = force
         }
+        entity_data.settings.item_filter = nil
+        entity_data.settings.fluid_filter = nil
+        entity_data.settings.surface_index = entity.surface_index
+        entity_data.burnt_result_inventory = entity.get_inventory(defines.inventory.burnt_result)
         pseudo_fluid_container.destructible = false
         pseudo_fluid_container.operable = false
         entity_data.container_fluid = pseudo_fluid_container
-        entity_data.item_filter = ""
-        entity_data.fluid_filter = ""
-        entity_data.item_transfer_status = "inactive"
-        entity_data.fluid_transfer_status = "inactive"
     end
     storage.tracked_entities[entity.name][entity.unit_number] = entity_data
 
@@ -369,16 +373,23 @@ function tracking.update_entity(entity_data)
         local energy_consumption_multiplier = 1
         local transfer_rate_multiplier = 1
 
+        local burnt_result_contents = entity_data.burnt_result_inventory.get_contents()
+        if next(burnt_result_contents) then
+            entity_data.inventory.insert(burnt_result_contents[1])
+            entity_data.burnt_result_inventory.clear()
+        end
+
         if entity_data.entity.temperature > Reactor_constants.min_temperature then
             local signals = entity_data.entity.get_signals(defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
+            
+            local item_filter
+            local fluid_filter
+            local quality_filter
+            local surface_id
+            local highest_count_item = 0
+            local highest_count_fluid = 0
+            local highest_count_quality = 0
             if signals then
-                local item_filter
-                local fluid_filter
-                local quality_filter
-                local surface_id
-                local highest_count_item = 0
-                local highest_count_fluid = 0
-                local highest_count_quality = 0
                 for _, signal in pairs(signals) do
                     if signal.signal.type == "item" or signal.signal.type == nil then
                         if signal.count > highest_count_item then
@@ -399,58 +410,65 @@ function tracking.update_entity(entity_data)
                         end
                     end
                 end
-
-                if not quality_filter then
-                    quality_filter = QS_DEFAULT_QUALITY
+            end
+            if not item_filter and entity_data.settings.item_filter then
+                item_filter = entity_data.settings.item_filter.name
+            end
+            if not quality_filter and entity_data.settings.item_filter then
+                quality_filter = entity_data.settings.item_filter.quality
+            end
+            if not fluid_filter then
+                fluid_filter = entity_data.settings.fluid_filter
+            end
+            if not surface_id then
+                surface_id = entity_data.settings.surface_index
+            end
+            if not quality_filter then
+                quality_filter = QS_DEFAULT_QUALITY
+            end
+            if surface_id and surface_id ~= surface_index and storage.fabricator_inventory[surface_id] and (item_filter or fluid_filter) then
+                energy_consumption_multiplier = 5
+                transfer_rate_multiplier = 0.5
+            else
+                surface_id = surface_index
+            end
+            if item_filter then
+                local qs_item = {
+                    name = item_filter,
+                    count = Reactor_constants.item_transfer_rate * transfer_rate_multiplier,
+                    type = "item",
+                    quality = quality_filter,
+                    surface_index = surface_id
+                }
+                transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.inventory)
+                if transfer_status.empty_storage then
+                    energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
                 end
-                if surface_id and surface_id ~= surface_index and storage.fabricator_inventory[surface_id] then
-                    energy_consumption_multiplier = 5
-                    transfer_rate_multiplier = 0.5
-                else
-                    surface_id = surface_index
+                if transfer_status.full_inventory and not transfer_status.empty_storage then
+                    energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
                 end
-                if item_filter then
-                    local qs_item = {
-                        name = item_filter,
-                        count = Reactor_constants.item_transfer_rate * transfer_rate_multiplier,
-                        type = "item",
-                        quality = quality_filter,
-                        surface_index = surface_id
-                    }
-                    transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.inventory)
-                    if transfer_status.empty_storage then
-                        energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
-                    end
-                    if transfer_status.full_inventory and not transfer_status.empty_storage then
-                        energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
-                    end
-                    if not transfer_status.empty_storage and not transfer_status.full_inventory then
-                        energy_consumption = energy_consumption + Reactor_constants.active_cost
-                    end
+                if not transfer_status.empty_storage and not transfer_status.full_inventory then
+                    energy_consumption = energy_consumption + Reactor_constants.active_cost
                 end
-
-                if fluid_filter then
-                    local qs_item = {
-                        name = fluid_filter,
-                        count = Reactor_constants.fluid_transfer_rate * transfer_rate_multiplier,
-                        type = "fluid",
-                        quality = QS_DEFAULT_QUALITY,
-                        surface_index = surface_id
-                    }
-                    transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.container_fluid)
-                    if transfer_status.empty_storage then
-                        energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
-                    end
-                    if transfer_status.full_inventory and not transfer_status.empty_storage then
-                        energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
-                    end
-                    if not transfer_status.empty_storage and not transfer_status.full_inventory then
-                        energy_consumption = energy_consumption + Reactor_constants.active_cost
-                    end
+            end
+            if fluid_filter then
+                local qs_item = {
+                    name = fluid_filter,
+                    count = Reactor_constants.fluid_transfer_rate * transfer_rate_multiplier,
+                    type = "fluid",
+                    quality = QS_DEFAULT_QUALITY,
+                    surface_index = surface_id
+                }
+                transfer_status = qs_utils.pull_from_storage(qs_item, entity_data.container_fluid)
+                if transfer_status.empty_storage then
+                    energy_consumption = energy_consumption + Reactor_constants.empty_storage_cost
                 end
-
-
-
+                if transfer_status.full_inventory and not transfer_status.empty_storage then
+                    energy_consumption = energy_consumption + Reactor_constants.full_inventory_cost
+                end
+                if not transfer_status.empty_storage and not transfer_status.full_inventory then
+                    energy_consumption = energy_consumption + Reactor_constants.active_cost
+                end
             end
         end
 

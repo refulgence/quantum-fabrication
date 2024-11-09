@@ -175,7 +175,7 @@ local fluid_container_entity = {
       },
     },
   hidden = true,
-  flags = {"placeable-neutral", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid", "no-automated-item-insertion"},
+  flags = {"placeable-neutral", "not-selectable-in-game", "not-on-map", "not-rotatable", "not-flammable", "placeable-off-grid"},
   collision_mask = {layers = {}},
   selectable_in_game = false,
   collision_box = {{-3.3, -3.3}, {3.3, 3.3}},

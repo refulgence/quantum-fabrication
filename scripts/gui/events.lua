@@ -130,9 +130,23 @@ function on_gui_opened(event)
     if entity.name == "digitizer-chest" then
         create_digitizer_chest_gui(player, entity)
     elseif entity.name == "dedigitizer-reactor" then
-        --create_dedigitizer_reactor_gui(player, entity)
+        create_dedigitizer_reactor_gui(player, entity)
     end
 end
+
+
+function on_gui_elem_changed(event)
+    local element = event.element
+    local tags = element.tags
+    local player = game.get_player(event.player_index)
+    if not player then return end
+    if element.name == "qf_choose_item_button" then
+        storage.tracked_entities["dedigitizer-reactor"][tags.unit_number].settings.item_filter = element.elem_value
+    elseif element.name == "qf_choose_fluid_button" then
+        storage.tracked_entities["dedigitizer-reactor"][tags.unit_number].settings.fluid_filter = element.elem_value
+    end
+end
+
 
 function prioritise_recipe(tags)
     local item_name = tags.item_name
@@ -201,6 +215,7 @@ function on_gui_selection_state_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
     local element = event.element
+    local tags = event.element.tags
     if element.name == "qf_sort_by" then
         storage.player_gui[event.player_index].options.sort_ingredients = element.selected_index
         if element.selected_index == 1 then
@@ -214,6 +229,8 @@ function on_gui_selection_state_changed(event)
         storage.player_gui[event.player_index].quality.index = element.selected_index
         storage.player_gui[event.player_index].quality.name = utils.get_qualities()[element.selected_index].name
         build_main_recipe_item_list_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.recipe_flow)
+    elseif element.name == "qf_choose_surface_dropdown" then
+        storage.tracked_entities["dedigitizer-reactor"][tags.unit_number].settings.surface_index = tags.surface_link[element.selected_index]
     end
 end
 

@@ -60,3 +60,14 @@ Date: 07.11.2024
   Bugfixes:
     - Fixed a crash caused by loading an autosave with GUI open
     - Fixed a crash caused by mining a thing that could drop 0 of an item
+---------------------------------------------------------------------------------------------------
+Version: 2.1.0
+Date: 09.11.2024
+  Minor Features:
+    - Added GUI to Digitizing chests. It can be used to set intake limits, removing the need to fumble with circuits. Existing chests will have their intake limits updated to the currently received signal. It's still possible to set limits via signals, non-zero signals will take precedence over GUI settings.
+    - Added GUI to Dedigitizing reactors. It can be used to set filters and select the source surface. Existing reactors will have these settings updated to the currently received signals. It's still possible to manage filters by signals, non-zero signals will take precedence over GUI settings.
+    - Updated a technology icon for Matter Digitization (the one that unlocks Digitizing chests) to not be an electronic circuit.
+  Bugfixes:
+    - Fixed a crash caused by opening GUI before string translation is finished.
+    - Fixed a crash caused by opening GUI in modded games with 13+ item groups.
+    - Fixed a bug causing a scrollbar to appear in Recipe GUI while exactly 1 item group is shown.

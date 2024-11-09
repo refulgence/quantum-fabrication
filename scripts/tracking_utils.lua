@@ -31,7 +31,7 @@ local tracking = {}
 
 ---@class EntitySettings
 ---@field intake_limit? uint
----@field item_filter? { name: string, quality: string }
+---@field item_filter? { name: string?, quality: string? }
 ---@field fluid_filter? string
 ---@field surface_index? uint
 

@@ -279,6 +279,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     local quality_name = storage.player_gui[player.index].quality.name
     local player_index = player.index
     local player_inventory = player.get_inventory(defines.inventory.character_main)
+    local item_group_rows = math.ceil(storage.filtered_data[player.index].size / QF_GUI.recipe_frame.item_group_table.max_number_of_columns)
     if player.surface.platform then player_inventory = player.surface.platform.hub.get_inventory(defines.inventory.hub_main) end
 
     if recipe_frame.recipe_item_scroll_pane then recipe_frame.recipe_item_scroll_pane.destroy() end
@@ -289,7 +290,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
         direction = "vertical"
     }
     recipe_item_scroll_pane.style.width = QF_GUI.recipe_frame.width
-    recipe_item_scroll_pane.style.natural_height = QF_GUI.recipe_frame.height - (75 * storage.filtered_data[player.index].size) - 10
+    recipe_item_scroll_pane.style.natural_height = QF_GUI.recipe_frame.height - (75 * item_group_rows) - 38
     recipe_item_scroll_pane.style.vertically_stretchable = true
     recipe_item_scroll_pane.style.vertically_squashable = true
     recipe_item_scroll_pane.style.horizontally_squashable = true
@@ -307,7 +308,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     recipe_item_frame.style.vertically_squashable = true
     recipe_item_frame.style.horizontally_squashable = true
     recipe_item_frame.style.horizontally_stretchable = true
-    recipe_item_frame.style.natural_height = QF_GUI.recipe_frame.height - (75 * storage.filtered_data[player.index].size) - 10
+    recipe_item_frame.style.natural_height = QF_GUI.recipe_frame.height - (75 * item_group_rows) - 38
     --recipe_item_frame.style.vertical_spacing = 4
     recipe_item_frame.style.margin = 10
 

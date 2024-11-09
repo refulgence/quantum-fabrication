@@ -197,5 +197,16 @@ function gui_utils.apply_gui_filter(player, filter, reset_searchbar, reset_mater
     build_main_recipe_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow)
 end
 
+---comment
+---@param text string
+---@param unit_number uint
+function gui_utils.set_intake_limit(text, unit_number)
+    local entity_data = storage.tracked_entities["digitizer-chest"][unit_number]
+    if not entity_data then return end
+    local number = tonumber(text)
+    if not number then number = 0 end
+    entity_data.settings.intake_limit = number
+end
+
 
 return gui_utils

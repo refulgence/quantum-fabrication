@@ -68,9 +68,10 @@ function on_init()
     ---@type table <ItemName, { ["count"]: uint; ["recipes"]: table <RecipeName, boolean> }>
     storage.ingredient_filter = {}
     storage.player_gui = {}
-    ---@type table <string, boolean>
-    storage.options = {}
-    storage.options.auto_recheck_item_request_proxies = true
+    storage.options = {
+        auto_recheck_item_request_proxies = true,
+        default_intake_limit = 0,
+    }
     storage.sorted_lists = {}
     ---@type table <string, table<uint, RequestData>>
     storage.tracked_requests = {
@@ -365,6 +366,22 @@ end
 
 
 
+function on_entity_cloned(event)
+    local source = event.source
+    local destination = event.destination
+    if Cloneable_entities[source.name] then
+        tracking.clone_settings(source, destination)
+    end
+end
+
+function on_entity_settings_pasted(event)
+    local source = event.source
+    local destination = event.destination
+    if Cloneable_entities[source.name] then
+        tracking.clone_settings(source, destination)
+    end
+end
+
 
 
 ---@param player_index uint
@@ -515,6 +532,8 @@ script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_decon
 script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
 
+script.on_event(defines.events.on_entity_cloned, on_entity_cloned)
+script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
 
 if settings.startup["qf-enable-auto-repair"].value then
     script.on_event(defines.events.on_entity_damaged, on_entity_damaged, {{filter = "type", type = "unit", invert = true}})

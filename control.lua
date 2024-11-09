@@ -17,3 +17,5 @@ require "scripts/gui/options"
 require "scripts/gui/storage"
 require "scripts/gui/tooltip"
 
+require "scripts/gui/digitizer_chest"
+require "scripts/gui/dedigitizer_reactor"

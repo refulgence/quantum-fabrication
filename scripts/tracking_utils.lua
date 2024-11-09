@@ -16,9 +16,10 @@ local tracking = {}
 ---@field position? TilePosition
 
 ---@class EntityData
----@field entity LuaEntity
+---@field entity? LuaEntity
 ---@field name string
 ---@field surface_index uint
+---@field settings EntitySettings
 ---@field inventory? LuaInventory
 ---@field container? LuaEntity
 ---@field container_fluid? LuaEntity
@@ -27,6 +28,8 @@ local tracking = {}
 ---@field item_transfer_status? string
 ---@field fluid_transfer_status? string
 
+---@class EntitySettings
+---@field intake_limit? uint
 
 ---Creates a request to be executed later if conditions are met
 ---@param request_data RequestData
@@ -234,11 +237,14 @@ end
 ---@param request_data RequestData
 function tracking.add_tracked_entity(request_data)
     local entity = request_data.entity
+    local player_index = request_data.player_index
 
+    ---@type EntityData
     local entity_data = {
         entity = entity,
         name = entity.name,
         surface_index = entity.surface_index,
+        settings = {},
     }
     local position = entity.position
     local surface = entity.surface
@@ -246,6 +252,7 @@ function tracking.add_tracked_entity(request_data)
 
     if entity.name == "digitizer-chest" then
         entity_data.inventory = entity.get_inventory(defines.inventory.chest)
+        entity_data.settings.intake_limit = storage.options.default_intake_limit
         local pseudo_fluid_container = surface.create_entity{
             name = "digitizer-chest-fluid",
             position = position,
@@ -307,12 +314,20 @@ function tracking.update_tracked_reactors()
 end
 
 
+function tracking.clone_settings(source, destination)
+    storage.tracked_entities[destination.name][destination.unit_number].settings = flib_table.deep_copy(storage.tracked_entities[source.name][source.unit_number].settings)
+end
+
+
 function tracking.update_entity(entity_data)
     local surface_index = entity_data.surface_index
 
     if entity_data.entity.name == "digitizer-chest" then
         local inventory = entity_data.inventory
         local limit_value = entity_data.entity.get_signal({type = "virtual", name = "signal-L"}, defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
+        if limit_value == 0 then
+            limit_value = entity_data.settings.intake_limit
+        end
         if inventory and not inventory.is_empty() then
             local inventory_contents = inventory.get_contents()
             for _, item in pairs(inventory_contents) do

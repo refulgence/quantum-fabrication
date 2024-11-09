@@ -40,6 +40,8 @@ function on_gui_text_changed(event)
         Filtered_data_ok = false
         gui_utils.apply_gui_filter(player, event.text, nil, true)
         event.element.focus()
+    elseif event.element.name == "qf_intake_limit_textfield" then
+        gui_utils.set_intake_limit(event.element.text, event.element.tags.unit_number)
     end
 end
 
@@ -113,6 +115,22 @@ function on_gui_click(event)
     elseif element.name == "update_module_requests_button" then
         tracking.update_lost_module_requests(player)
         game.print("Updating item request proxy tracking")
+    elseif element.name == "qf_intake_limit_button" then
+        storage.options.default_intake_limit = storage.tracked_entities["digitizer-chest"][element_tags.unit_number].settings.intake_limit
+    end
+end
+
+
+function on_gui_opened(event)
+    local entity = event.entity
+    if event.gui_type ~= defines.gui_type.entity or not entity then return end
+    local player = game.get_player(event.player_index)
+    if not player then return end
+
+    if entity.name == "digitizer-chest" then
+        create_digitizer_chest_gui(player, entity)
+    elseif entity.name == "dedigitizer-reactor" then
+        --create_dedigitizer_reactor_gui(player, entity)
     end
 end
 
@@ -239,3 +257,5 @@ script.on_event(defines.events.on_gui_click, on_gui_click)
 script.on_event(defines.events.on_gui_selected_tab_changed, on_gui_selected_tab_changed)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
 script.on_event(defines.events.on_gui_closed, on_gui_closed)
+script.on_event(defines.events.on_gui_opened, on_gui_opened)
+script.on_event(defines.events.on_gui_elem_changed, on_gui_elem_changed)

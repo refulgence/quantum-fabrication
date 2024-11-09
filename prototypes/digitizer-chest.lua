@@ -230,8 +230,8 @@ local recipe = {
 local technology = {
     type = "technology",
     name = "matter-digitization",
-    icon_size = 256, icon_mipmaps = 4,
-    icon = "__base__/graphics/technology/electronics.png",
+    icon_size = 128, icon_mipmaps = 4,
+    icon = "__quantum-fabricator__/graphics/digitizer-chest.png",
     effects =
     {
       {

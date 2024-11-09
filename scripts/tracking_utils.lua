@@ -13,14 +13,12 @@ local tracking = {}
 ---@field target? LuaEntityPrototype
 ---@field quality? string
 ---@field item_request_proxy? LuaEntity
----@field lag_id? uint
 ---@field position? TilePosition
 
 ---@class EntityData
 ---@field entity LuaEntity
 ---@field name string
 ---@field surface_index uint
----@field lag_id uint
 ---@field inventory? LuaInventory
 ---@field container? LuaEntity
 ---@field container_fluid? LuaEntity
@@ -50,7 +48,6 @@ function tracking.add_request(request_data)
     local request_table = {
         entity = request_data.entity,
         player_index = request_data.player_index,
-        lag_id = math.random(0, Update_rate.requests.slots - 1),
     }
     local index
     if request_type == "upgrades" then
@@ -242,7 +239,6 @@ function tracking.add_tracked_entity(request_data)
         entity = entity,
         name = entity.name,
         surface_index = entity.surface_index,
-        lag_id = math.random(0, Update_rate.entities.slots - 1),
     }
     local position = entity.position
     local surface = entity.surface
@@ -282,7 +278,6 @@ function tracking.add_tracked_entity(request_data)
         entity_data.fluid_filter = ""
         entity_data.item_transfer_status = "inactive"
         entity_data.fluid_transfer_status = "inactive"
-        entity_data.lag_id = 0
     end
     storage.tracked_entities[entity.name][entity.unit_number] = entity_data
 

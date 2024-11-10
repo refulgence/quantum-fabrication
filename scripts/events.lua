@@ -31,21 +31,15 @@ local flib_table = require("__flib__.table")
 ---@field order string
 ---@field priority_style string
 
----@class SurfacePlatformData
+---@class SurfaceData
 ---@field surface_index uint
 ---@field surface LuaSurface
----@field type "platform"
----@field platform LuaSpacePlatform
----@field hub LuaEntity
+---@field type "platform"|"planet"
+---@field platform? LuaSpacePlatform
+---@field hub? LuaEntity
 ---@field hub_inventory? LuaInventory
-
----@class SurfacePlanetData
----@field surface_index uint
----@field surface LuaSurface
----@field type "planet"
----@field planet LuaPlanet
+---@field planet? LuaPlanet
 ---@field rocket_silo? LuaEntity
-
 
 function on_init()
     flib_dictionary.on_init()
@@ -116,7 +110,7 @@ function on_init()
         ["digitizer-chest"] = {},
         ["dedigitizer-reactor"] = {},
     }
-    ---@type { platforms: SurfacePlatformData[], planets: SurfacePlanetData[] }
+    ---@type { platforms: SurfaceData[], planets: SurfaceData[] }
     storage.surface_data = {
         platforms = {},
         planets = {},

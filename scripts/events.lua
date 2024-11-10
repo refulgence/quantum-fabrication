@@ -34,7 +34,7 @@ local flib_table = require("__flib__.table")
 ---@class SurfaceData
 ---@field surface_index uint
 ---@field surface LuaSurface
----@field type "platform"|"planet"
+---@field type "platforms"|"planets"
 ---@field platform? LuaSpacePlatform
 ---@field hub? LuaEntity
 ---@field hub_inventory? LuaInventory

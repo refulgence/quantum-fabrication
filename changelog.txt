@@ -71,3 +71,8 @@ Date: 09.11.2024
     - Fixed a crash caused by opening GUI before string translation is finished.
     - Fixed a crash caused by opening GUI in modded games with 13+ item groups.
     - Fixed a bug causing a scrollbar to appear in Recipe GUI while exactly 1 item group is shown.
+---------------------------------------------------------------------------------------------------
+Version: 2.1.1
+Date: 10.11.2024
+  Bugfixes:
+    - Fixed a crash caused by surface deletion.

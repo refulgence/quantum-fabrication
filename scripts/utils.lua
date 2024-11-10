@@ -26,6 +26,20 @@ function utils.merge_tables_no_index(t1, t2)
 end
 
 
+function utils.validate_surfaces()
+    for index, surface_data in pairs(storage.surface_data.planets) do
+        if not surface_data.surface.valid then
+            storage.surface_data.planets[index] = nil
+        end
+    end
+    for index, surface_data in pairs(storage.surface_data.platforms) do
+        if not surface_data.surface.valid then
+            storage.surface_data.platforms[index] = nil
+        end
+    end
+end
+
+
 
 function utils.get_qualities()
     local quality_names = {}

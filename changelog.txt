@@ -76,3 +76,4 @@ Version: 2.1.1
 Date: 10.11.2024
   Bugfixes:
     - Fixed a crash caused by surface deletion.
+    - Fixed a bizarre bug causing created platforms to be categorized as planets.

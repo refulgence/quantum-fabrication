@@ -3,6 +3,7 @@ local flib_table = require("__flib__.table")
 
 --- These functions are only done on init and when configuration changes
 function process_data()
+    utils.validate_surfaces()
     initialize_surfaces()
     reprocess_recipes()
     process_item_group_order()

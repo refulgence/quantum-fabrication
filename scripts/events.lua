@@ -224,6 +224,8 @@ end
 function on_surface_deleted(event)
     local surface_index = event.surface_index
     storage.fabricator_inventory[surface_index] = nil
+    storage.surface_data.platforms[surface_index] = nil
+    storage.surface_data.planets[surface_index] = nil
 end
 
 ---comment

@@ -1,6 +1,7 @@
 ---@diagnostic disable: need-check-nil
 local qs_utils = require("scripts/qs_utils")
 local flib_table = require("__flib__.table")
+local utils = require("scripts/utils")
 
 --@diagnostic disable: need-check-nil
 ---@class tracking
@@ -222,6 +223,7 @@ end
 
 
 function tracking.update_lost_module_requests(player)
+    utils.validate_surfaces()
     for _, surface_data in pairs(storage.surface_data.planets) do
         for _, entity in pairs(surface_data.surface.find_entities_filtered{name = "item-request-proxy"}) do
             if not storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] or storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] ~= {} then

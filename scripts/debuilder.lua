@@ -1,5 +1,6 @@
 local qs_utils = require("scripts/qs_utils")
 local qf_utils = require("scripts/qf_utils")
+local utils = require("scripts/utils")
 
 ---@param entity LuaEntity
 ---@param player_index? int id of a player who placed the order
@@ -46,6 +47,7 @@ function instant_detileation()
         end
     end
 
+    utils.validate_surfaces()
     for surface_index, surface_data in pairs(storage.surface_data.planets) do
         local surface = surface_data.surface
         local tiles = surface.find_tiles_filtered({to_be_deconstructed = true})

@@ -212,11 +212,13 @@ function on_surface_created(event)
     local surface = game.surfaces[event.surface_index]
     initialize_surface(surface)
     update_planet_surface_link()
+    utils.validate_surfaces()
 end
 
 
 function on_surface_deleted(event)
     local surface_index = event.surface_index
+    utils.validate_surfaces()
     storage.fabricator_inventory[surface_index] = nil
     storage.surface_data.platforms[surface_index] = nil
     storage.surface_data.planets[surface_index] = nil
@@ -441,6 +443,7 @@ end
 
 
 function debug_storage(amount)
+    utils.validate_surfaces()
     for surface_index, _ in pairs(storage.surface_data.planets) do
             initialize_fabricator_inventory(surface_index, amount)
     end

@@ -72,6 +72,7 @@ function instant_tileation()
         end
     end
 
+    utils.validate_surfaces()
     for _, surface_data in pairs(storage.surface_data.planets) do
         local surface = surface_data.surface
         local tiles = surface.find_entities_filtered({name = "tile-ghost"})
@@ -185,6 +186,7 @@ end
 ---@param request_type "revivals"|"destroys"|"upgrades"
 function register_request_table(request_type)
     local result = {}
+    utils.validate_surfaces()
     for _, surface_data in pairs(storage.surface_data.planets) do
         local targets = surface_data.surface.find_entities_filtered(Request_table_filter_link[request_type])
         result = flib_table.array_merge({result, targets})

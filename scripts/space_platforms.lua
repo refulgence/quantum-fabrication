@@ -1,6 +1,7 @@
 local qs_utils = require("scripts/qs_utils")
 local qf_utils = require("scripts/qf_utils")
 local flib_table = require("__flib__.table")
+local utils = require("scripts/utils")
 
 ---@class PlatformPayload
 ---@field hub_inventory LuaInventory
@@ -42,13 +43,16 @@ end
 
 function process_space_requests()
     local result = {}
+    utils.validate_surfaces()
     local platforms = storage.surface_data.platforms
     local planets = storage.surface_data.planets
     for _, platform_data in pairs(platforms) do
         local platform = platform_data.platform
+        if not platform then goto continue end
         local storage_index = get_storage_index(platform.space_location)
         if storage_index then
             local hub = platform_data.hub
+            if not hub then hub = platform.hub end
             if hub then
                 local hub_inventory = hub.get_inventory(defines.inventory.hub_main)
                 local requester_point = hub.get_requester_point()

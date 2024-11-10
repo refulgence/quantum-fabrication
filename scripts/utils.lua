@@ -32,6 +32,8 @@ function utils.validate_surfaces()
             storage.surface_data.planets[index] = nil
         end
         if surface_data.surface.platform then
+            surface_data.type = "platforms"
+            surface_data.platform = surface_data.surface.platform
             storage.surface_data.platforms[index] = surface_data
             storage.surface_data.planets[index] = nil
         end

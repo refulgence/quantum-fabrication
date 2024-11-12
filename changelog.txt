@@ -77,3 +77,8 @@ Date: 10.11.2024
   Bugfixes:
     - Fixed a crash caused by surface deletion.
     - Fixed a bizarre bug causing created platforms to be categorized as planets.
+---------------------------------------------------------------------------------------------------
+Version: 2.2.0
+Date: 12.11.2024
+  Minor Features:
+    - Added proper support for item requests. Now the mod can handle all item requests, same as construction bots. (Previously the mod could only insert modules and didn't knew how to remove them)

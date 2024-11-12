@@ -150,6 +150,15 @@ function build_main_tooltip(player, item_name, recipe_name)
         amount_label.style.horizontal_align = "right"
     end
 
+
+    local label_height_approximate = 40
+
+    tooltip_frame.tags = {
+        width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width) * column_count / 2,
+        heigth = QF_GUI.default.padding * 4 + label_height_approximate * 5 + (#ingredients / column_count + #products) * label_height_approximate
+    }
+
+
     if not qf_utils.can_fabricate(item_name) then
         recipe_frame.visible = false
         local cant_fabricate_label = tooltip_frame.add{
@@ -160,6 +169,10 @@ function build_main_tooltip(player, item_name, recipe_name)
         cant_fabricate_label.style.single_line = false
         cant_fabricate_label.style.bottom_padding = 6
         cant_fabricate_label.style.font_color = {0.8, 0.8, 0.4}
+        tooltip_frame.tags = {
+            width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width),
+            heigth = QF_GUI.default.padding * 4 + label_height_approximate * 3
+        }
         goto continue
     end
 
@@ -176,11 +189,6 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     ::continue::
 
-    local label_height_approximate = 28
 
-    tooltip_frame.tags = {
-        width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width) * column_count / 2,
-        heigth = QF_GUI.default.padding * 4 + label_height_approximate * 5 + (#ingredients / column_count + #products) * label_height_approximate
-    }
 
 end

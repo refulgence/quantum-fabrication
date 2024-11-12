@@ -6,7 +6,7 @@ local flib_dictionary = require("__flib__.dictionary")
 ---@param type string
 ---@param locale string
 function get_translation(player_index, name, type, locale)
-  if not storage.player_gui[player_index].translation_complete then return name end
+  if not storage.player_gui[player_index].translation_complete or not storage.__flib.dictionary.translated[locale] then return name end
   if type == "unknown" then
     if storage.__flib.dictionary.translated[locale]["item"][name] then
       return storage.__flib.dictionary.translated[locale]["item"][name]
@@ -36,9 +36,15 @@ function build_dictionaries()
   end
 end
 
+function on_player_locale_changed(event)
+  storage.player_gui[event.player_index].translation_complete = false
+  flib_dictionary.on_player_joined_game(event)
+end
+
 function on_player_dictionaries_ready(event)
   storage.player_gui[event.player_index].translation_complete = true
   process_sorted_lists(event.player_index)
 end
 
 script.on_event(flib_dictionary.on_player_dictionaries_ready, on_player_dictionaries_ready)
+script.on_event(defines.events.on_player_locale_changed, on_player_locale_changed)

@@ -243,9 +243,6 @@ function instant_repair(entity, player_index)
 end
 
 
-
-
----comment
 ---@param entity LuaEntity
 ---@param qs_item QSItem
 ---@param player_inventory? LuaInventory only sent if we are intending to take items from the inventory
@@ -284,11 +281,6 @@ function revive_ghost(entity, qs_item, player_inventory)
 end
 
 
-function get_final_item_requests(contents, insert_plan, removal_plan)
-end
-
-
----comment
 ---@param entity LuaEntity
 ---@param item_requests table
 ---@param insert_plan BlueprintInsertPlan

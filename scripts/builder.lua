@@ -261,14 +261,13 @@ function revive_ghost(entity, qs_item, player_inventory)
             ---@diagnostic disable-next-line: need-check-nil
             player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
         end
-
         
-        if next(item_requests) ~= nil then
+        if item_request_proxy then
             local player_index
             if player_inventory then
                 player_index = player_inventory.player_owner.index
             end
-            if handle_item_requests(revived_entity, item_requests, player_inventory) == false then
+            if handle_item_requests(revived_entity, item_requests, item_request_proxy.insert_plan, item_request_proxy.removal_plan, player_inventory) == false then
                 tracking.create_tracked_request({
                     entity = revived_entity,
                     item_request_proxy = item_request_proxy,
@@ -284,16 +283,19 @@ function revive_ghost(entity, qs_item, player_inventory)
     return false
 end
 
+
+function get_final_item_requests(contents, insert_plan, removal_plan)
+end
+
+
 ---comment
 ---@param entity LuaEntity
 ---@param item_requests table
+---@param insert_plan BlueprintInsertPlan
+---@param removal_plan BlueprintInsertPlan
 ---@param player_inventory? LuaInventory
-function handle_item_requests(entity, item_requests, player_inventory)
-    local module_inventory = entity.get_module_inventory()
-    local fuel_inventory = entity.get_fuel_inventory()
-    local ammo_inventory = entity.get_inventory(defines.inventory.turret_ammo)
-    if not module_inventory and not fuel_inventory and not ammo_inventory then return nil end
-    local satisfied = true
+function handle_item_requests(entity, item_requests, insert_plan, removal_plan, player_inventory)
+    local entity_inventories = {}
     local player_surface_index
     if player_inventory then
         local player = player_inventory.player_owner
@@ -301,73 +303,62 @@ function handle_item_requests(entity, item_requests, player_inventory)
         player_surface_index = player.physical_surface_index
     end
 
-    local module_contents
-    if module_inventory then
-        module_contents = module_inventory.get_contents()
-    end
-    local fuel_contents
-    if fuel_inventory then
-        fuel_contents = fuel_inventory.get_contents()
-    end
-    local ammo_contents
-    if ammo_inventory then
-        ammo_contents = ammo_inventory.get_contents()
-    end
-
-    local function process_insertion(qs_item, amount, entity_inventory)
-        entity_inventory.insert({name = qs_item.name, count = amount, quality = qs_item.quality})
-    end
-
-    local function process_removal(qs_item, in_storage, in_inventory, entity_inventory)
-        if in_storage > qs_item.count then
-            qs_utils.remove_from_storage(qs_item)
-            process_insertion(qs_item, qs_item.count, entity_inventory)
-            qs_item.count = 0
-        elseif in_storage > 0 then
-            qs_item.count = qs_item.count - in_storage
-            qs_utils.remove_from_storage(qs_item, in_storage)
-            process_insertion(qs_item, in_storage, entity_inventory)
-        end
-        if qs_item.count > 0 then
-            if in_inventory > qs_item.count then
-                ---@diagnostic disable-next-line: need-check-nil
-                player_inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
-                process_insertion(qs_item, qs_item.count, entity_inventory)
-                qs_item.count = 0
-            elseif in_inventory > 0 then
-                ---@diagnostic disable-next-line: need-check-nil
-                player_inventory.remove({name = qs_item.name, count = in_inventory, quality = qs_item.quality})
-                qs_item.count = qs_item.count - in_inventory
-                process_insertion(qs_item, in_inventory, entity_inventory)
-            end
-        end
-        return qs_item.count == 0
-    end
-
+    -- We only ever touch item requests when we can fully satisfy them
     for _, item in pairs(item_requests) do
-        local surface_index = entity.surface_index
-        if entity.surface.platform then
-            surface_index = get_storage_index(entity.surface.platform.space_location) or entity.surface_index
-        end
         local qs_item = {
             name = item.name,
-            count = item.count,
-            quality = item.quality,
+            quality = item.quality or QS_DEFAULT_QUALITY,
             type = "item",
-            surface_index = surface_index
+            surface_index = entity.surface_index,
+            count = item.count
         }
-        local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
-        if utils.is_module(qs_item.name) and module_inventory and module_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then
-            qs_item.count = qs_item.count - (module_contents[qs_item.name] or 0)
-            satisfied = process_removal(qs_item, in_storage, in_inventory, module_inventory)
-        elseif utils.is_fuel(qs_item.name) and fuel_inventory and fuel_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then
-            qs_item.count = qs_item.count - (fuel_contents[qs_item.name] or 0)
-            satisfied = process_removal(qs_item, in_storage, in_inventory, fuel_inventory)
-        elseif utils.is_ammo(qs_item.name) and ammo_inventory and ammo_inventory.can_insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality}) then
-            qs_item.count = qs_item.count - (ammo_contents[qs_item.name] or 0)
-            satisfied = process_removal(qs_item, in_storage, in_inventory, ammo_inventory)
+        local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+        if total < qs_item.count then
+            return false
         end
     end
-    return satisfied
+
+    for _, plan in pairs(removal_plan) do
+        -- Item to be removed from the inventory and added to the Storage. We don't know the count yet.
+        local qs_item = {
+            name = plan.id.name,
+            quality = plan.id.quality or QS_DEFAULT_QUALITY,
+            type = "item",
+            surface_index = entity.surface_index
+        }
+        for _, item_and_inventory_position in pairs(plan.items) do
+            for _, inventory_position in pairs(item_and_inventory_position) do
+                qs_item.count = inventory_position.count or 1
+                if not entity_inventories[inventory_position.inventory] then
+                    entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+                end
+                entity_inventories[inventory_position.inventory].remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+                qs_utils.add_to_storage(qs_item)
+            end
+        end
+    end
+
+    for _, plan in pairs(insert_plan) do
+        -- Item to be added to the inventory and removed from the Storage. We don't know the count yet.
+        local qs_item = {
+            name = plan.id.name,
+            quality = plan.id.quality or QS_DEFAULT_QUALITY,
+            count = 1,
+            type = "item",
+            surface_index = entity.surface_index
+        }
+        local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
+        for _, item_and_inventory_position in pairs(plan.items) do
+            for _, inventory_position in pairs(item_and_inventory_position) do
+                qs_item.count = inventory_position.count or 1
+                if not entity_inventories[inventory_position.inventory] then
+                    entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+                end
+                qs_utils.advanced_remove_from_storage(qs_item, {storage = in_storage, inventory = in_inventory}, player_inventory)
+                entity_inventories[inventory_position.inventory].insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+            end
+        end
+    end
+    return true
 end
 

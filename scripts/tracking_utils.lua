@@ -161,13 +161,14 @@ function tracking.update_item_request_proxy(request_table)
     local entity = request_table.entity
     if not entity.valid then return nil, true, false end
     local item_request_proxy = request_table.item_request_proxy
+    local insert_plan = item_request_proxy.insert_plan
+    local removal_plan = item_request_proxy.removal_plan
     local player_index = request_table.player_index
     
     if not item_request_proxy or not item_request_proxy.valid then
         return nil, true, false
     end
-    local modules = item_request_proxy.item_requests
-    if not modules then
+    if not next(insert_plan) and not next(removal_plan) then
         request_table.item_request_proxy.destroy()
         return nil, true, false
     end
@@ -175,7 +176,7 @@ function tracking.update_item_request_proxy(request_table)
     if player_index then
         player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
     end
-    if handle_item_requests(entity, modules, player_inventory) then
+    if handle_item_requests(entity, item_request_proxy.item_requests, insert_plan, removal_plan, player_inventory) then
         request_table.item_request_proxy.destroy()
         return nil, true, false
     end

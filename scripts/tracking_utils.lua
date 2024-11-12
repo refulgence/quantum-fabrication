@@ -161,6 +161,7 @@ function tracking.update_item_request_proxy(request_table)
     local entity = request_table.entity
     if not entity.valid then return nil, true, false end
     local item_request_proxy = request_table.item_request_proxy
+    if not item_request_proxy.valid then return nil, true, false end
     local insert_plan = item_request_proxy.insert_plan
     local removal_plan = item_request_proxy.removal_plan
     local player_index = request_table.player_index

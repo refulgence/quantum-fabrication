@@ -321,10 +321,14 @@ function handle_item_requests(entity, item_requests, insert_plan, removal_plan, 
         for _, item_and_inventory_position in pairs(plan.items) do
             for _, inventory_position in pairs(item_and_inventory_position) do
                 qs_item.count = inventory_position.count or 1
-                if not entity_inventories[inventory_position.inventory] then
-                    entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+                if entity.type == "inserter" then
+                    entity.held_stack.set_stack()
+                else
+                    if not entity_inventories[inventory_position.inventory] then
+                        entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+                    end
+                    entity_inventories[inventory_position.inventory].remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
                 end
-                entity_inventories[inventory_position.inventory].remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
                 qs_utils.add_to_storage(qs_item)
             end
         end

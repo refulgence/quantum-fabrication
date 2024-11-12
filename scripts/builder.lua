@@ -329,7 +329,7 @@ function handle_item_requests(entity, item_requests, insert_plan, removal_plan, 
                     end
                     entity_inventories[inventory_position.inventory].remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
                 end
-                qs_utils.add_to_storage(qs_item)
+                qs_utils.add_to_storage(qs_item, true)
             end
         end
     end

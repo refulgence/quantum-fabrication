@@ -63,7 +63,7 @@ function build_main_tooltip(player, item_name, recipe_name)
 
 
     local column_count
-    if #ingredients > 24 then
+    if #ingredients > 24 and player.display_scale <= 1 then
         column_count = 6
     elseif #ingredients > 12 then
         column_count = 4
@@ -111,7 +111,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         
 
         local ingredient_label = ingredient_table.add{type = "label", caption = ingredient_caption}
-        ingredient_label.style.maximal_width = QF_GUI.tooltip_frame.ing_label_width
+        ingredient_label.style.width = QF_GUI.tooltip_frame.ing_label_width
         ingredient_label.style.font_color = font_color
 
         local amount_flow = ingredient_table.add{type = "flow", direction = "horizontal"}
@@ -150,14 +150,10 @@ function build_main_tooltip(player, item_name, recipe_name)
         amount_label.style.horizontal_align = "right"
     end
 
-
-    local label_height_approximate = 40
-
     tooltip_frame.tags = {
-        width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width) * column_count / 2,
-        heigth = QF_GUI.default.padding * 4 + label_height_approximate * 5 + (#ingredients / column_count + #products) * label_height_approximate
+        width = 36 + (column_count * 282 / 2),
+        heigth = 120 + (math.ceil(#ingredients / column_count * 2) + #products) * 24 + 20 * 2 + 6
     }
-
 
     if not qf_utils.can_fabricate(item_name) then
         recipe_frame.visible = false
@@ -170,8 +166,8 @@ function build_main_tooltip(player, item_name, recipe_name)
         cant_fabricate_label.style.bottom_padding = 6
         cant_fabricate_label.style.font_color = {0.8, 0.8, 0.4}
         tooltip_frame.tags = {
-            width = QF_GUI.default.padding * 4 + (QF_GUI.tooltip_frame.ing_label_width + QF_GUI.tooltip_frame.required_label_width + QF_GUI.tooltip_frame.available_label_width),
-            heigth = QF_GUI.default.padding * 4 + label_height_approximate * 3
+            width = 278,
+            heigth = 102 + 20 * 2 + 6,
         }
         goto continue
     end

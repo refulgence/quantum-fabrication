@@ -66,24 +66,56 @@ function gui_utils.auto_position_tooltip(player, button_index)
     if not main_frame or not tooltip_frame then return end
     local x = main_frame.location.x
     local y = main_frame.location.y
+
+    local button_size = 40
+    local extra_padding = 15
+    local scale = player.display_scale
+
     -- Step 2: adjust for padding and borders
-    x = x + QF_GUI.default.padding * 2
-    y = y + QF_GUI.default.padding + QF_GUI.titlebar.height + (storage.filtered_data[player.index].size / QF_GUI.recipe_frame.item_group_table.max_number_of_columns) * QF_GUI.recipe_frame.item_group_table.button_height + 10
+    x = x + (QF_GUI.default.padding * 2) * scale
+    y = y + (QF_GUI.default.padding + QF_GUI.titlebar.height + math.ceil(storage.filtered_data[player.index].size / QF_GUI.recipe_frame.item_group_table.max_number_of_columns) * QF_GUI.recipe_frame.item_group_table.button_height + 20) * scale
     -- This should bring up to top left corner of table gui
     -- Step 3: adjust for tooltip that's currenty being hovered up
-    x = x + button_index.x * 40 + 15
-    y = y + button_index.y * 40 + 15 + 40
+    button_x = main_frame.location.x + (QF_GUI.default.padding * 2 + (button_index.x - 1) * button_size) * scale
+    button_y = main_frame.location.y + (QF_GUI.default.padding + QF_GUI.titlebar.height + math.ceil(storage.filtered_data[player.index].size / QF_GUI.recipe_frame.item_group_table.max_number_of_columns) * QF_GUI.recipe_frame.item_group_table.button_height + 20 + (button_index.y - 1) * button_size) * scale
+    x = x + (button_index.x * button_size + extra_padding) * scale
+    y = y + (button_index.y * button_size + extra_padding) * scale
     -- Step 4: adjusting for screen resolution
-    if x + tooltip_frame.tags.width > player.display_resolution.width then
-        x = x - tooltip_frame.tags.width - 15 - 15 - 60
+    if x + (tooltip_frame.tags.width * scale) > player.display_resolution.width then
+        x = x - (tooltip_frame.tags.width + extra_padding * 2 + button_size * 1) * scale
     end
-    if y + tooltip_frame.tags.heigth > player.display_resolution.height then
-        y = player.display_resolution.height - tooltip_frame.tags.heigth
+    if y + (tooltip_frame.tags.heigth * scale) > player.display_resolution.height then
+        y = y - (tooltip_frame.tags.heigth + extra_padding * 2 + button_size * 1) * scale
     end
+    -- Step 5: adjust to prevent negative coordinates
+    if x < 0 then x = 0 end
+    if y < 0 then y = 0 end
+    -- Step 6: final adjustment in case tooltip is too close to the hovered button
+    local adjust_top = player.display_resolution.height / 2 < button_y
+    local adjust_left = player.display_resolution.width / 2 < button_x
+    
+    if is_overlapping(x, y, tooltip_frame.tags.width * scale, tooltip_frame.tags.heigth * scale, button_x, button_y, button_size * scale, button_size * scale) then
+        if adjust_left then
+            x = button_x + (extra_padding * 2 + button_size * 1) * scale
+        else
+            x = button_x - (tooltip_frame.tags.width + extra_padding * 2 + button_size * 1) * scale
+        end
+        if is_overlapping(x, y, tooltip_frame.tags.width * scale, tooltip_frame.tags.heigth * scale, button_x, button_y, button_size * scale, button_size * scale) then
+            if adjust_top then
+                y = button_y + (extra_padding * 2 + button_size * 1) * scale
+            else
+                y = button_y - (tooltip_frame.tags.heigth + extra_padding * 2 + button_size * 1) * scale
+            end
+        end
+    end
+
     tooltip_frame.location = {x = x, y = y}
     tooltip_frame.bring_to_front()
 end
 
+function is_overlapping(x1, y1, w1, h1, x2, y2, w2, h2)
+    return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
+end
 
 
 

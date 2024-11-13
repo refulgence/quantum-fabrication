@@ -87,3 +87,13 @@ Version: 2.2.1
 Date: 12.11.2024
   Bugfixes:
     - Fixed a crash involving item request proxies.
+---------------------------------------------------------------------------------------------------
+Version: 2.2.2
+Date: 13.11.2024
+  Gui:
+    - Recipe tooltips should no longer flicker under any circumstances.
+    - Improved positioning of recipe tooltips. They are now placed more accurately and respect UI scale.
+  Bugfixes:
+    - Buildings put in the Storage by processing item request proxy thing will now be decrafted as usual.
+    - Fixed a crash caused by marking items held by an inserter for removal.
+    - Fixes a crash caused by switching locale in the middle of the run.

@@ -6,7 +6,6 @@ local qf_utils = require("scripts/qf_utils")
 ---@param player LuaPlayer
 ---@param storage_flow_parent LuaGuiElement
 function build_main_storage_gui(player, storage_flow_parent)
-
     if storage_flow_parent.storage_flow then storage_flow_parent.storage_flow.destroy() end
 
     local storage_flow = storage_flow_parent.add{
@@ -50,8 +49,6 @@ function build_main_storage_gui(player, storage_flow_parent)
         }
     end
 
-
-    
     local storage_frame = storage_flow.add{type = "frame", name = "storage_frame", direction = "vertical", style="inside_shallow_frame"}
     storage_frame.style.height = QF_GUI.storage_frame.height
     storage_frame.style.minimal_width = 0 --QF_GUI.storage_frame.width
@@ -72,16 +69,12 @@ function build_main_storage_gui(player, storage_flow_parent)
     tabbed_pane.add_tab(others_tab, others_tab_content)
 
     tabbed_pane.selected_tab_index = storage.player_gui[player.index].selected_tab_index
-
 end
 
-
----comment
 ---@param player any
 ---@param tabbed_pane any
 ---@param tab_type "materials"|"placeables"|"others"
 function build_tab(player, tabbed_pane, tab_type)
-    
     local tab_content = tabbed_pane.add{
         type = "frame",
         name = tab_type .. "_tab_content",
@@ -214,14 +207,11 @@ function build_tab(player, tabbed_pane, tab_type)
                 end
             elseif tab_type == "placeables" then
                 local placeables_final_flow = content_table.add{type = "flow", direction = "horizontal"}
-
                 if not player.surface.platform then
                     local take_out_caption = {"qf-inventory.take-out-item-quality"}
                     if not script.feature_flags["quality"] then take_out_caption = {"qf-inventory.take-out-item"} end
                     local button_sprite = "qf-vanilla-ghost-entity-icon"
                     local button_tags = {button_type = "take_out_item", item_name = item.name}
-                    
-                    
                     local item_take_out_button = placeables_final_flow.add{
                         type = "sprite-button",
                         style = "frame_action_button",
@@ -233,15 +223,11 @@ function build_tab(player, tabbed_pane, tab_type)
                     item_take_out_button.tags = button_tags
                 end
             end
-
             ::continue::
         end
     end
-
     return tab_content
-
 end
-
 
 function update_removal_tab_label(player, item_name, quality_name)
     if not player.gui.screen.qf_fabricator_frame then return end

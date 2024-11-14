@@ -31,7 +31,6 @@ function instant_defabrication(entity, player_index)
     return entity.destroy({raise_destroy = true})
 end
 
-
 function instant_detileation()
     local function add_to_storage(indices, surface_index)
         for name, value in pairs(indices) do
@@ -73,7 +72,6 @@ function instant_detileation()
     end
 end
 
-
 ---@param qs_item QSItem
 function decraft(qs_item)
     local recipe = qf_utils.get_craftable_recipe(qs_item, nil, true)
@@ -82,9 +80,6 @@ function decraft(qs_item)
     end
 end
 
-
-
----comment
 ---@param entity LuaEntity
 ---@param player_inventory? LuaInventory
 ---@param surface_index uint
@@ -110,7 +105,6 @@ function process_inventory(entity, player_inventory, surface_index)
     end
 end
 
----comment
 ---@param entity LuaEntity
 ---@param player_inventory? LuaInventory
 ---@param surface_index uint
@@ -132,7 +126,6 @@ function process_transport_line(entity, player_inventory, surface_index)
     end
 end
 
----comment
 ---@param entity LuaEntity
 ---@param player_index? int
 function instant_deforestation(entity, player_index)
@@ -161,10 +154,6 @@ function instant_deforestation(entity, player_index)
     entity.destroy({raise_destroy = true})
 end
 
-
-
-
----comment
 ---@param loot table
 ---@param player_inventory? LuaInventory
 ---@param surface_index uint
@@ -185,8 +174,6 @@ function process_loot(loot, player_inventory, surface_index)
     end
 end
 
-
----comment
 ---@param mining_properties table
 ---@param player_inventory? LuaInventory
 ---@param surface_index uint
@@ -213,9 +200,6 @@ function process_mining(mining_properties, player_inventory, surface_index)
     end
 end
 
-
-
-
 ---Handles removing cliffs via explosions
 ---@param entity LuaEntity
 ---@param player_index? uint
@@ -240,9 +224,9 @@ function instant_decliffing(entity, player_index)
         if in_storage > 0 then
             qs_utils.remove_from_storage(qs_item)
         else
-            -- We already know it's not nil because count_in_storage says so
-            ---@diagnostic disable-next-line: need-check-nil
-            player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
+            if player_inventory then
+                player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
+            end
         end
         entity.destroy({raise_destroy = true})
         return true

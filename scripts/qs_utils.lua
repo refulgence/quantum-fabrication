@@ -33,14 +33,14 @@ function qs_utils.remove_from_storage(qs_item, count_override)
     storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] = storage.fabricator_inventory[qs_item.surface_index][qs_item.type][qs_item.name][qs_item.quality] - (count_override or qs_item.count)
 end
 
----comment
+---Removes items from both the Storage and the player's inventory
 ---@param qs_item QSItem
 ---@param available? {storage: uint, inventory: uint|nil}
 ---@param player_inventory? LuaInventory
 ---@param count_override? uint
 ---@return uint --number of items removed from the storage
 ---@return uint|nil --number of items removed from the inventory
----@return boolean
+---@return boolean --true if all items were removed
 function qs_utils.advanced_remove_from_storage(qs_item, available, player_inventory, count_override)
     local to_remove = count_override or qs_item.count
     local removed_from_storage, removed_from_inventory = 0, 0
@@ -70,7 +70,6 @@ function qs_utils.advanced_remove_from_storage(qs_item, available, player_invent
     end
     return removed_from_storage, removed_from_inventory, false
 end
-
 
 ---Actually it first adds all placeables/modules/ingredients to the storage and only then adds the leftovers to the player's inventory
 ---@param player_inventory? LuaInventory
@@ -111,7 +110,7 @@ function qs_utils.set_default_quality(qs_item)
     if not qs_item.quality then qs_item.quality = QS_DEFAULT_QUALITY end
 end
 
----Transfers items/fluids from storage to target inventory. Used by dedigitizing reactors and that's it
+---Transfers items/fluids from storage to target inventory. Used by dedigitizing reactors and space requests
 ---@param qs_item QSItem
 ---@param target_inventory LuaInventory | LuaEntity
 ---@return StorageStatusTable
@@ -161,8 +160,7 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
     return status
 end
 
----How many of that item is available in storage (and player_inventory if it's provided)
----Wait, this one will work even if player is on another surface. But that's okay? Actually, no, it's not
+---How many of that item is available in the storage (and player_inventory if it's provided)
 ---@param qs_item QSItem
 ---@param player_inventory? LuaInventory
 ---@param player_surface_index? uint
@@ -188,12 +186,10 @@ function qs_utils.count_in_storage(qs_item, player_inventory, player_surface_ind
     return in_storage, in_player_inventory, in_storage + in_player_inventory
 end
 
-
----Returns a table
 ---@param surface_index uint
 ---@param player_inventory? LuaInventory
 ---@param player_surface_index? uint
----@return table
+---@return {[string]: uint}
 function qs_utils.get_available_tiles(surface_index, player_inventory, player_surface_index)
     local result = {}
     for tile_name, _ in pairs(storage.tiles) do
@@ -207,7 +203,6 @@ function qs_utils.get_available_tiles(surface_index, player_inventory, player_su
     end
     return result
 end
-
 
 ---Takes a stack of items from storage to the player's inventory. Only if the player is physically present on the same surface (to prevent some cheesing)
 ---@param qs_item any
@@ -228,6 +223,5 @@ function qs_utils.take_from_storage(qs_item, player)
     qs_utils.remove_from_storage(qs_item, inserted)
     update_removal_tab_label(player, item_name, quality_name)
 end
-
 
 return qs_utils

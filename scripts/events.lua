@@ -332,9 +332,7 @@ end
 
 function on_upgrade(event)
     local entity = event.entity
-    local target = event.target
     local player_index = event.player_index
-    local quality = event.quality.name or QS_DEFAULT_QUALITY
     if entity and entity.valid and player_index then
         storage.countdowns.upgrades = 2
         storage.request_player_ids.upgrades = player_index
@@ -349,11 +347,6 @@ function on_cancelled_upgrade(event)
     end
 end
 
-
-function on_entity_died(event)
-    --storage.countdowns.in_combat = 30
-end
-
 function on_entity_damaged(event)
     local entity = event.entity
     if entity.force.name == "player" and entity.unit_number and not storage.tracked_requests["repairs"][entity.unit_number] then
@@ -361,8 +354,6 @@ function on_entity_damaged(event)
         storage.countdowns.in_combat = 30
     end
 end
-
-
 
 function on_entity_cloned(event)
     local source = event.source
@@ -379,8 +370,6 @@ function on_entity_settings_pasted(event)
         tracking.clone_settings(source, destination)
     end
 end
-
-
 
 ---@param player_index uint
 ---@param sort_type "item_name"|"amount"|"localised_name"
@@ -412,7 +401,6 @@ function post_research_recheck()
     process_recipe_enablement()
 end
 
-
 --TODO: test if this is doing anything useful at all
 function on_research_changed(event)
     Research_finished = true
@@ -431,6 +419,7 @@ function on_console_command(command)
         debug_storage(250000)
         game.print("CHEAT: Fabricator inventory updated")
     elseif name == "qf_update_module_requests" then
+        ---@diagnostic disable-next-line: param-type-mismatch
         tracking.update_lost_module_requests(game.get_player(player_index))
         game.print("Updating item request proxy tracking")
     elseif name == "qf_reprocess_recipes" then
@@ -441,14 +430,12 @@ function on_console_command(command)
     end
 end
 
-
 function debug_storage(amount)
     utils.validate_surfaces()
     for surface_index, _ in pairs(storage.surface_data.planets) do
             initialize_fabricator_inventory(surface_index, amount)
     end
 end
-
 
 function on_lua_shortcut(event)
     local player = game.get_player(event.player_index)
@@ -462,10 +449,6 @@ commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_debug_command", nil, on_console_command)
-
-
-
-
 
 script.on_nth_tick(11, function(event)
     for type, countdown in pairs(storage.countdowns) do
@@ -488,7 +471,6 @@ script.on_nth_tick(11, function(event)
         end
     end
 end)
-
 
 script.on_nth_tick(Update_rate.reactors, tracking.update_tracked_reactors)
 

@@ -5,15 +5,12 @@ local utils = require("scripts/utils")
 ---@class qf_utils
 local qf_utils = {}
 
-
-
----comment
 ---@param recipe table
 ---@param quality string
 ---@param surface_index uint
 ---@param player_inventory? LuaInventory
 ---@param multiply_by_product_amount? boolean
----@return int
+---@return uint
 function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inventory, multiply_by_product_amount)
     local result
     for _, ingredient in pairs(recipe.ingredients) do
@@ -49,8 +46,6 @@ function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inve
     return result or 0
 end
 
-
----comment
 ---@param recipe table
 ---@param quality string
 ---@param surface_index uint
@@ -81,7 +76,6 @@ function qf_utils.is_recipe_craftable(recipe, quality, surface_index, player_inv
     return true
 end
 
-
 ---@param qs_item QSItem
 ---@param player_inventory? LuaInventory
 ---@param decraft? boolean
@@ -103,6 +97,9 @@ function qf_utils.get_craftable_recipe(qs_item, player_inventory, decraft)
     return nil
 end
 
+---Whether we can fabricate an item. For now it's only used to check if it's a tile.
+---@param item_name string
+---@return boolean
 function qf_utils.can_fabricate(item_name)
     if storage.tiles[item_name] then
         return false
@@ -172,10 +169,8 @@ function qf_utils.fabricate_recipe(recipe, quality, surface_index, player_invent
         if qs_item.type == "fluid" then
             qs_item.quality = QS_DEFAULT_QUALITY
         end
-            qs_utils.add_to_storage(qs_item, false)
+        qs_utils.add_to_storage(qs_item, false)
     end
 end
-
-
 
 return qf_utils

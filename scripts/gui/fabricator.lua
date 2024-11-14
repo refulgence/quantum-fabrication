@@ -1,7 +1,6 @@
 local utils = require("scripts/utils")
 local gui_utils = require("scripts/gui/gui_utils")
 
----comment
 ---@param player LuaPlayer
 function build_main_gui(player)
     local main_frame = player.gui.screen.add{
@@ -48,19 +47,14 @@ function build_main_gui(player)
 
     build_main_recipe_gui(player, recipe_flow)
 
-
-
     if storage.player_gui[player.index].show_storage and (not player.surface.platform or player.surface.platform.space_location) then
         build_main_storage_gui(player, storage_flow)
         storage_flow.visible = true
     end
 
     player.opened = main_frame
-
 end
 
-
----comment
 ---@param player LuaPlayer
 ---@param titlebar_flow_parent LuaGuiElement
 function build_titlebar(player, titlebar_flow_parent)
@@ -70,7 +64,6 @@ function build_titlebar(player, titlebar_flow_parent)
         direction = "horizontal"
     }
 
-    
     titlebar_flow.style.height = QF_GUI.titlebar.height
     local titlebar_label = titlebar_flow.add{
         type = "label",
@@ -85,8 +78,6 @@ function build_titlebar(player, titlebar_flow_parent)
     draggable_space.style.horizontally_stretchable = true
     draggable_space.style.height = QF_GUI.dragspace.height
     titlebar_flow.drag_target = player.gui.screen.qf_fabricator_frame
-
-
 
     -- Quality dropdown
     if script.feature_flags["quality"] then
@@ -103,7 +94,6 @@ function build_titlebar(player, titlebar_flow_parent)
         }
         quality_dropdown.selected_index = storage.player_gui[player.index].quality.index
     end
-
 
     -- Reset filter and search bar
     local searchbar = titlebar_flow.add{
@@ -124,7 +114,6 @@ function build_titlebar(player, titlebar_flow_parent)
     }
     toggle_storage_button.toggled = storage.player_gui[player.index].show_storage
     toggle_storage_button.auto_toggle = true
-
 
     local surface = player.surface
     local titlebar_caption
@@ -168,8 +157,6 @@ function build_titlebar(player, titlebar_flow_parent)
     }
 end
 
-
----comment
 ---@param player LuaPlayer
 ---@param recipe_frame_parent LuaGuiElement
 function build_main_recipe_gui(player, recipe_frame_parent)
@@ -213,8 +200,7 @@ function build_main_recipe_gui(player, recipe_frame_parent)
         group_table.style.horizontal_spacing = 0
         group_table.style.vertical_spacing = 0
         extra_frame.style.right_padding = 0
-    
-        
+
         local fallback
         for _, group in pairs(storage.item_group_order) do
             if filter[group.name] then
@@ -267,14 +253,11 @@ function build_main_recipe_gui(player, recipe_frame_parent)
         error_frame_flow.add{type = "empty-widget"}.style.horizontally_stretchable = true
         error_frame.add{type = "empty-widget"}.style.vertically_stretchable = true
     end
-
 end
 
----comment
 ---@param player LuaPlayer
 ---@param recipe_frame LuaGuiElement
 function build_main_recipe_item_list_gui(player, recipe_frame)
-
     local surface_index = get_storage_index(nil, player) or player.surface.index
     local quality_name = storage.player_gui[player.index].quality.name
     local player_index = player.index
@@ -335,15 +318,12 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                 end
                 local item_name = item.item_name
                 local recipe_name = item.recipe_name
-
-
                 local item_button = subgroup_table.add{
                     type = "sprite-button",
                     sprite = "item/" .. item_name,
                     style = "slot_button"
                 }
                 item_button.style.padding = 0
-
 
                 if storage.player_gui[player.index].options.calculate_numbers or storage.player_gui[player.index].options.mark_red then
                     if not storage.craft_data[player.index][surface_index] or not storage.craft_data[player.index][surface_index][recipe_name] or not storage.craft_data[player.index][surface_index][recipe_name][quality_name] then
@@ -359,7 +339,6 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     end
                 end
 
-
                 item_button.raise_hover_events = true
                 item_button.tags = {
                     button_type = "take_out_ghost",
@@ -371,9 +350,4 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
             end
         end
     end
-
 end
-
-
-
-

@@ -6,7 +6,6 @@ local flib_dictionary = require("__flib__.dictionary")
 ---@class gui_utils
 local gui_utils = {}
 
----comment
 ---@param player LuaPlayer
 function toggle_qf_gui(player)
     local main_frame = player.gui.screen.qf_fabricator_frame
@@ -30,8 +29,6 @@ function toggle_qf_gui(player)
     end
 end
 
-
----comment
 ---@param player LuaPlayer
 function toggle_storage_gui(player)
     local main_frame = player.gui.screen.qf_fabricator_frame
@@ -45,7 +42,6 @@ function toggle_storage_gui(player)
     end
 end
 
----comment
 ---@param player LuaPlayer
 function toggle_options_gui(player)
     if player.gui.screen.qf_fabricator_options_frame == nil then
@@ -55,8 +51,6 @@ function toggle_options_gui(player)
     end
 end
 
-
----comment
 ---@param player LuaPlayer
 ---@param button_index table
 function gui_utils.auto_position_tooltip(player, button_index)
@@ -117,9 +111,6 @@ function is_overlapping(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
 end
 
-
-
----comment
 ---@param player_index uint
 ---@param player_inventory? LuaInventory
 ---@param surface_index uint
@@ -152,7 +143,6 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
         end
     end
 end
-
 
 ---@param player LuaPlayer
 ---@param filter string | table if table, then we allows only recipes in that table; if stringe then we'll compare it to localised_name
@@ -216,7 +206,6 @@ function gui_utils.get_filtered_data(player, filter)
     end
 end
 
----comment
 ---@param player LuaPlayer
 ---@param filter string | table
 ---@param reset_searchbar string|nil
@@ -229,7 +218,6 @@ function gui_utils.apply_gui_filter(player, filter, reset_searchbar, reset_mater
     build_main_recipe_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow)
 end
 
----comment
 ---@param text string
 ---@param unit_number uint
 function gui_utils.set_intake_limit(text, unit_number)
@@ -239,6 +227,5 @@ function gui_utils.set_intake_limit(text, unit_number)
     if not number then number = 0 end
     entity_data.settings.intake_limit = number
 end
-
 
 return gui_utils

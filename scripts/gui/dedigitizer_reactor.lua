@@ -1,7 +1,5 @@
 local flib_table = require("__flib__.table")
 
-
----comment
 ---@param player LuaPlayer
 ---@param entity LuaEntity
 function create_dedigitizer_reactor_gui(player, entity)
@@ -68,8 +66,6 @@ function create_dedigitizer_reactor_gui(player, entity)
     choose_surface_dropdown.tags = {unit_number = entity.unit_number, surface_link = surface_link}
 end
 
-
----comment
 ---@param currect_surface_index uint
 ---@return table
 ---@return table

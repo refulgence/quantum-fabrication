@@ -2,7 +2,6 @@ local flib_format = require("__flib__.format")
 local qf_utils = require("scripts/qf_utils")
 local qs_utils = require("scripts/qs_utils")
 
----comment
 ---@param player LuaPlayer
 ---@param item_name string
 ---@param recipe_name string
@@ -44,8 +43,6 @@ function build_main_tooltip(player, item_name, recipe_name)
     item_description_label.style.single_line = false
     item_description_label.style.bottom_padding = 6
 
-
-
     local recipe_frame = tooltip_frame.add{
         type = "frame",
         name = "recipe_frame",
@@ -55,13 +52,6 @@ function build_main_tooltip(player, item_name, recipe_name)
     local main_ingredient_label = recipe_frame.add{type = "label", caption = {"qf-inventory.ingredinets"}}
     main_ingredient_label.style.font = "default-bold"
 
-    QF_GUI.tooltip_frame = {}
-    QF_GUI.tooltip_frame.ing_label_width = 145
-    QF_GUI.tooltip_frame.required_label_width = 60
-    QF_GUI.tooltip_frame.available_label_width = 65
-
-
-
     local column_count
     if #ingredients > 24 and player.display_scale <= 1 then
         column_count = 6
@@ -70,8 +60,6 @@ function build_main_tooltip(player, item_name, recipe_name)
     else
         column_count = 2
     end
-
-
 
     item_description_label.style.maximal_width = 150 * column_count
 
@@ -107,8 +95,6 @@ function build_main_tooltip(player, item_name, recipe_name)
         if available < required then
             font_color = {1.0, 0.0, 0.0}
         end
-
-        
 
         local ingredient_label = ingredient_table.add{type = "label", caption = ingredient_caption}
         ingredient_label.style.width = QF_GUI.tooltip_frame.ing_label_width
@@ -184,7 +170,4 @@ function build_main_tooltip(player, item_name, recipe_name)
     end
 
     ::continue::
-
-
-
 end

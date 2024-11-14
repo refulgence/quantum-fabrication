@@ -4,7 +4,6 @@ local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 local flib_table = require("__flib__.table")
 
----comment
 ---@param entity LuaEntity Entity to fabricate
 ---@param player_index? int
 function instant_fabrication(entity, player_index)
@@ -46,7 +45,6 @@ function instant_fabrication(entity, player_index)
     qf_utils.fabricate_recipe(recipe, entity.quality.name, surface_index, player_inventory)
     return revive_ghost(entity, qs_item)
 end
-
 
 function instant_tileation()
     local schedule_retileation = false
@@ -106,9 +104,6 @@ function instant_tileation()
     end
 end
 
-
-
----comment
 ---@param entity LuaEntity
 ---@param target LuaEntityPrototype
 ---@param quality string
@@ -181,8 +176,6 @@ function instant_upgrade(entity, target, quality, player_index)
     return "error"
 end
 
-
----comment
 ---@param request_type "revivals"|"destroys"|"upgrades"
 function register_request_table(request_type)
     local result = {}
@@ -194,7 +187,6 @@ function register_request_table(request_type)
     storage.tracked_requests[request_type] = result
 end
 
----comment
 ---@param entity LuaEntity
 ---@param player_index uint
 function instant_repair(entity, player_index)
@@ -242,7 +234,6 @@ function instant_repair(entity, player_index)
 
 end
 
-
 ---@param entity LuaEntity
 ---@param qs_item QSItem
 ---@param player_inventory? LuaInventory only sent if we are intending to take items from the inventory
@@ -279,7 +270,6 @@ function revive_ghost(entity, qs_item, player_inventory)
     end
     return false
 end
-
 
 ---@param entity LuaEntity
 ---@param item_requests table
@@ -357,4 +347,3 @@ function handle_item_requests(entity, item_requests, insert_plan, removal_plan, 
     end
     return true
 end
-

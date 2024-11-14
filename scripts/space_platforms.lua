@@ -9,7 +9,6 @@ local utils = require("scripts/utils")
 ---@field rocket_silo LuaEntity
 ---@field storage_index uint
 
-
 --{ hub_inventory: LuaInventory, rocket_silo: LuaEntity, qs_items: QSItem[] }[]
 ---Updates a table that links planets to their surface (so we'd have a shortcut)
 function update_planet_surface_link()
@@ -39,7 +38,6 @@ function get_storage_index(space_location_prototype, player)
     end
     return index
 end
-
 
 function process_space_requests()
     local result = {}
@@ -99,7 +97,6 @@ function process_space_requests()
         storage.space_countdowns.space_sendoff = 60
     end
 end
-
 
 ---Returns true if everything was sent and false if it wasn't
 ---@param platform_payloads PlatformPayload[]
@@ -181,7 +178,6 @@ function send_to_space(platform_payloads)
     return sent_everything
 end
 
-
 ---Returns how many rocket parts are needed to transfer a single item
 ---@param qs_item QSItem
 ---@param rocket_silo LuaEntity
@@ -192,26 +188,6 @@ function get_space_transfer_cost(qs_item, rocket_silo)
     local rocket_weight_limit = QS_ROCKET_WEIGHT_LIMIT
     local productivity = 1 + rocket_silo.productivity_bonus
     return rocket_parts_per_launch / (rocket_weight_limit / weight) / productivity
-end
-
-
----Takes a recipe for rocket parts and checks if it's more than the cost
----@param cost uint
----@param storage_index uint
-function can_afford_space_transfer(cost, recipe, storage_index)
-    for _, ingredient in pairs(recipe.ingredients) do
-        local qs_item = {
-            name = ingredient.name,
-            count = ingredient.amount,
-            type = ingredient.type,
-            quality = QS_DEFAULT_QUALITY,
-            surface_index = storage_index
-        }
-        if qs_utils.count_in_storage(qs_item) < cost then
-            return false
-        end
-    end
-    return true
 end
 
 if settings.startup["qf-enable-space-transfer"].value then
@@ -231,7 +207,6 @@ if settings.startup["qf-enable-space-transfer"].value then
     end)
 end
 
-
 function on_entity_logistic_slot_changed(event)
     local entity = event.entity
     if entity.valid and entity.type == "space-platform-hub" then
@@ -240,15 +215,12 @@ function on_entity_logistic_slot_changed(event)
 end
 
 function on_space_platform_changed_state(event)
-    local platform = event.platform
     local old_state = event.old_state
-    local state = platform.state
+    local state = event.platform.state
     if old_state == defines.space_platform_state.on_the_path and state == defines.space_platform_state.waiting_at_station then
         storage.space_countdowns.space_sendoff = 5
     end
 end
-
-
 
 
 script.on_event(defines.events.on_entity_logistic_slot_changed, on_entity_logistic_slot_changed)

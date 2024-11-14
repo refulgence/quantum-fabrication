@@ -29,8 +29,6 @@ function process_tiles()
     end
 end
 
-
-
 ---Creates sorted lists to be used later in storage gui
 ---@param player_indices? table|uint
 function process_sorted_lists(player_indices)
@@ -105,14 +103,12 @@ function process_entities()
     end
 end
 
-
 function process_recipe_enablement()
     local recipes = game.forces["player"].recipes
     for _, recipe in pairs(storage.unpacked_recipes) do
         recipe.enabled = recipes[recipe.name].enabled
     end
 end
-
 
 -- Sorts item groups and subgroups for Recipe GUI
 function process_item_group_order()
@@ -203,7 +199,6 @@ function process_recipes()
     erase_non_duplicates(duplicate_recipes)
 end
 
-
 -- only leave recipes that *could* be duplicates. we'll be checking if they are *actually* duplicates (as in, enabled at the same time) later
 function erase_non_duplicates(recipes)
     storage.duplicate_recipes = {}
@@ -213,7 +208,6 @@ function erase_non_duplicates(recipes)
         end
     end
 end
-
 
 -- we test recipes by several factors to determine default priority
 function calculate_default_priority()
@@ -259,14 +253,12 @@ function calculate_default_priority()
     end
 end
 
-
 -- go through all recipes and unpack them
 function process_unpacking()
     for _, recipe_data in pairs(storage.preprocessed_recipes) do
         unpack_recipe(recipe_data)
     end
 end
-
 
 -- Which recipe to use for unpacking?
 function get_unpacking_recipe(product)
@@ -277,8 +269,6 @@ function get_unpacking_recipe(product)
     end
     return storage.preprocessed_recipes[storage.product_craft_data[product][1].recipe_name]
 end
-
-
 
 ---@param recipe table
 ---@return table
@@ -292,8 +282,6 @@ function unpack_recipe(recipe)
     end
 
     local new_ingredients = {}
-
-
     for _, ingredient in pairs(recipe.ingredients) do
         if utils.is_placeable(ingredient.name) and not storage.tiles[ingredient.name] and not Unpacking_blacklist[ingredient.name] then
             local unpacked_recipe = flib_table.deep_copy(unpack_recipe(get_unpacking_recipe(ingredient.name)))
@@ -314,8 +302,6 @@ function unpack_recipe(recipe)
         end
     end
     storage.unpacked_recipes[recipe.name] = recipe
-
-    
     storage.unpacked_recipes[recipe.name].ingredients = deduplicate_ingredients(new_ingredients)
     table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
     return storage.unpacked_recipes[recipe.name]

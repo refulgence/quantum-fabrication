@@ -3,7 +3,6 @@ local qs_utils = require("scripts/qs_utils")
 local gui_utils = require("scripts/gui/gui_utils")
 local tracking = require("scripts/tracking_utils")
 
-
 function on_gui_leave(event)
     local player = game.get_player(event.player_index)
     if not player then return end
@@ -30,7 +29,6 @@ function on_gui_hover(event)
         gui_utils.auto_position_tooltip(player, element_tags.index)
     end
 end
-
 
 function on_gui_text_changed(event)
     local player = game.get_player(event.player_index)
@@ -120,7 +118,6 @@ function on_gui_click(event)
     end
 end
 
-
 function on_gui_opened(event)
     local entity = event.entity
     if event.gui_type ~= defines.gui_type.entity or not entity then return end
@@ -134,7 +131,6 @@ function on_gui_opened(event)
     end
 end
 
-
 function on_gui_elem_changed(event)
     local element = event.element
     local tags = element.tags
@@ -146,7 +142,6 @@ function on_gui_elem_changed(event)
         storage.tracked_entities["dedigitizer-reactor"][tags.unit_number].settings.fluid_filter = element.elem_value
     end
 end
-
 
 function prioritise_recipe(tags)
     local item_name = tags.item_name
@@ -200,8 +195,6 @@ function blacklist_recipe(tags)
     end
 end
 
-
-
 function on_gui_selected_tab_changed(event)
     local player = game.get_player(event.player_index)
     if not player then return end
@@ -234,7 +227,6 @@ function on_gui_selection_state_changed(event)
     end
 end
 
----comment
 ---@param event any
 function on_fabricator_gui_toggle_event(event)
     local player = game.get_player(event.player_index)
@@ -262,9 +254,6 @@ function on_gui_checked_state_changed(event)
         storage.options.auto_recheck_item_request_proxies = element.state
     end
 end
-
-
-
 
 script.on_event(defines.events.on_gui_checked_state_changed, on_gui_checked_state_changed)
 script.on_event(defines.events.on_gui_leave, on_gui_leave)

@@ -8,7 +8,7 @@ local utils = require("scripts/utils")
 local tracking = {}
 
 ---@class RequestData
----@field entity? LuaEntity
+---@field entity LuaEntity
 ---@field player_index? uint
 ---@field request_type "entities"|"revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"|"repairs"
 ---@field target? LuaEntityPrototype
@@ -48,8 +48,6 @@ function tracking.create_tracked_request(request_data)
     end
 end
 
-
-
 ---@param request_data RequestData
 function tracking.add_request(request_data)
     local request_type = request_data.request_type
@@ -76,15 +74,11 @@ function tracking.add_request(request_data)
     storage.tracked_requests[request_type][index] = request_table
 end
 
-
 ---@param request_type "revivals"|"destroys"|"upgrades"|"construction"|"item_requests"|"cliffs"|"repairs"
 ---@param request_id uint
 function tracking.remove_tracked_request(request_type, request_id)
     storage.tracked_requests[request_type][request_id] = nil
 end
-
-
-
 
 function tracking.on_tick_update_requests()
     for i = 1, 3 do
@@ -156,7 +150,10 @@ script.on_nth_tick(8, function(event)
     end
 end)
 
-
+---@param request_table RequestData
+---@return nil
+---@return boolean --true to remove the request from the table, false to keep it
+---@return boolean
 function tracking.update_item_request_proxy(request_table)
     local entity = request_table.entity
     if not entity.valid then return nil, true, false end
@@ -184,12 +181,15 @@ function tracking.update_item_request_proxy(request_table)
     return nil, false, false
 end
 
-
-
+---comment
+---@param entity LuaEntity
+---@param request_type string
+---@return nil
+---@return boolean --true to remove the request from the table, false to keep it
+---@return boolean
 function tracking.on_tick_update_handler(entity, request_type)
     if not entity.valid then return nil, true, false end
     local player_index = storage.request_player_ids[request_type]
-
     if request_type == "revivals" then
         if not instant_fabrication(entity, player_index) then
             tracking.create_tracked_request({
@@ -219,11 +219,10 @@ function tracking.on_tick_update_handler(entity, request_type)
             return nil, true, false
         end
     end
-
+    return nil, false, false
 end
 
-
-
+---@param player LuaPlayer
 function tracking.update_lost_module_requests(player)
     utils.validate_surfaces()
     for _, surface_data in pairs(storage.surface_data.planets) do
@@ -239,7 +238,6 @@ function tracking.update_lost_module_requests(player)
         end
     end
 end
-
 
 ---Adds an entity to be tracked and creates necessary hidden entities
 ---@param request_data RequestData
@@ -295,9 +293,7 @@ function tracking.add_tracked_entity(request_data)
         entity_data.container_fluid = pseudo_fluid_container
     end
     storage.tracked_entities[entity.name][entity.unit_number] = entity_data
-
 end
-
 
 ---Remove tracked entity from the data and clear hidden entities
 ---@param entity LuaEntity
@@ -313,7 +309,6 @@ function tracking.remove_tracked_entity(entity)
     storage.tracked_entities[entity.name][entity.unit_number] = nil
 end
 
-
 function tracking.update_tracked_reactors()
     local entities = storage.tracked_entities["dedigitizer-reactor"]
     for _, entity_data in pairs(entities) do
@@ -321,12 +316,13 @@ function tracking.update_tracked_reactors()
     end
 end
 
-
+---@param source LuaEntity
+---@param destination LuaEntity
 function tracking.clone_settings(source, destination)
     storage.tracked_entities[destination.name][destination.unit_number].settings = flib_table.deep_copy(storage.tracked_entities[source.name][source.unit_number].settings)
 end
 
-
+---@param entity_data EntityData
 function tracking.update_entity(entity_data)
     local surface_index = entity_data.surface_index
 
@@ -379,6 +375,7 @@ function tracking.update_entity(entity_data)
 
         local burnt_result_contents = entity_data.burnt_result_inventory.get_contents()
         if next(burnt_result_contents) then
+            ---@diagnostic disable-next-line: param-type-mismatch
             entity_data.inventory.insert(burnt_result_contents[1])
             entity_data.burnt_result_inventory.clear()
         end
@@ -485,9 +482,6 @@ function tracking.update_entity(entity_data)
         return
     end
 end
-
-
-
 
 
 return tracking

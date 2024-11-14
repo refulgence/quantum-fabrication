@@ -188,7 +188,13 @@ function initialize_surface(surface)
 
     if not surface_platform then
         data.type = "planets"
-        initialize_fabricator_inventory(surface_index)
+        if storage.factorissimo_support_enabled and script.active_mods["factorissimo-2-notnotmelon"] and surface.name:find("%-factory%-floor$") then
+            local planet_name = surface.name:gsub("%-factory%-floor", "")
+            local planet_surface_index = storage.planet_surface_link[planet_name]
+            storage.fabricator_inventory[surface_index] = storage.fabricator_inventory[planet_surface_index]
+        else
+            initialize_fabricator_inventory(surface_index)
+        end
         local rocket_silo = surface.find_entities_filtered({type = "rocket-silo", limit = 1})[1]
         if rocket_silo then
             data.rocket_silo = rocket_silo
@@ -445,10 +451,27 @@ function on_lua_shortcut(event)
     end
 end
 
+function activate_factorissimo_link()
+    if script.active_mods["factorissimo-2-notnotmelon"] then
+        game.print("Experimental Factorissimo compatibility enabled.")
+        storage.factorissimo_support_enabled = true
+        for _, surface in pairs(game.surfaces) do
+            if surface.name:find("%-factory%-floor$") then
+                local planet_name = surface.name:gsub("%-factory%-floor", "")
+                local planet_surface_index = storage.planet_surface_link[planet_name]
+                storage.fabricator_inventory[surface.index] = storage.fabricator_inventory[planet_surface_index]
+            end
+        end
+    else
+        game.print("Factorissimo is not enabled. Alternatively, you have a wrong Factorissimo enabled - this only supports Factorissimo mod by notnotmelon.")
+    end
+end
+
 commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_debug_command", nil, on_console_command)
+commands.add_command("qf_factorissimo", nil, activate_factorissimo_link)
 
 script.on_nth_tick(11, function(event)
     for type, countdown in pairs(storage.countdowns) do

@@ -97,3 +97,8 @@ Date: 13.11.2024
     - Buildings put in the Storage by processing item request proxy thing will now be decrafted as usual.
     - Fixed a crash caused by marking items held by an inserter for removal.
     - Fixes a crash caused by switching locale in the middle of the run.
+---------------------------------------------------------------------------------------------------
+Version: 2.3.0
+Date: 14.11.2024
+  Minor Features:
+    - Added experimental support for Factorissimo (https://mods.factorio.com/mod/factorissimo-2-notnotmelon). Activate it by entering /qf_factorissimo command in the console and it will link the Storage of factory floors to the Storage of outside surface for all currently present and future planets in the save.

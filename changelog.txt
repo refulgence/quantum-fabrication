@@ -1,65 +1,34 @@
 ---------------------------------------------------------------------------------------------------
-Version: 2.0.0
-Date: 05.11.2024
-  Major Features:
-    - Initial public release. Yay.
----------------------------------------------------------------------------------------------------
-Version: 2.0.1
-Date: 05.11.2024
-  Bugfixes:
-    - Fixed a crash when enabling the mod in the middle of a run.
----------------------------------------------------------------------------------------------------
-Version: 2.0.2
-Date: 05.11.2024
-  Bugfixes:
-    - Sending things to space now costs accurate amount of space parts.
-    - Added migration to apply 2.0.1 fix for players who saved the game during 2.0.0 (and therefore would not be initializing anymore).
----------------------------------------------------------------------------------------------------
-Version: 2.0.3
-Date: 06.11.2024
-  Bugfixes:
-    - Possible fix for a crash involving LinkedChestAndPipe mod.
----------------------------------------------------------------------------------------------------
-Version: 2.0.4
-Date: 06.11.2024
+Version: 2.3.0
+Date: 14.11.2024
   Minor Features:
-    - Added an option to specify where you want the mined items to go - to the Storage or to your inventory (this only affects items you directly mine with right click). Sending items to the Storage breaks the Undo functionality so it's off by default, but you can turn it on if you prefer the old behavior.
-  Bugfixes:
-    - Fixed a bug with batches of buildings not getting defabricated if you lacked materials to fabricate them.
-    - Fixed a bug with deconstruction of belts erasing all items they carry.
-    - Fixed a bug with fabrication prioritising player's inventory over the Storage.
+    - Added experimental support for Factorissimo (https://mods.factorio.com/mod/factorissimo-2-notnotmelon). Activate it by entering /qf_factorissimo command in the console and it will link the Storage of factory floors to the Storage of outside surface for all currently present and future planets in the save.
 ---------------------------------------------------------------------------------------------------
-Version: 2.0.5
-Date: 06.11.2024
+Version: 2.2.2
+Date: 13.11.2024
+  Gui:
+    - Recipe tooltips should no longer flicker under any circumstances.
+    - Improved positioning of recipe tooltips. They are now placed more accurately and respect UI scale.
   Bugfixes:
-    - Allow GUI to open before translation finishes.
+    - Buildings put in the Storage by processing item request proxy thing will now be decrafted as usual.
+    - Fixed a crash caused by marking items held by an inserter for removal.
+    - Fixes a crash caused by switching locale in the middle of the run.
 ---------------------------------------------------------------------------------------------------
-Version: 2.0.6
-Date: 07.11.2024
+Version: 2.2.1
+Date: 12.11.2024
   Bugfixes:
-    - Fixed a bug with tile placement not fully considering player's inventory, possibly resulting in negative count for the items in the Storage with a bunch of side effects.
+    - Fixed a crash involving item request proxies.
 ---------------------------------------------------------------------------------------------------
-Version: 2.0.7
-Date: 07.11.2024
-  Bugfixes:
-    - Fixed a crash when deconstructing things that drop loot
+Version: 2.2.0
+Date: 12.11.2024
+  Minor Features:
+    - Added proper support for item requests. Now the mod can handle all item requests, same as construction bots. (Previously the mod could only insert modules and didn't knew how to remove them)
 ---------------------------------------------------------------------------------------------------
-Version: 2.0.8
-Date: 07.11.2024
+Version: 2.1.1
+Date: 10.11.2024
   Bugfixes:
-    - Fixed a crash related to entities combining into bigger entities while being built
----------------------------------------------------------------------------------------------------
-Version: 2.0.9
-Date: 07.11.2024
-  Bugfixes:
-    - Fixed a crash caused by sending things to space after removing the original rocket silo
-    - Fixed a bug with deconstruction orders created by other mods not getting processed right away
----------------------------------------------------------------------------------------------------
-Version: 2.0.10
-Date: 07.11.2024
-  Bugfixes:
-    - Fixed a crash caused by loading an autosave with GUI open
-    - Fixed a crash caused by mining a thing that could drop 0 of an item
+    - Fixed a crash caused by surface deletion.
+    - Fixed a bizarre bug causing created platforms to be categorized as planets.
 ---------------------------------------------------------------------------------------------------
 Version: 2.1.0
 Date: 09.11.2024
@@ -72,33 +41,64 @@ Date: 09.11.2024
     - Fixed a crash caused by opening GUI in modded games with 13+ item groups.
     - Fixed a bug causing a scrollbar to appear in Recipe GUI while exactly 1 item group is shown.
 ---------------------------------------------------------------------------------------------------
-Version: 2.1.1
-Date: 10.11.2024
+Version: 2.0.10
+Date: 07.11.2024
   Bugfixes:
-    - Fixed a crash caused by surface deletion.
-    - Fixed a bizarre bug causing created platforms to be categorized as planets.
+    - Fixed a crash caused by loading an autosave with GUI open
+    - Fixed a crash caused by mining a thing that could drop 0 of an item
 ---------------------------------------------------------------------------------------------------
-Version: 2.2.0
-Date: 12.11.2024
+Version: 2.0.9
+Date: 07.11.2024
+  Bugfixes:
+    - Fixed a crash caused by sending things to space after removing the original rocket silo
+    - Fixed a bug with deconstruction orders created by other mods not getting processed right away
+---------------------------------------------------------------------------------------------------
+Version: 2.0.8
+Date: 07.11.2024
+  Bugfixes:
+    - Fixed a crash related to entities combining into bigger entities while being built
+---------------------------------------------------------------------------------------------------
+Version: 2.0.7
+Date: 07.11.2024
+  Bugfixes:
+    - Fixed a crash when deconstructing things that drop loot
+---------------------------------------------------------------------------------------------------
+Version: 2.0.6
+Date: 07.11.2024
+  Bugfixes:
+    - Fixed a bug with tile placement not fully considering player's inventory, possibly resulting in negative count for the items in the Storage with a bunch of side effects.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.5
+Date: 06.11.2024
+  Bugfixes:
+    - Allow GUI to open before translation finishes.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.4
+Date: 06.11.2024
   Minor Features:
-    - Added proper support for item requests. Now the mod can handle all item requests, same as construction bots. (Previously the mod could only insert modules and didn't knew how to remove them)
----------------------------------------------------------------------------------------------------
-Version: 2.2.1
-Date: 12.11.2024
+    - Added an option to specify where you want the mined items to go - to the Storage or to your inventory (this only affects items you directly mine with right click). Sending items to the Storage breaks the Undo functionality so it's off by default, but you can turn it on if you prefer the old behavior.
   Bugfixes:
-    - Fixed a crash involving item request proxies.
+    - Fixed a bug with batches of buildings not getting defabricated if you lacked materials to fabricate them.
+    - Fixed a bug with deconstruction of belts erasing all items they carry.
+    - Fixed a bug with fabrication prioritising player's inventory over the Storage.
 ---------------------------------------------------------------------------------------------------
-Version: 2.2.2
-Date: 13.11.2024
-  Gui:
-    - Recipe tooltips should no longer flicker under any circumstances.
-    - Improved positioning of recipe tooltips. They are now placed more accurately and respect UI scale.
+Version: 2.0.3
+Date: 06.11.2024
   Bugfixes:
-    - Buildings put in the Storage by processing item request proxy thing will now be decrafted as usual.
-    - Fixed a crash caused by marking items held by an inserter for removal.
-    - Fixes a crash caused by switching locale in the middle of the run.
+    - Possible fix for a crash involving LinkedChestAndPipe mod.
 ---------------------------------------------------------------------------------------------------
-Version: 2.3.0
-Date: 14.11.2024
-  Minor Features:
-    - Added experimental support for Factorissimo (https://mods.factorio.com/mod/factorissimo-2-notnotmelon). Activate it by entering /qf_factorissimo command in the console and it will link the Storage of factory floors to the Storage of outside surface for all currently present and future planets in the save.
+Version: 2.0.2
+Date: 05.11.2024
+  Bugfixes:
+    - Sending things to space now costs accurate amount of space parts.
+    - Added migration to apply 2.0.1 fix for players who saved the game during 2.0.0 (and therefore would not be initializing anymore).
+---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: 05.11.2024
+  Bugfixes:
+    - Fixed a crash when enabling the mod in the middle of a run.
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 05.11.2024
+  Major Features:
+    - Initial public release. Yay.

@@ -25,12 +25,13 @@ function utils.validate_surfaces()
     for index, surface_data in pairs(storage.surface_data.planets) do
         if not surface_data.surface.valid then
             storage.surface_data.planets[index] = nil
-        end
-        if surface_data.surface.platform then
-            surface_data.type = "platforms"
-            surface_data.platform = surface_data.surface.platform
-            storage.surface_data.platforms[index] = surface_data
-            storage.surface_data.planets[index] = nil
+        else
+            if surface_data.surface.platform then
+                surface_data.type = "platforms"
+                surface_data.platform = surface_data.surface.platform
+                storage.surface_data.platforms[index] = surface_data
+                storage.surface_data.planets[index] = nil
+            end
         end
     end
     for index, surface_data in pairs(storage.surface_data.platforms) do

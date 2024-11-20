@@ -283,7 +283,7 @@ function unpack_recipe(recipe)
 
     local new_ingredients = {}
     for _, ingredient in pairs(recipe.ingredients) do
-        if utils.is_placeable(ingredient.name) and not storage.tiles[ingredient.name] and not Unpacking_blacklist[ingredient.name] then
+        if utils.is_placeable(ingredient.name) and not storage.tiles[ingredient.name] and not Unpacking_blacklist[ingredient.name] and storage.product_craft_data[ingredient.name] then
             local unpacked_recipe = flib_table.deep_copy(unpack_recipe(get_unpacking_recipe(ingredient.name)))
             new_new_ingredients = unpacked_recipe.ingredients
             local product_multiplier = 1

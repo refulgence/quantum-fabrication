@@ -185,6 +185,7 @@ function initialize_surface(surface)
         surface_index = surface_index,
         surface = surface,
     }
+    initialize_fabricator_inventory(surface_index)
 
     if not surface_platform then
         data.type = "planets"
@@ -192,8 +193,6 @@ function initialize_surface(surface)
             local planet_name = surface.name:gsub("%-factory%-floor", "")
             local planet_surface_index = storage.planet_surface_link[planet_name]
             storage.fabricator_inventory[surface_index] = storage.fabricator_inventory[planet_surface_index]
-        else
-            initialize_fabricator_inventory(surface_index)
         end
         local rocket_silo = surface.find_entities_filtered({type = "rocket-silo", limit = 1})[1]
         if rocket_silo then

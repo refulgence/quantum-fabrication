@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.3.3
+Date: 22.11.2024
+  Bugfixes:
+    - Fixed a crash caused by hovering on items in the space platform's Recipe GUI.
+    - Fixed a bug not linking surface storage to the space platform's Recipe GUI for the sake of tooltips. (meaning tooltips will show how many items you have in the storage)
+---------------------------------------------------------------------------------------------------
 Version: 2.3.2
 Date: 20.11.2024
   Bugfixes:

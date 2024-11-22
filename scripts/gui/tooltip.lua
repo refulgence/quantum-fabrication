@@ -63,7 +63,7 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     item_description_label.style.maximal_width = 150 * column_count
 
-    local surface_index = player.surface.index
+    local surface_index = get_storage_index(nil, player)
     local quality = storage.player_gui[player.index].quality.name
     --local player_inventory = player.get_main_inventory()
 

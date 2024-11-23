@@ -255,6 +255,7 @@ end
 
 -- go through all recipes and unpack them
 function process_unpacking()
+    Visited = {}
     for _, recipe_data in pairs(storage.preprocessed_recipes) do
         unpack_recipe(recipe_data)
     end
@@ -276,11 +277,14 @@ function unpack_recipe(recipe)
     -- if this recipe is already unpacked, then simply return it
     if storage.unpacked_recipes[recipe.name] then return storage.unpacked_recipes[recipe.name] end
 
-    if storage.tiles[recipe.products[1].name] then
+    -- if this recipe is a tile or has already been visited, then simply return it because we do not unpack tiles and we don't want get caught in an infinite loop
+    if storage.tiles[recipe.products[1].name] or Visited[recipe.name] then
         storage.unpacked_recipes[recipe.name] = recipe
+        if Visited[recipe.name] then game.print("[Quantum Fabricator] Bad case of recursion detected with " .. recipe.name .. ", skipping.") end
         return storage.unpacked_recipes[recipe.name]
     end
 
+    Visited[recipe.name] = true
     local new_ingredients = {}
     for _, ingredient in pairs(recipe.ingredients) do
         if utils.is_placeable(ingredient.name) and not storage.tiles[ingredient.name] and not Unpacking_blacklist[ingredient.name] and storage.product_craft_data[ingredient.name] then

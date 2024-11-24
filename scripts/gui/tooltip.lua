@@ -69,6 +69,11 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
+    local player_inventory
+    if game.players[player.index].mod_settings["qf-use-player-inventory"].value then
+        player_inventory = player.get_main_inventory()
+    end
+
     for _, ingredient in pairs(ingredients) do
 
         local actual_quality = quality
@@ -86,7 +91,7 @@ function build_main_tooltip(player, item_name, recipe_name)
             quality = actual_quality,
             surface_index = surface_index
         }
-        local _, _, available = qs_utils.count_in_storage(qs_item, player.get_main_inventory())
+        local _, _, available = qs_utils.count_in_storage(qs_item, player_inventory)
         local ingredient_caption = {"", icon, localised_name}
         local font_color = {1.0, 1.0, 1.0}
         if available / required < 10 then

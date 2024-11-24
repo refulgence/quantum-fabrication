@@ -29,7 +29,7 @@ table.insert(settings,
         type = "bool-setting",
         order = "ahb",
         name = "qf-use-player-inventory",
-        setting_type = "runtime-global",
+        setting_type = "runtime-per-user",
         default_value = true
 })
 table.insert(settings,

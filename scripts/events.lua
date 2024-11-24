@@ -260,13 +260,17 @@ end
 
 
 function on_built_entity(event)
+    local player_index = event.player_index
+    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+        player_index = nil
+    end
     if event.entity and event.entity.valid then
         if event.entity.type == "entity-ghost" then
             storage.countdowns.revivals = 2
-            storage.request_player_ids.revivals = event.player_index
+            storage.request_player_ids.revivals = player_index
         elseif event.entity.type == "tile-ghost" then
             storage.countdowns.tile_creation = 10
-            storage.request_player_ids.tiles = event.player_index
+            storage.request_player_ids.tiles = player_index
             goto continue
         end
         on_created(event)
@@ -301,6 +305,9 @@ end
 function on_marked_for_deconstruction(event)
     local entity = event.entity
     local player_index = event.player_index
+    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+        player_index = nil
+    end
     if entity and entity.valid then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
@@ -338,6 +345,9 @@ end
 function on_upgrade(event)
     local entity = event.entity
     local player_index = event.player_index
+    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+        player_index = nil
+    end
     if entity and entity.valid and player_index then
         storage.countdowns.upgrades = 2
         storage.request_player_ids.upgrades = player_index

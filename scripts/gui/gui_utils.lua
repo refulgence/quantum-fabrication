@@ -121,6 +121,10 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
     if not storage.craft_data[player_index][surface_index] then storage.craft_data[player_index][surface_index] = {} end
     if not storage.craft_data[player_index][surface_index][recipe_name] then storage.craft_data[player_index][surface_index][recipe_name] = {} end
 
+    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+        player_inventory = nil
+    end
+
     local recipe = storage.unpacked_recipes[recipe_name]
     local qs_item = {
         name = recipe.placeable_product,

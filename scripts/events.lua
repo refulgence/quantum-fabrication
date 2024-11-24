@@ -119,6 +119,8 @@ function on_init()
     storage.prototypes_data = {}
     storage.craft_data = {}
     storage.filtered_data = {}
+    -- Enables the mod function by default
+    storage.qf_enabled = true
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
     process_data()
     init_players()
@@ -131,6 +133,7 @@ function init_players()
 end
 
 function on_player_created(event)
+    game.get_player(event.player_index).set_shortcut_toggled("qf-fabricator-enable", storage.qf_enabled)
     if not storage.player_gui[event.player_index] then
         storage.player_gui[event.player_index] = {
             item_group_selection = 1,
@@ -457,6 +460,12 @@ function on_lua_shortcut(event)
     if not player then return end
     if event.prototype_name == "qf-fabricator-gui" then
         toggle_qf_gui(player)
+    elseif event.prototype_name == "qf-fabricator-enable" then
+        storage.qf_enabled = not storage.qf_enabled
+        ---@diagnostic disable-next-line: redefined-local
+        for _, player in pairs(game.players) do
+            player.set_shortcut_toggled("qf-fabricator-enable", storage.qf_enabled)
+        end
     end
 end
 
@@ -483,21 +492,23 @@ commands.add_command("qf_debug_command", nil, on_console_command)
 commands.add_command("qf_factorissimo", nil, activate_factorissimo_link)
 
 script.on_nth_tick(11, function(event)
-    for type, countdown in pairs(storage.countdowns) do
-        if countdown then
-            storage.countdowns[type] = storage.countdowns[type] - 1
-            if countdown == 0 then
-                storage.countdowns[type] = nil
-                if type == "tile_creation" then
-                    instant_tileation()
-                    storage.space_countdowns.space_sendoff = 2
-                elseif type == "revivals" or type == "destroys" or type == "upgrades" then
-                    register_request_table(type)
-                    storage.space_countdowns.space_sendoff = 2
-                elseif type == "in_combat" then
-                    register_request_table("revivals")
-                elseif type == "tile_removal" then
-                    instant_detileation()
+    if storage.qf_enabled then
+        for type, countdown in pairs(storage.countdowns) do
+            if countdown then
+                storage.countdowns[type] = storage.countdowns[type] - 1
+                if countdown == 0 then
+                    storage.countdowns[type] = nil
+                    if type == "tile_creation" then
+                        instant_tileation()
+                        storage.space_countdowns.space_sendoff = 2
+                    elseif type == "revivals" or type == "destroys" or type == "upgrades" then
+                        register_request_table(type)
+                        storage.space_countdowns.space_sendoff = 2
+                    elseif type == "in_combat" then
+                        register_request_table("revivals")
+                    elseif type == "tile_removal" then
+                        instant_detileation()
+                    end
                 end
             end
         end

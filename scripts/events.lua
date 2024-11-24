@@ -340,7 +340,8 @@ function on_destroyed(event)
     local entity = event.entity
     if entity and entity.valid then
         if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
-            tracking.remove_tracked_entity(entity)
+            local entity_data = tracking.get_entity_data(entity)
+            tracking.remove_tracked_entity(entity_data)
         end
     end
 end

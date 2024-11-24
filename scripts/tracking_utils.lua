@@ -29,6 +29,7 @@ local tracking = {}
 ---@field item_transfer_status? string
 ---@field fluid_transfer_status? string
 ---@field burnt_result_inventory? LuaInventory
+---@field unit_number uint
 
 ---@class EntitySettings
 ---@field intake_limit? uint
@@ -129,7 +130,6 @@ end)
 script.on_nth_tick(18, function(event)
     if next(storage.tracked_entities["digitizer-chest"]) then
         storage.request_ids["digitizer-chest"] = flib_table.for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
-            if not entity_data.entity.valid then return nil, true, false end
             tracking.update_entity(entity_data)
         end)
     end
@@ -251,6 +251,7 @@ function tracking.add_tracked_entity(request_data)
         name = entity.name,
         surface_index = entity.surface_index,
         settings = {},
+        unit_number = entity.unit_number,
     }
     local position = entity.position
     local surface = entity.surface
@@ -297,17 +298,17 @@ function tracking.add_tracked_entity(request_data)
 end
 
 ---Remove tracked entity from the data and clear hidden entities
----@param entity LuaEntity
-function tracking.remove_tracked_entity(entity)
-    local entity_data = storage.tracked_entities[entity.name][entity.unit_number]
+---@param entity_data? EntityData
+function tracking.remove_tracked_entity(entity_data)
     if not entity_data then return end
-    if entity.name == "digitizer-chest" then
+    local entity_name = entity_data.name
+    if entity_name == "digitizer-chest" then
         entity_data.container_fluid.destroy()
-    elseif entity.name == "dedigitizer-reactor" then
+    elseif entity_name == "dedigitizer-reactor" then
         entity_data.container.destroy()
         entity_data.container_fluid.destroy()
     end
-    storage.tracked_entities[entity.name][entity.unit_number] = nil
+    storage.tracked_entities[entity_name][entity_data.unit_number] = nil
 end
 
 function tracking.update_tracked_reactors()
@@ -315,6 +316,13 @@ function tracking.update_tracked_reactors()
     for _, entity_data in pairs(entities) do
         tracking.update_entity(entity_data)
     end
+end
+
+---@param entity LuaEntity
+---@return EntityData?
+function tracking.get_entity_data(entity)
+    if not storage.tracked_entities[entity.name] or not storage.tracked_entities[entity.name][entity.unit_number] then return end
+    return storage.tracked_entities[entity.name][entity.unit_number]
 end
 
 ---@param source LuaEntity
@@ -325,6 +333,8 @@ end
 
 ---@param entity_data EntityData
 function tracking.update_entity(entity_data)
+    local entity = entity_data.entity
+    if not entity or not entity.valid then tracking.remove_tracked_entity(entity_data) return end
     local surface_index = entity_data.surface_index
 
     if entity_data.entity.name == "digitizer-chest" then

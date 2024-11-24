@@ -371,7 +371,7 @@ function tracking.update_entity(entity_data)
     if entity_data.entity.name == "dedigitizer-reactor" then
         local energy_consumption = Reactor_constants.idle_cost
         local energy_consumption_multiplier = 1
-        local transfer_rate_multiplier = 1
+        local transfer_rate_multiplier = 1 * settings.global["qf-reactor-transfer-multi"].value
 
         local burnt_result_contents = entity_data.burnt_result_inventory.get_contents()
         if next(burnt_result_contents) then
@@ -380,7 +380,7 @@ function tracking.update_entity(entity_data)
             entity_data.burnt_result_inventory.clear()
         end
 
-        if entity_data.entity.temperature > Reactor_constants.min_temperature then
+        if entity_data.entity.temperature > Reactor_constants.min_temperature or settings.global["qf-reactor-free-transfer"].value then
             local signals = entity_data.entity.get_signals(defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
             
             local item_filter

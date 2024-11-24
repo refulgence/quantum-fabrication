@@ -549,6 +549,7 @@ script.on_event(defines.events.on_cancelled_upgrade, on_cancelled_upgrade)
 script.on_event(defines.events.on_entity_died, on_destroyed)
 script.on_event(defines.events.script_raised_destroy, on_destroyed)
 script.on_event(defines.events.on_player_mined_entity, on_destroyed)
+script.on_event(defines.events.on_robot_mined_entity, on_destroyed)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_pre_player_mined_item)
 script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_deconstruction)

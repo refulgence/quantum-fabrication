@@ -47,4 +47,15 @@ function create_digitizer_chest_gui(player, entity)
     }
     intake_limit_button.tags = {unit_number = entity.unit_number}
     intake_limit_button.style.width = 150
+
+    local decraft_button = main_content_frame.add{
+        type = "button",
+        name = "qf_decraft_button",
+        caption = {"qf-entity.digitizer-chest-decraft"},
+        tooltip = {"qf-entity.digitizer-chest-decraft-tooltip"},
+    }
+    decraft_button.auto_toggle = true
+    decraft_button.toggled = entity_settings.decraft
+    decraft_button.tags = {unit_number = entity.unit_number}
+    decraft_button.style.width = 150
 end

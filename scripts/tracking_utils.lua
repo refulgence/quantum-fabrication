@@ -35,6 +35,7 @@ local tracking = {}
 ---@field item_filter? { name: string?, quality: string? }
 ---@field fluid_filter? string
 ---@field surface_index? uint
+---@field decraft? boolean
 
 ---Creates a request to be executed later if conditions are met
 ---@param request_data RequestData
@@ -258,6 +259,7 @@ function tracking.add_tracked_entity(request_data)
     if entity.name == "digitizer-chest" then
         entity_data.inventory = entity.get_inventory(defines.inventory.chest)
         entity_data.settings.intake_limit = storage.options.default_intake_limit
+        entity_data.settings.decraft = true
         local pseudo_fluid_container = surface.create_entity{
             name = "digitizer-chest-fluid",
             position = position,
@@ -342,7 +344,7 @@ function tracking.update_entity(entity_data)
                     surface_index = surface_index
                 }
                 if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
-                    qs_utils.add_to_storage(qs_item, true)
+                    qs_utils.add_to_storage(qs_item, entity_data.settings.decraft)
                     inventory.remove({name = item.name, count = item.count, quality = item.quality})
                 end
             end

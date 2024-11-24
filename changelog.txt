@@ -1,4 +1,25 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.0
+Date: 24.11.2024
+  Features:
+    - Added a map setting to adjust Dedigitizing reactor's transfer rates for items / fluids. 
+    - Added a map setting to make Dedigitizing reactor work even w/o heating. The "no fuel" warning icon will still flash, judgmentally.
+    - Added a per player setting to prevent the mod from accessing that player's inventory.
+    - Added a shortcut to toggle automatic construction / deconstruction of buildings. This toggle affects *only* buildings and tiles, not rocks, trees or cliffs.
+    - Added a toggle button to Digitizing chests to prevent them from decrafting buildings sent to the Storage.
+  Changes:
+    - Everything inside the Storage can now be manually removed for free.
+    - The Storage GUI no longer has multiple tabs and will always show all stored items.
+    - Automatic repair will no longer consider the player's inventory. Put repair packs in the Storage if you want the mod to repair buildings.
+  Balancing:
+    - Increased Digitizer chest inventory size: 24 -> 48.
+    - Increased Dedigitizer reactor output inventory size: 3 -> 12.
+  Bugfixes:
+    - Fixed a crash caused by prioritising a blacklisted recipe.
+    - Fixed a crash caused by opening the GUI before translation is completed.
+    - Fixed a crash caused by attempting to take an item stack out of the Storage via remote view.
+    - Fixed a bug with Digitizing chests mined by robots not getting properly cleaned up.
+---------------------------------------------------------------------------------------------------
 Version: 2.3.4
 Date: 23.11.2024
   Bugfixes:

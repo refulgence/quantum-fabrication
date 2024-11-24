@@ -129,7 +129,7 @@ local container_entity = {
 		collision_mask = {layers = {}},
 		selectable_in_game = false,
     collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
-    inventory_size = 3,
+    inventory_size = 12,
 }
 
 local fluid_container_entity = {

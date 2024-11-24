@@ -8,6 +8,7 @@ local gui_utils = {}
 
 ---@param player LuaPlayer
 function toggle_qf_gui(player)
+    if not storage.player_gui[player.index].translation_complete then return end
     local main_frame = player.gui.screen.qf_fabricator_frame
     if Research_finished then post_research_recheck() Research_finished = false end
     storage.player_gui[player.index].tooltip_workaround = 0

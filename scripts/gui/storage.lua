@@ -70,7 +70,7 @@ function build_tab(player, parent_frame)
     scroll_pane.style.height = QF_GUI.storage_frame.height
     --scroll_pane.style.minimal_width = QF_GUI.tabbed_pane.width
     scroll_pane.style.horizontally_stretchable = true
-    scroll_pane.vertical_scroll_policy = "auto"
+    scroll_pane.vertical_scroll_policy = "always"
     scroll_pane.horizontal_scroll_policy = "never"
 
     local qualities = utils.get_qualities()

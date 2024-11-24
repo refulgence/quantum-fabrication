@@ -94,8 +94,7 @@ script.on_nth_tick(5, function(event)
     if next(storage.tracked_requests["repairs"]) and not storage.countdowns.in_combat then
         storage.request_ids["repairs"] = flib_table.for_n_of(storage.tracked_requests["repairs"], storage.request_ids["repairs"], 2, function(request_table)
             if not request_table.entity.valid then return nil, true, false end
-            local player_index = storage.request_player_ids["repairs"]
-            if instant_repair(request_table.entity, player_index) then
+            if instant_repair(request_table.entity) then
                 return nil, true, false
             else
                 return nil, false, false

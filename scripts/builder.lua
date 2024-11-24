@@ -188,15 +188,10 @@ function register_request_table(request_type)
 end
 
 ---@param entity LuaEntity
----@param player_index uint
-function instant_repair(entity, player_index)
+function instant_repair(entity)
     if entity.health == entity.max_health then return true end
     local qs_item
-    local player = game.get_player(player_index)
-    local player_inventory
-    local player_surface_index
-    local in_storage, in_inventory, available
-
+    local in_storage
     for _, repair_tool in pairs(prototypes.get_item_filtered{{filter = "type", type = "repair-tool"}}) do
         for _, quality in pairs(utils.get_qualities()) do
             qs_item = {
@@ -207,12 +202,8 @@ function instant_repair(entity, player_index)
                 surface_index = entity.surface_index,
                 durability = repair_tool.get_durability(quality.name)
             }
-            if player then
-                player_inventory = player.get_inventory(defines.inventory.character_main)
-                player_surface_index = player.physical_surface_index
-            end
-            in_storage, in_inventory, available = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
-            if available > 0 then
+            in_storage = qs_utils.count_in_storage(qs_item)
+            if in_storage > 0 then
                 goto continue
             else
                 qs_item = nil
@@ -227,11 +218,10 @@ function instant_repair(entity, player_index)
     local to_heal = entity.max_health - entity.health
     local chance_to_break = (to_heal / (qs_item.durability * 2))
     if math.random() < chance_to_break then
-        qs_utils.advanced_remove_from_storage(qs_item, {storage = in_storage, inventory = in_inventory}, player_inventory)
+        qs_utils.remove_from_storage(qs_item)
     end
     entity.health = entity.max_health
     return true
-
 end
 
 ---@param entity LuaEntity

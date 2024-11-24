@@ -47,9 +47,7 @@ function process_sorted_lists(player_indices)
     for _, player_index in pairs(player_indices) do
         storage.sorted_lists[player_index] = {}
         local locale = game.get_player(player_index).locale
-        local sorted_materials = {}
-        local sorted_placeables = {}
-        local sorted_others = {}
+        local sorted_all = {}
         local lists = {
             ["item"] = prototypes.item,
             ["fluid"] = prototypes.fluid
@@ -57,26 +55,12 @@ function process_sorted_lists(player_indices)
         for item_type, list in pairs(lists) do
             for item_name, item in pairs(list) do
                 if not item.parameter then
-                    if storage.ingredient[item_name] then
-                        sorted_materials[#sorted_materials + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
-                    end
-                    if utils.is_removable(item_name) then
-                        sorted_placeables[#sorted_placeables + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
-                    end
-                    if not utils.is_removable(item_name) and not storage.ingredient[item_name] then
-                        sorted_others[#sorted_others + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
-                    end
+                    sorted_all[#sorted_all + 1] = {name = item_name, type = item_type, localised_name = item.localised_name}
                 end
             end
         end
-        table.sort(sorted_materials, function(a, b) return get_translation(player_index, a.name, "unknown", locale) < get_translation(player_index, b.name, "unknown", locale) end)
-        table.sort(sorted_placeables, function(a, b) return get_translation(player_index, a.name, "unknown", locale) < get_translation(player_index, b.name, "unknown", locale) end)
-        table.sort(sorted_others, function(a, b) return get_translation(player_index, a.name, "unknown", locale) < get_translation(player_index, b.name, "unknown", locale) end)
-        storage.sorted_lists[player_index] = {
-            materials = sorted_materials,
-            placeables = sorted_placeables,
-            others = sorted_others
-        }
+        table.sort(sorted_all, function(a, b) return get_translation(player_index, a.name, "unknown", locale) < get_translation(player_index, b.name, "unknown", locale) end)
+        storage.sorted_lists[player_index] = sorted_all
     end
 end
 

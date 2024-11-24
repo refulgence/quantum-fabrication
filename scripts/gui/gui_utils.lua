@@ -150,7 +150,7 @@ function gui_utils.get_filtered_data(player, filter)
     if not storage.filtered_data then storage.filtered_data = {} end
     local player_index = player.index
     local locale = player.locale
-    storage.filtered_data[player_index] = {content = {}, materials = {}, placeables = {}, others = {}, size = 0}
+    storage.filtered_data[player_index] = {content = {}, storage = {}, size = 0}
     local recipes = storage.unpacked_recipes
 
     local function add_entry(recipe)
@@ -182,12 +182,10 @@ function gui_utils.get_filtered_data(player, filter)
                 end
             end
         end
-        for _, tabbed_type in pairs({"materials", "placeables", "others"}) do
-            for _, thing in pairs(storage.sorted_lists[player_index][tabbed_type]) do
-                local localised_name = get_translation(player_index, thing.name, "unknown", locale)
-                if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
-                    storage.filtered_data[player_index][tabbed_type][thing.name] = true
-                end
+        for _, thing in pairs(storage.sorted_lists[player_index]) do
+            local localised_name = get_translation(player_index, thing.name, "unknown", locale)
+            if filter == "" or not localised_name or string.find(string.lower(localised_name), filter) then
+                storage.filtered_data[player_index].storage[thing.name] = true
             end
         end
     else

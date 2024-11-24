@@ -49,84 +49,53 @@ function build_main_storage_gui(player, storage_flow_parent)
         }
     end
 
-    local storage_frame = storage_flow.add{type = "frame", name = "storage_frame", direction = "vertical", style="inside_shallow_frame"}
+    local storage_frame = storage_flow.add{type = "frame", name = "storage_frame", direction = "vertical", style="inside_deep_frame"}
     storage_frame.style.height = QF_GUI.storage_frame.height
     storage_frame.style.minimal_width = 0 --QF_GUI.storage_frame.width
-    storage_frame.style.top_padding = QF_GUI.default.padding
     
-    local tabbed_pane = storage_frame.add{type = "tabbed-pane", name = "tabbed_pane"}
-    tabbed_pane.style.minimal_width = QF_GUI.storage_frame.width
-    local materials_tab = tabbed_pane.add{type = "tab", name = "materials_tab", caption = {"qf-inventory.materials"}, tooltip = {"qf-inventory.materials-tooltip"}}
-    local placeables_tab = tabbed_pane.add{type = "tab", name = "placeables_tab", caption = {"qf-inventory.placeables"}, tooltip = {"qf-inventory.placeables-tooltip"}}
-    local others_tab = tabbed_pane.add{type = "tab", name = "others_tab", caption = {"qf-inventory.others"}, tooltip = {"qf-inventory.others-tooltip"}}
-    
-    local materials_tab_content = build_tab(player, tabbed_pane, "materials")
-    local placeables_tab_content = build_tab(player, tabbed_pane, "placeables")
-    local others_tab_content = build_tab(player, tabbed_pane, "others")
 
-    tabbed_pane.add_tab(materials_tab, materials_tab_content)
-    tabbed_pane.add_tab(placeables_tab, placeables_tab_content)
-    tabbed_pane.add_tab(others_tab, others_tab_content)
+    build_tab(player, storage_frame)
 
-    tabbed_pane.selected_tab_index = storage.player_gui[player.index].selected_tab_index
 end
 
 ---@param player any
----@param tabbed_pane any
----@param tab_type "materials"|"placeables"|"others"
-function build_tab(player, tabbed_pane, tab_type)
-    local tab_content = tabbed_pane.add{
-        type = "frame",
-        name = tab_type .. "_tab_content",
-        direction = "vertical",
-        style="inside_deep_frame"
-    }
-    tab_content.style.height = QF_GUI.tabbed_pane.height
-    tab_content.style.minimal_width = QF_GUI.tabbed_pane.width
-    tab_content.style.padding = 4
+---@param parent_frame any
+function build_tab(player, parent_frame)
 
-    local scroll_pane = tab_content.add{
+    local scroll_pane = parent_frame.add{
         type = "scroll-pane",
-        name = tab_type .. "scroll_pane",
+        name = "scroll_pane",
         direction = "vertical"
     }
-    scroll_pane.style.height = QF_GUI.tabbed_pane.height
+    scroll_pane.style.height = QF_GUI.storage_frame.height
     --scroll_pane.style.minimal_width = QF_GUI.tabbed_pane.width
     scroll_pane.style.horizontally_stretchable = true
     scroll_pane.vertical_scroll_policy = "auto"
     scroll_pane.horizontal_scroll_policy = "never"
 
     local qualities = utils.get_qualities()
-    local column_count = 2 + #qualities
+    local column_count = 3 + #qualities
     if column_count > QS_MAX_COLUMN_COUNT then column_count = QS_MAX_COLUMN_COUNT end
-    if tab_type == "others" then
-        column_count = column_count - 1
-    end
 
-    local content_table
-    if tab_type == "placeables" then
-        storage.player_gui[player.index].gui.content_table = scroll_pane.add{
-            type = "table",
-            name = tab_type .. "content_table",
-            column_count = column_count
-        }
-        content_table = storage.player_gui[player.index].gui.content_table
-    else
-        content_table = scroll_pane.add{
-            type = "table",
-            name = tab_type .. "content_table",
-            column_count = column_count
-        }
-    end
+
+    storage.player_gui[player.index].gui.content_table = scroll_pane.add{
+        type = "table",
+        name = "content_table",
+        column_count = column_count
+    }
+    local content_table = storage.player_gui[player.index].gui.content_table
     content_table.style.vertical_spacing = 0
     content_table.style.bottom_margin = 8
 
     local storage_index = get_storage_index(nil, player)
 
-    local sorted_list = storage.sorted_lists[player.index][tab_type]
+    -- We can't take out items from space platforms and different planets
+    local allow_take_out = not player.surface.platform and storage_index == player.physical_surface_index
+
+    local sorted_list = storage.sorted_lists[player.index]
     local fabricator_inventory = storage.fabricator_inventory[storage_index]
     for _, item in pairs(sorted_list) do
-        if storage.filtered_data[player.index][tab_type][item.name] then
+        if storage.filtered_data[player.index].storage[item.name] then
             local item_type = item.type
             local item_name = item.name
             local item_name_caption = {"", "["..item_type.."="..item_name.."] ", item.localised_name}
@@ -188,45 +157,42 @@ function build_tab(player, tabbed_pane, tab_type)
             local empty_space_for_finale = item_name_label_container.add{type="empty-widget"}
             empty_space_for_finale.style.horizontally_stretchable = true
         
-            if tab_type == "materials" then
-                local materials_final_flow = content_table.add{type = "flow", direction = "horizontal"}
-                -- what is this line? find out why it happens and why it's needed, because I don't think it should be needed
-                if not storage.ingredient_filter[item_name] then storage.ingredient_filter[item_name] = {count = 0, recipes = {}} end
-                local item_recipe_usage_number = storage.ingredient_filter[item_name].count
-                if item_recipe_usage_number > 0 then
-                    local item_recipe_usage_caption = {"qf-inventory.recipe-usage", item_recipe_usage_number}
-                    local item_button = materials_final_flow.add{
-                        type = "sprite-button",
-                        style = "frame_action_button",
-                        sprite="utility/search",
-                        tooltip = item_recipe_usage_caption
-                    }
-                    item_button.style.horizontal_align = "right"
-                    item_button.style.size = QF_GUI.tabbed_pane.button_size
-                    item_button.tags = {button_type = "recipe_usage_search", item_name = item_name}
-                end
-            elseif tab_type == "placeables" then
-                local placeables_final_flow = content_table.add{type = "flow", direction = "horizontal"}
-                if not player.surface.platform then
-                    local take_out_caption = {"qf-inventory.take-out-item-quality"}
-                    if not script.feature_flags["quality"] then take_out_caption = {"qf-inventory.take-out-item"} end
-                    local button_sprite = "qf-vanilla-ghost-entity-icon"
-                    local button_tags = {button_type = "take_out_item", item_name = item.name}
-                    local item_take_out_button = placeables_final_flow.add{
-                        type = "sprite-button",
-                        style = "frame_action_button",
-                        sprite = "utility/downloading",
-                        tooltip = take_out_caption
-                    }
-                    item_take_out_button.style.horizontal_align = "right"
-                    item_take_out_button.style.size = QF_GUI.tabbed_pane.button_size
-                    item_take_out_button.tags = button_tags
-                end
+            local materials_final_flow = content_table.add{type = "flow", direction = "horizontal"}
+            -- what is this line? find out why it happens and why it's needed, because I don't think it should be needed
+            if not storage.ingredient_filter[item_name] then storage.ingredient_filter[item_name] = {count = 0, recipes = {}} end
+            local item_recipe_usage_number = storage.ingredient_filter[item_name].count
+            if item_recipe_usage_number > 0 then
+                local item_recipe_usage_caption = {"qf-inventory.recipe-usage", item_recipe_usage_number}
+                local item_button = materials_final_flow.add{
+                    type = "sprite-button",
+                    style = "frame_action_button",
+                    sprite="utility/search",
+                    tooltip = item_recipe_usage_caption
+                }
+                item_button.style.horizontal_align = "right"
+                item_button.style.size = QF_GUI.tabbed_pane.button_size
+                item_button.tags = {button_type = "recipe_usage_search", item_name = item_name}
+            end
+            
+            local placeables_final_flow = content_table.add{type = "flow", direction = "horizontal"}
+            if allow_take_out and item_type == "item" then
+                local take_out_caption = {"qf-inventory.take-out-item-quality"}
+                if not script.feature_flags["quality"] then take_out_caption = {"qf-inventory.take-out-item"} end
+                local button_sprite = "qf-vanilla-ghost-entity-icon"
+                local button_tags = {button_type = "take_out_item", item_name = item.name}
+                local item_take_out_button = placeables_final_flow.add{
+                    type = "sprite-button",
+                    style = "frame_action_button",
+                    sprite = "utility/downloading",
+                    tooltip = take_out_caption
+                }
+                item_take_out_button.style.horizontal_align = "right"
+                item_take_out_button.style.size = QF_GUI.tabbed_pane.button_size
+                item_take_out_button.tags = button_tags
             end
             ::continue::
         end
     end
-    return tab_content
 end
 
 function update_removal_tab_label(player, item_name, quality_name)

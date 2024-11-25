@@ -264,7 +264,7 @@ end
 
 function on_built_entity(event)
     local player_index = event.player_index
-    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
         player_index = nil
     end
     if event.entity and event.entity.valid then
@@ -308,7 +308,7 @@ end
 function on_marked_for_deconstruction(event)
     local entity = event.entity
     local player_index = event.player_index
-    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
         player_index = nil
     end
     if entity and entity.valid then
@@ -349,7 +349,7 @@ end
 function on_upgrade(event)
     local entity = event.entity
     local player_index = event.player_index
-    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
         player_index = nil
     end
     if entity and entity.valid and player_index then

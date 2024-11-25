@@ -165,6 +165,7 @@ function on_config_changed()
     flib_dictionary.on_configuration_changed()
     build_dictionaries()
     process_data()
+    process_sorted_lists()
 end
 
 function on_mod_settings_changed()

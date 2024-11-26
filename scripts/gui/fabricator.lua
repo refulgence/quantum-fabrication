@@ -129,7 +129,11 @@ function build_titlebar(player, titlebar_flow_parent)
             toggle_storage_button.enabled = false
         end
     else
-        titlebar_caption = {"", {"qf-inventory.recipe-frame-title"}, ": ", surface.localised_name or surface.planet.prototype.localised_name}
+        if surface.planet then
+            titlebar_caption = {"", {"qf-inventory.recipe-frame-title"}, ": ", surface.localised_name or surface.planet.prototype.localised_name}
+        else
+            titlebar_caption = {"", {"qf-inventory.recipe-frame-title"}, ": ", surface.localised_name or surface.name}
+        end
     end
 
     toggle_storage_button.tooltip = toggle_storage_tooltip

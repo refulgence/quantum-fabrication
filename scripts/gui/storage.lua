@@ -76,6 +76,8 @@ function build_tab(player, parent_frame)
     local qualities = utils.get_qualities()
     local column_count = 3 + #qualities
 
+    -- Used to determine minimal_width for the scroll pane. Because we have to go for very janky workarounds here to support extra qualities w/o making it look bad
+    local max_qualities = 0
 
     storage.player_gui[player.index].gui.content_table = scroll_pane.add{
         type = "table",
@@ -102,11 +104,13 @@ function build_tab(player, parent_frame)
             local skip = true
             local amount_captions = {}
             local index = 0
+            local temp_max_qualities = 0
             for _, quality in pairs(qualities) do
                 if item.type == "item" or quality.name == QS_DEFAULT_QUALITY then
                     local amount = fabricator_inventory[item_type][item_name][quality.name]
                     if amount ~= 0 then
                         skip = false
+                        temp_max_qualities = temp_max_qualities + 1
                         amount_captions[#amount_captions + 1] = {caption = "x" .. flib_format.number(amount, true) .. quality.icon, quality = quality.name}
                     else
                         amount_captions[#amount_captions + 1] = {caption = "", quality = quality.name}
@@ -115,7 +119,9 @@ function build_tab(player, parent_frame)
                     amount_captions[#amount_captions + 1] = {caption = "", quality = quality.name}
                 end
                 index = index + 1
-                if index >= column_count then break end
+            end
+            if temp_max_qualities > max_qualities then
+                max_qualities = temp_max_qualities
             end
             if skip then goto continue end
     
@@ -191,6 +197,12 @@ function build_tab(player, parent_frame)
             end
             ::continue::
         end
+    end
+    -- Enables horizontal scrolling if there is more than 5 qualities in a single row
+    if max_qualities > 5 then
+        max_qualities = 5
+        scroll_pane.horizontal_scroll_policy = "auto"
+        scroll_pane.style.minimal_width = 400 + max_qualities * 80
     end
 end
 

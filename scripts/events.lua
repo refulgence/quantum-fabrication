@@ -353,7 +353,7 @@ function on_upgrade(event)
     if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
         player_index = nil
     end
-    if entity and entity.valid and player_index then
+    if entity and entity.valid then
         storage.countdowns.upgrades = 2
         storage.request_player_ids.upgrades = player_index
     end

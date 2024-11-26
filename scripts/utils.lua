@@ -21,6 +21,23 @@ function utils.merge_tables_no_index(t1, t2)
     return t1
 end
 
+---Return true if there are any ghost tiles under the entity
+---@param entity LuaEntity
+---@return boolean
+function utils.check_for_ghost_tiles(entity)
+    local surface = entity.surface
+    local bounding_box = entity.bounding_box
+    local tiles = surface.find_entities_filtered{
+        area = bounding_box,
+        name = "tile-ghost",
+        limit = 1,
+    }
+    if next(tiles) then
+        return true
+    end
+    return false
+end
+
 function utils.validate_surfaces()
     for index, surface_data in pairs(storage.surface_data.planets) do
         if not surface_data.surface.valid then

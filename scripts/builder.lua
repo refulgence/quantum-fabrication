@@ -263,6 +263,13 @@ function revive_ghost(entity, qs_item, player_inventory)
         end
         return true
     end
+    -- If we failed to revive the entity then we check if it's because of water
+    -- (because landfill ghosts created simulteneously with the entity don't trigger events)
+    if not storage.countdowns.tile_creation then
+        if utils.check_for_ghost_tiles(entity) then
+            storage.countdowns.tile_creation = 2
+        end
+    end
     return false
 end
 

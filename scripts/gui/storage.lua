@@ -75,7 +75,6 @@ function build_tab(player, parent_frame)
 
     local qualities = utils.get_qualities()
     local column_count = 3 + #qualities
-    if column_count > QS_MAX_COLUMN_COUNT then column_count = QS_MAX_COLUMN_COUNT end
 
 
     storage.player_gui[player.index].gui.content_table = scroll_pane.add{

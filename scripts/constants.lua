@@ -43,8 +43,6 @@ QF_GUI.tooltip_frame.ing_label_width = 145
 QF_GUI.tooltip_frame.required_label_width = 60
 QF_GUI.tooltip_frame.available_label_width = 65
 
---Would only be used with extra quality types. Not tested whether it would actually do anything to make the storage list look better with 10 quality types
-QS_MAX_COLUMN_COUNT = 12
 
 Update_rate = {}
 Update_rate.revivals = {rate = 5, slots = 12}

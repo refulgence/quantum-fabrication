@@ -123,7 +123,7 @@ function instant_upgrade(entity, target, quality, player_index)
     end
 
     local qs_item = {
-        name = target.name,
+        name = storage.prototypes_data[target.name].item_name,
         count = 1,
         type = "item",
         quality = quality,

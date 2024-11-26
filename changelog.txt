@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.4
+Date: 26.11.2024
+  Bugfixes:
+    - Fixed a crash caused by upgrading a building that has no item version.
+    - Fixed a crash caused by opening the GUI while looking at a surface that's neither a planet nor a platform nor has a localised name.
+---------------------------------------------------------------------------------------------------
 Version: 2.4.3
 Date: 26.11.2024
   Bugfixes:

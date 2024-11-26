@@ -48,12 +48,15 @@ end
 
 function instant_tileation()
     local schedule_retileation = false
-    local player = game.get_player(storage.request_player_ids.tiles)
+    local player
     local player_inventory
     local player_surface_index
-    if player then
-        player_inventory = player.get_inventory(defines.inventory.character_main)
-        player_surface_index = player.physical_surface_index
+    if storage.request_player_ids.tiles then
+        player = game.get_player(storage.request_player_ids.tiles)
+        if player then
+            player_inventory = player.get_inventory(defines.inventory.character_main)
+            player_surface_index = player.physical_surface_index
+        end
     end
     
     local function remove_from_storage(indices, surface_index)

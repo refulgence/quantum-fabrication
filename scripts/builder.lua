@@ -145,6 +145,8 @@ function instant_upgrade(entity, target, quality, player_index)
     local underground_belt_type
     if entity.type == "underground-belt" then
         underground_belt_type = entity.belt_to_ground_type
+    elseif entity.type == "loader" or entity.type == "loader-1x1" then
+        underground_belt_type = entity.loader_type
     end
 
     local upgraded_entity = entity.surface.create_entity{

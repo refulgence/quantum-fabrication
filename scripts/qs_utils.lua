@@ -118,7 +118,7 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
     local in_storage = qs_utils.count_in_storage(qs_item)
     local to_be_provided = qs_item.count
     local status = {empty_storage = false, full_inventory = false}
-    if in_storage == 0 then
+    if in_storage <= 0 then
         status.empty_storage = true
         return status
     end
@@ -209,12 +209,12 @@ end
 ---@param player any
 function qs_utils.take_from_storage(qs_item, player)
     local item_name = qs_item.name
-    local quality_name = qs_item.quality
     local prototype = prototypes.item[item_name]
     if not prototype then return end
-    local player_inventory = player.get_inventory(defines.inventory.character_main)
     local in_storage = qs_utils.count_in_storage(qs_item)
-    if in_storage == 0 then return end
+    if in_storage <= 0 then return end
+    local quality_name = qs_item.quality
+    local player_inventory = player.get_inventory(defines.inventory.character_main)
     local stack_size = prototype.stack_size
     if in_storage < stack_size then
         stack_size = in_storage

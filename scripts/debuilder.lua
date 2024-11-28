@@ -21,7 +21,7 @@ function instant_defabrication(entity, player_index)
 
     local player_inventory
     if player_index then
-        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+        player_inventory = game.get_player(player_index).get_main_inventory()
     end
     qs_utils.add_to_storage(qs_item, true)
     process_inventory(entity, player_inventory, surface_index)
@@ -132,7 +132,7 @@ function instant_deforestation(entity, player_index)
     local player_inventory
     local prototype = entity.prototype
     if player_index then
-        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+        player_inventory = game.get_player(player_index).get_main_inventory()
     end
     local surface_index = entity.surface_index
     if prototype.loot then
@@ -217,7 +217,7 @@ function instant_decliffing(entity, player_index)
     }
     local player_inventory
     if player_index then
-        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+        player_inventory = game.get_player(player_index).get_main_inventory()
     end
     local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
     if total > 0 then

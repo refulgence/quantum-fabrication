@@ -172,7 +172,7 @@ function tracking.update_item_request_proxy(request_table)
     end
     local player_inventory
     if player_index then
-        player_inventory = game.get_player(player_index).get_inventory(defines.inventory.character_main)
+        player_inventory = game.get_player(player_index).get_main_inventory()
     end
     if handle_item_requests(entity, item_request_proxy.item_requests, insert_plan, removal_plan, player_inventory) then
         request_table.item_request_proxy.destroy()

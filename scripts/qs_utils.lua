@@ -214,7 +214,7 @@ function qs_utils.take_from_storage(qs_item, player)
     local in_storage = qs_utils.count_in_storage(qs_item)
     if in_storage <= 0 then return end
     local quality_name = qs_item.quality
-    local player_inventory = player.get_inventory(defines.inventory.character_main)
+    local player_inventory = player.get_main_inventory()
     local stack_size = prototype.stack_size
     if in_storage < stack_size then
         stack_size = in_storage

@@ -25,7 +25,7 @@ function instant_fabrication(entity, player_index)
         player = game.get_player(player_index)
         if player then
             player_surface_index = player.surface_index
-            player_inventory = player.get_inventory(defines.inventory.character_main)
+            player_inventory = player.get_main_inventory()
         end
     end
 
@@ -54,7 +54,7 @@ function instant_tileation()
     if storage.request_player_ids.tiles then
         player = game.get_player(storage.request_player_ids.tiles)
         if player then
-            player_inventory = player.get_inventory(defines.inventory.character_main)
+            player_inventory = player.get_main_inventory()
             player_surface_index = player.physical_surface_index
         end
     end
@@ -120,7 +120,7 @@ function instant_upgrade(entity, target, quality, player_index)
     if player_index then
         player = game.get_player(player_index)
         if player then
-            player_inventory = player.get_inventory(defines.inventory.character_main)
+            player_inventory = player.get_main_inventory()
             player_surface_index = player.physical_surface_index
         end
     end

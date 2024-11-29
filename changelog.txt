@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.8
+Date: 29.11.2024
+  Bugfixes:
+    - Fixed a crash related to entities combining into bigger entities while being built. Again.
+---------------------------------------------------------------------------------------------------
 Version: 2.4.7
 Date: 28.11.2024
   Bugfixes:

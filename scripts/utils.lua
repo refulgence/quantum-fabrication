@@ -25,6 +25,7 @@ end
 ---@param entity LuaEntity
 ---@return boolean
 function utils.check_for_ghost_tiles(entity)
+    if not entity.valid then return false end
     local surface = entity.surface
     local bounding_box = entity.bounding_box
     local tiles = surface.find_entities_filtered{

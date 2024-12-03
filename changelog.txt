@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.10
+Date: 03.12.2024
+  Bugfixes:
+    - Fixed a crash caused by buildings with recipes that have no ingredients and multiple products.
+    - Fixed GUI to show a slighly more accurate number of craftable buildings with recipes that have no ingredients (before it would show as 0, now it shows as 9.9M, the actual number is infinity).
+---------------------------------------------------------------------------------------------------
 Version: 2.4.9
 Date: 01.12.2024
   Bugfixes:

@@ -35,6 +35,7 @@ function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inve
             end
         end
     end
+    if not result then return 9999999 end
     if multiply_by_product_amount then
         for _, product in pairs(recipe.products) do
             if product.amount > 1 and utils.is_placeable(product.name) then
@@ -43,7 +44,7 @@ function qf_utils.how_many_can_craft(recipe, quality, surface_index, player_inve
             end
         end
     end
-    return result or 0
+    return result
 end
 
 ---@param recipe table

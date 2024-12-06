@@ -197,12 +197,8 @@ end
 function calculate_default_priority()
     for product, recipe_names in pairs(storage.duplicate_recipes) do
         local suitability = {}
-        local max_ingredients
-        local min_products
-        local product_min_s
-        local max = 0
+        local max = 1
         local min
-        local product_min
         for _, recipe_name in pairs(recipe_names) do
             local recipe = storage.preprocessed_recipes[recipe_name]
             suitability[recipe_name] = 0
@@ -211,26 +207,25 @@ function calculate_default_priority()
             end
             if #recipe.ingredients > max then
                 max = #recipe.ingredients
-                max_ingredients = recipe_name
             end
             if not min or #recipe.products < min then
                 min = #recipe.products
-                min_products = recipe_name
             end
-            for _, product_2 in pairs(recipe.products) do
-                if utils.is_placeable(product_2.name) then
-                    if not product_min or product_2.amount < product_min then
-                        product_min = product_2.amount
-                        product_min_s = recipe_name
-                    end
+            local has_fluid = false
+            local has_non_fluid = false
+            for _, ingredient in pairs(recipe.ingredients) do
+                if ingredient.type == "fluid" then
+                    has_fluid = true
+                else
+                    has_non_fluid = true
                 end
             end
+            if has_fluid then suitability[recipe_name] = suitability[recipe_name] - 1 end
+            if has_non_fluid then suitability[recipe_name] = suitability[recipe_name] + 1 end
         end
-        if max_ingredients then suitability[max_ingredients] = suitability[max_ingredients] + 1 end
-        if min_products then suitability[min_products] = suitability[min_products] + 1 end
-        if product_min_s then suitability[product_min_s] = suitability[product_min_s] + 1 end
         for key, recipe in pairs(storage.product_craft_data[product]) do
-            storage.product_craft_data[product][key].suitability = suitability[recipe.recipe_name]
+            local true_recipe = storage.preprocessed_recipes[recipe.recipe_name]
+            storage.product_craft_data[product][key].suitability = suitability[recipe.recipe_name] + (#true_recipe.ingredients / max) + (min / #true_recipe.products)
             storage.product_craft_data[product][key].number_of_recipes = #recipe_names
         end
         table.sort(storage.product_craft_data[product], function(a, b) return a.suitability > b.suitability end)

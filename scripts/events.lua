@@ -491,6 +491,7 @@ commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_debug_command", nil, on_console_command)
+commands.add_command("qf_reprocess_recipes", nil, on_console_command)
 commands.add_command("qf_factorissimo", nil, activate_factorissimo_link)
 
 script.on_nth_tick(11, function(event)

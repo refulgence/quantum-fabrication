@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.12
+Date: 06.12.2024
+  Changes:
+    - Improved weighting assigment for duplicate recipe handling for the sake of unpacking. Basically, recipes with fluid ingredients are given lower priority. This entire system is kinda a mess, but oh well it works.
+  Bugfixes:
+    - Fixed a crash caused by taking an item out of the Storage while in remote view by disabling an ability to take items out of the Storage while in remote view. Note: the mod might no longer use player's inventory at all while in remote view. It might've worked before, but it just doesn't work now. Put things inside the Storage.
+---------------------------------------------------------------------------------------------------
 Version: 2.4.11
 Date: 03.12.2024
   Bugfixes:

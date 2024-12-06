@@ -112,4 +112,22 @@ function utils.is_removable(item_name)
     return storage.removable[item_name]
 end
 
+---Returns player's inventory (or nil)
+---@param player? LuaPlayer
+---@param player_index? uint
+---@return LuaInventory?
+function utils.get_player_inventory(player, player_index)
+    if not player then
+        if not player_index then return nil end
+        player = game.get_player(player_index)
+        if not player then return nil end
+    end
+    local player_inventory = player.get_main_inventory()
+    if player_inventory then return player_inventory end
+    -- I don't even know if this does anything, but I'm too tired to check. It won't break anything.
+    player_inventory = player.get_inventory(defines.inventory.character_main)
+    if player_inventory then return player_inventory end
+    return nil
+end
+
 return utils

@@ -19,10 +19,7 @@ function instant_defabrication(entity, player_index)
     }
     if not qs_item.name then game.print("instant_defabrication error - item name not found for " .. entity.ghost_name .. ", this shouldn't happen") return false end
 
-    local player_inventory
-    if player_index then
-        player_inventory = game.get_player(player_index).get_main_inventory()
-    end
+    local player_inventory = utils.get_player_inventory(nil, player_index)
     qs_utils.add_to_storage(qs_item, true)
     process_inventory(entity, player_inventory, surface_index)
     if Transport_belt_types[entity.type] then
@@ -129,11 +126,8 @@ end
 ---@param entity LuaEntity
 ---@param player_index? int
 function instant_deforestation(entity, player_index)
-    local player_inventory
+    local player_inventory = utils.get_player_inventory(nil, player_index)
     local prototype = entity.prototype
-    if player_index then
-        player_inventory = game.get_player(player_index).get_main_inventory()
-    end
     local surface_index = entity.surface_index
     if prototype.loot then
         process_loot(prototype.loot, player_inventory, surface_index)
@@ -215,10 +209,7 @@ function instant_decliffing(entity, player_index)
         quality = QS_DEFAULT_QUALITY,
         surface_index = entity.surface_index
     }
-    local player_inventory
-    if player_index then
-        player_inventory = game.get_player(player_index).get_main_inventory()
-    end
+    local player_inventory = utils.get_player_inventory(nil, player_index)
     local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
     if total > 0 then
         if in_storage > 0 then

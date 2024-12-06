@@ -205,8 +205,8 @@ function qs_utils.get_available_tiles(surface_index, player_inventory, player_su
 end
 
 ---Takes a stack of items from storage to the player's inventory. Only if the player is physically present on the same surface (to prevent some cheesing)
----@param qs_item any
----@param player any
+---@param qs_item QSItem
+---@param player LuaPlayer
 function qs_utils.take_from_storage(qs_item, player)
     local item_name = qs_item.name
     local prototype = prototypes.item[item_name]
@@ -214,7 +214,8 @@ function qs_utils.take_from_storage(qs_item, player)
     local in_storage = qs_utils.count_in_storage(qs_item)
     if in_storage <= 0 then return end
     local quality_name = qs_item.quality
-    local player_inventory = player.get_main_inventory()
+    local player_inventory = utils.get_player_inventory(player)
+    if not player_inventory then return end
     local stack_size = prototype.stack_size
     if in_storage < stack_size then
         stack_size = in_storage

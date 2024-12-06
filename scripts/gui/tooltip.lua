@@ -1,6 +1,7 @@
 local flib_format = require("__flib__.format")
 local qf_utils = require("scripts/qf_utils")
 local qs_utils = require("scripts/qs_utils")
+local utils = require("scripts/utils")
 
 ---@param player LuaPlayer
 ---@param item_name string
@@ -65,13 +66,12 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     local surface_index = get_storage_index(nil, player)
     local quality = storage.player_gui[player.index].quality.name
-    --local player_inventory = player.get_main_inventory()
 
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
     local player_inventory
     if game.players[player.index].mod_settings["qf-use-player-inventory"].value then
-        player_inventory = player.get_main_inventory()
+        player_inventory = utils.get_player_inventory(player)
     end
 
     for _, ingredient in pairs(ingredients) do

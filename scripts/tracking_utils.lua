@@ -170,10 +170,7 @@ function tracking.update_item_request_proxy(request_table)
         request_table.item_request_proxy.destroy()
         return nil, true, false
     end
-    local player_inventory
-    if player_index then
-        player_inventory = game.get_player(player_index).get_main_inventory()
-    end
+    local player_inventory = utils.get_player_inventory(nil, player_index)
     if handle_item_requests(entity, item_request_proxy.item_requests, insert_plan, removal_plan, player_inventory) then
         request_table.item_request_proxy.destroy()
         return nil, true, false

@@ -32,7 +32,7 @@ function build_main_gui(player)
         name = "storage_flow",
         direction = "vertical"
     }
-    storage_flow.style.height = QF_GUI.storage_frame.height
+    storage_flow.style.height = QF_GUI.storage_frame.height / player.display_scale
     storage_flow.style.minimal_width = QF_GUI.storage_frame.width
     storage_flow.visible = false
 
@@ -173,7 +173,7 @@ function build_main_recipe_gui(player, recipe_frame_parent)
         direction = "vertical",
         style = "inside_shallow_frame"
     }
-    recipe_frame.style.size = {width = QF_GUI.recipe_frame.width, height = QF_GUI.recipe_frame.height}
+    recipe_frame.style.size = {width = QF_GUI.recipe_frame.width, height = QF_GUI.recipe_frame.height / player.display_scale}
 
     if not storage.item_group_order then process_item_group_order() end
 
@@ -239,7 +239,7 @@ function build_main_recipe_gui(player, recipe_frame_parent)
             style = "inside_deep_frame"
         }
         error_frame.style.width = QF_GUI.recipe_frame.width
-        error_frame.style.height = QF_GUI.recipe_frame.height
+        error_frame.style.height = QF_GUI.recipe_frame.height / player.display_scale
         error_frame.style.vertically_stretchable = true
         error_frame.style.horizontally_stretchable = true
         error_frame.add{type = "empty-widget"}.style.vertically_stretchable = true
@@ -277,7 +277,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
         direction = "vertical"
     }
     recipe_item_scroll_pane.style.width = QF_GUI.recipe_frame.width
-    recipe_item_scroll_pane.style.natural_height = QF_GUI.recipe_frame.height - (75 * item_group_rows) - 38
+    recipe_item_scroll_pane.style.natural_height = (QF_GUI.recipe_frame.height - (75 * item_group_rows) - 38) / player.display_scale
     recipe_item_scroll_pane.style.vertically_stretchable = true
     recipe_item_scroll_pane.style.vertically_squashable = true
     recipe_item_scroll_pane.style.horizontally_squashable = true
@@ -295,7 +295,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
     recipe_item_frame.style.vertically_squashable = true
     recipe_item_frame.style.horizontally_squashable = true
     recipe_item_frame.style.horizontally_stretchable = true
-    recipe_item_frame.style.natural_height = QF_GUI.recipe_frame.height - (75 * item_group_rows) - 38
+    recipe_item_frame.style.natural_height = (QF_GUI.recipe_frame.height - (75 * item_group_rows) - 38) / player.display_scale
     --recipe_item_frame.style.vertical_spacing = 4
     recipe_item_frame.style.margin = 10
 

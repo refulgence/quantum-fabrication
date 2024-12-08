@@ -1,7 +1,7 @@
 function build_options_gui(player)
     local main_frame = player.gui.screen.add{type = "frame", name = "qf_fabricator_options_frame", direction = "vertical"}
     main_frame.style.width = QF_GUI.options_frame.width
-    main_frame.style.maximal_height = QF_GUI.options_frame.max_height
+    main_frame.style.maximal_height = QF_GUI.options_frame.max_height / player.disaply_scale
     main_frame.auto_center = true
 
     -- Titlebar

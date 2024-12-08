@@ -50,7 +50,7 @@ function build_main_storage_gui(player, storage_flow_parent)
     end
 
     local storage_frame = storage_flow.add{type = "frame", name = "storage_frame", direction = "vertical", style="inside_deep_frame"}
-    storage_frame.style.height = QF_GUI.storage_frame.height
+    storage_frame.style.height = QF_GUI.storage_frame.height / player.display_scale
     storage_frame.style.minimal_width = 0 --QF_GUI.storage_frame.width
     
 
@@ -67,7 +67,7 @@ function build_tab(player, parent_frame)
         name = "scroll_pane",
         direction = "vertical"
     }
-    scroll_pane.style.height = QF_GUI.storage_frame.height
+    scroll_pane.style.height = QF_GUI.storage_frame.height / player.display_scale
     --scroll_pane.style.minimal_width = QF_GUI.tabbed_pane.width
     scroll_pane.style.horizontally_stretchable = true
     scroll_pane.vertical_scroll_policy = "always"

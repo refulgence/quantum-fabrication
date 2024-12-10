@@ -199,10 +199,10 @@ function build_tab(player, parent_frame)
         end
     end
     -- Enables horizontal scrolling if there is more than 5 qualities in a single row
-    if max_qualities > 5 then
+    if max_qualities > 5 or player.display_scale > 1 then
         max_qualities = 5
         scroll_pane.horizontal_scroll_policy = "auto"
-        scroll_pane.style.minimal_width = 400 + max_qualities * 80
+        scroll_pane.style.minimal_width = (400 + max_qualities * 80) / player.display_scale
     end
 end
 

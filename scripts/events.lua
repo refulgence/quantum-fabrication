@@ -426,9 +426,15 @@ end
 ---Grabs the currently researchable trigger techs
 function find_trigger_techs()
     storage.trigger_techs_actual = {}
+    storage.trigger_techs_mine_actual = {}
     for name, prototype in pairs(storage.trigger_techs) do
         if utils.is_researchable(prototype.technology) then
             storage.trigger_techs_actual[name] = prototype
+        end
+    end
+    for name, prototype in pairs(storage.trigger_techs_mine) do
+        if utils.is_researchable(prototype.technology) then
+            storage.trigger_techs_mine_actual[name] = prototype
         end
     end
 end

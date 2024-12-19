@@ -146,6 +146,9 @@ function instant_deforestation(entity, player_index)
         }
         qs_utils.add_to_player_inventory(player_inventory, qs_item)
     end
+    if storage.trigger_techs_mine_actual[entity.name] then
+        utils.research_technology(storage.trigger_techs_mine_actual[entity.name].technology)
+    end
     entity.destroy({raise_destroy = true})
 end
 

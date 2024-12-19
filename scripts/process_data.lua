@@ -9,6 +9,7 @@ function process_data()
     process_item_group_order()
     update_planet_surface_link()
     get_trigger_techs()
+    find_trigger_techs()
 end
 
 function reprocess_recipes()

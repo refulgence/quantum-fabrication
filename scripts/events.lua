@@ -419,6 +419,30 @@ function post_research_recheck()
     Filtered_data_ok = false
     process_ingredient_filter()
     process_recipe_enablement()
+    find_trigger_techs()
+    research_trigger_techs()
+end
+
+---Grabs the currently researchable trigger techs
+function find_trigger_techs()
+    storage.trigger_techs_actual = {}
+    for name, prototype in pairs(storage.trigger_techs) do
+        if utils.is_researchable(prototype.technology) then
+            storage.trigger_techs_actual[name] = prototype
+        end
+    end
+end
+
+---Checks if any of the currently researchable trigger techs can be researched and researches them
+function research_trigger_techs()
+    for name, prototype in pairs(storage.trigger_techs_actual) do
+        if storage.craft_stats[prototype.item_name] >= prototype.count then
+            prototype.technology.researched = true
+            Research_finished = true
+            game.print({"qf-general.research-completed",prototype.technology.localised_name}, {sound_path = "utility/research_completed"})
+            storage.trigger_techs_actual[name] = nil
+        end
+    end
 end
 
 --TODO: test if this is doing anything useful at all

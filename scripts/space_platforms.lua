@@ -200,6 +200,8 @@ if settings.startup["qf-enable-space-transfer"].value then
                     storage.space_countdowns[type] = nil
                     if type == "space_sendoff" then
                         process_space_requests()
+                        -- Don't even ask why it's here
+                        research_trigger_techs()
                     end
                 end
             end

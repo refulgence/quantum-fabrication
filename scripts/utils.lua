@@ -130,4 +130,16 @@ function utils.get_player_inventory(player, player_index)
     return nil
 end
 
+---Returns true if a technology can be researched right now.
+---@param technology LuaTechnology
+---@return boolean
+function utils.is_researchable(technology)
+    for _, prerequisite in pairs(technology.prerequisites) do
+        if not prerequisite.researched then
+            return false
+        end
+    end
+    return true
+end
+
 return utils

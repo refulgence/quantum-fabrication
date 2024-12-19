@@ -8,6 +8,7 @@ function process_data()
     reprocess_recipes()
     process_item_group_order()
     update_planet_surface_link()
+    get_trigger_techs()
 end
 
 function reprocess_recipes()
@@ -17,6 +18,34 @@ function reprocess_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
+end
+
+---Obtains a list of all techs researched via crafting/building a placeable building
+function get_trigger_techs()
+    ---@type table <string, { trigger_type: string, item_name: string, count: uint }>
+    storage.trigger_techs = {}
+    local tech_prototypes = prototypes.technology
+    local technologies = game.forces["player"].technologies
+    for name, prototype in pairs(tech_prototypes) do
+        local trigger = prototype.research_trigger
+        if trigger and not technologies[name].researched and (trigger.type == "craft-item" or trigger.type == "build-entity") then
+            local item_name
+            if trigger.item then
+                item_name = trigger.item.name or trigger.item
+            else
+                item_name = trigger.entity.name
+            end
+            if storage.placeable[item_name] then
+                storage.trigger_techs[name] = {
+                    trigger_type = trigger.type,
+                    ---@diagnostic disable-next-line: assign-type-mismatch
+                    item_name = item_name,
+                    ---@diagnostic disable-next-line: undefined-field
+                    count = trigger.count or 1,
+                }
+            end
+        end
+    end
 end
 
 function process_tiles()

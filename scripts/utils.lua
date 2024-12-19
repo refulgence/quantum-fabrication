@@ -134,12 +134,21 @@ end
 ---@param technology LuaTechnology
 ---@return boolean
 function utils.is_researchable(technology)
+    if technology.researched then return false end
     for _, prerequisite in pairs(technology.prerequisites) do
         if not prerequisite.researched then
             return false
         end
     end
     return true
+end
+
+---@param technology LuaTechnology
+function utils.research_technology(technology)
+    technology.researched = true
+    Research_finished = true
+    game.print({"", "[technology="..technology.name.."]",{"qf-general.research-completed"}}, {sound_path = "utility/research_completed"})
+    find_trigger_techs()
 end
 
 return utils

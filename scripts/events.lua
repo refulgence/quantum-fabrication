@@ -437,10 +437,7 @@ end
 function research_trigger_techs()
     for name, prototype in pairs(storage.trigger_techs_actual) do
         if storage.craft_stats[prototype.item_name] >= prototype.count then
-            prototype.technology.researched = true
-            Research_finished = true
-            game.print({"qf-general.research-completed",prototype.technology.localised_name}, {sound_path = "utility/research_completed"})
-            storage.trigger_techs_actual[name] = nil
+            utils.research_technology(prototype.technology)
         end
     end
 end

@@ -98,6 +98,7 @@ function process_entities()
     local filters = {{filter = "buildable"}}
     local entities = prototypes.get_entity_filtered(filters)
     storage.prototypes_data = {}
+    if not storage.craft_stats then storage.craft_stats = {} end
     local result = {}
     for _, entity in pairs(entities) do
         if entity and entity.name and entity.items_to_place_this then
@@ -113,6 +114,7 @@ function process_entities()
     table.sort(result, function(a, b) return a.name < b.name end)
     for _, entity in pairs(result) do
         storage.prototypes_data[entity.name] = entity
+        storage.craft_stats[entity.name] = storage.craft_stats[entity.name] or 0
     end
 end
 

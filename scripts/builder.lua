@@ -261,6 +261,9 @@ function revive_ghost(entity, qs_item, player_inventory)
                 if item_request_proxy then item_request_proxy.destroy() end
             end
         end
+
+        qs_utils.increment_craft_stats(revived_entity.name, 1)
+
         return true
     end
     -- If we failed to revive the entity then we check if it's because of water

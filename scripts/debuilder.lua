@@ -25,6 +25,7 @@ function instant_defabrication(entity, player_index)
     if Transport_belt_types[entity.type] then
         process_transport_line(entity, player_inventory, surface_index)
     end
+    qs_utils.increment_craft_stats(entity.name, -1)
     return entity.destroy({raise_destroy = true})
 end
 

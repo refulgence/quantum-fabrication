@@ -225,4 +225,16 @@ function qs_utils.take_from_storage(qs_item, player)
     update_removal_tab_label(player, item_name, quality_name)
 end
 
+---comment
+---@param name string
+---@param count uint
+function qs_utils.increment_craft_stats(name, count)
+    --if not storage.craft_stats[name] then
+    --    storage.craft_stats[name] = count
+    --else
+    --    storage.craft_stats[name] = storage.craft_stats[name] + count
+    --end
+    storage.craft_stats[name] = storage.craft_stats[name] + count
+end
+
 return qs_utils

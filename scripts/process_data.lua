@@ -22,7 +22,7 @@ end
 
 ---Obtains a list of all techs researched via crafting/building a placeable building
 function get_trigger_techs()
-    ---@type table <string, { trigger_type: string, item_name: string, count: uint }>
+    ---@type table <string, { trigger_type: string, item_name: string, count: uint, technology: LuaTechnology }>
     storage.trigger_techs = {}
     local tech_prototypes = prototypes.technology
     local technologies = game.forces["player"].technologies
@@ -42,6 +42,7 @@ function get_trigger_techs()
                     item_name = item_name,
                     ---@diagnostic disable-next-line: undefined-field
                     count = trigger.count or 1,
+                    technology = technologies[name]
                 }
             end
         end

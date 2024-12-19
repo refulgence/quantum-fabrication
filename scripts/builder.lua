@@ -278,8 +278,8 @@ end
 
 ---@param entity LuaEntity
 ---@param item_requests table
----@param insert_plan BlueprintInsertPlan
----@param removal_plan BlueprintInsertPlan
+---@param insert_plan BlueprintInsertPlan[]
+---@param removal_plan BlueprintInsertPlan[]
 ---@param player_inventory? LuaInventory
 function handle_item_requests(entity, item_requests, insert_plan, removal_plan, player_inventory)
     local entity_inventories = {}
@@ -313,18 +313,20 @@ function handle_item_requests(entity, item_requests, insert_plan, removal_plan, 
             type = "item",
             surface_index = entity.surface_index
         }
-        for _, item_and_inventory_position in pairs(plan.items) do
-            for _, inventory_position in pairs(item_and_inventory_position) do
-                qs_item.count = inventory_position.count or 1
-                if entity.type == "inserter" then
-                    entity.held_stack.set_stack()
-                else
-                    if not entity_inventories[inventory_position.inventory] then
-                        entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+        if plan.items.in_inventory then
+            for _, item_and_inventory_position in pairs(plan.items) do
+                for _, inventory_position in pairs(item_and_inventory_position) do
+                    qs_item.count = inventory_position.count or 1
+                    if entity.type == "inserter" then
+                        entity.held_stack.set_stack()
+                    else
+                        if not entity_inventories[inventory_position.inventory] then
+                            entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+                        end
+                        entity_inventories[inventory_position.inventory].remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
                     end
-                    entity_inventories[inventory_position.inventory].remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+                    qs_utils.add_to_storage(qs_item, true)
                 end
-                qs_utils.add_to_storage(qs_item, true)
             end
         end
     end
@@ -339,14 +341,16 @@ function handle_item_requests(entity, item_requests, insert_plan, removal_plan, 
             surface_index = entity.surface_index
         }
         local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
-        for _, item_and_inventory_position in pairs(plan.items) do
-            for _, inventory_position in pairs(item_and_inventory_position) do
-                qs_item.count = inventory_position.count or 1
-                if not entity_inventories[inventory_position.inventory] then
-                    entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+        if plan.items.in_inventory then
+            for _, item_and_inventory_position in pairs(plan.items) do
+                for _, inventory_position in pairs(item_and_inventory_position) do
+                    qs_item.count = inventory_position.count or 1
+                    if not entity_inventories[inventory_position.inventory] then
+                        entity_inventories[inventory_position.inventory] = entity.get_inventory(inventory_position.inventory)
+                    end
+                    qs_utils.advanced_remove_from_storage(qs_item, {storage = in_storage, inventory = in_inventory}, player_inventory)
+                    entity_inventories[inventory_position.inventory].insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
                 end
-                qs_utils.advanced_remove_from_storage(qs_item, {storage = in_storage, inventory = in_inventory}, player_inventory)
-                entity_inventories[inventory_position.inventory].insert({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
             end
         end
     end

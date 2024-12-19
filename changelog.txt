@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.5.0
+Date: 19.12.2024
+  Minor Features:
+    - Added handling of trigger techs that are researched by crafting or mining certain entities.
+---------------------------------------------------------------------------------------------------
 Version: 2.4.15
 Date: 10.12.2024
   Bugfixes:

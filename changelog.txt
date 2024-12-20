@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.5.2
+Date: 20.12.2024
+  Optimizations:
+    - Improved performance of automatic rechecks for lost item request proxies.
+      The mod will no longer cause sharp UPS drops every ~4 seconds that become sharper the bigger the maps gets.
+      The preference option "Automatically recheck for lost item request proxies" has been removed.
+---------------------------------------------------------------------------------------------------
 Version: 2.5.1
 Date: 19.12.2024
   Bugfixes:

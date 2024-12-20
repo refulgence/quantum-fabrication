@@ -3,6 +3,7 @@ local qf_utils = require("scripts/qf_utils")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
 local flib_table = require("__flib__.table")
+local chunks_utils = require("scripts/chunks_utils")
 
 ---@param entity LuaEntity Entity to fabricate
 ---@param player_index? int
@@ -263,6 +264,7 @@ function revive_ghost(entity, qs_item, player_inventory)
         end
 
         qs_utils.increment_craft_stats(revived_entity.name, 1)
+        chunks_utils.add_chunk(revived_entity.surface_index, revived_entity.position)
 
         return true
     end

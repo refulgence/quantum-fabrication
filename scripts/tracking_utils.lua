@@ -236,6 +236,22 @@ function tracking.update_lost_module_requests(player)
     end
 end
 
+---Updated way to get item request proxies
+function tracking.update_lost_module_requests_neo()
+    storage.request_ids.item_proxies = flib_table.for_n_of(storage.chunks, storage.request_ids.item_proxies, 1, function(chunk)
+        for _, entity in pairs(game.surfaces[chunk.surface_index].find_entities_filtered{name = "item-request-proxy", area = chunk.area}) do
+            if entity.proxy_target and not storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] then
+                tracking.create_tracked_request({
+                    entity = entity.proxy_target,
+                    player_index = 1,
+                    item_request_proxy = entity,
+                    request_type = "item_requests"
+                })
+            end
+        end
+    end)
+end
+
 ---Adds an entity to be tracked and creates necessary hidden entities
 ---@param request_data RequestData
 function tracking.add_tracked_entity(request_data)

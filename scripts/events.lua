@@ -413,6 +413,7 @@ end
 function on_tick(event)
     flib_dictionary.on_tick(event)
     tracking.on_tick_update_requests()
+    tracking.update_lost_module_requests_neo()
 end
 
 function post_research_recheck()
@@ -547,9 +548,6 @@ end)
 
 script.on_nth_tick(Update_rate.reactors, tracking.update_tracked_reactors)
 
-script.on_nth_tick(Update_rate.item_request_proxy_recheck, function(event)
-    if storage.options.auto_recheck_item_request_proxies then tracking.update_lost_module_requests(game.connected_players[1]) end
-end)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, on_mod_settings_changed)
 script.on_init(on_init)

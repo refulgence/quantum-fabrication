@@ -1,10 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.5.2
-Date: 20.12.2024
+Date: 29.12.2024
   Optimizations:
     - Improved performance of automatic rechecks for lost item request proxies.
-      The mod will no longer cause sharp UPS drops every ~4 seconds that become sharper the bigger the maps gets.
+      The mod will no longer cause sharp UPS drops every ~4 seconds that become sharper the bigger the factory grows.
+      But the bigger your factory gets the less frequent updates will become. In endgame it could take about 30-45 seconds between you placing ghost modules in a building and these modules getting inserted. You can still force instant updates via either GUI -> Preferences -> Find lost item request proxies or console command /qf_update_module_requests if you don't want to wait.
       The preference option "Automatically recheck for lost item request proxies" has been removed.
+      Further optimizations may or may not come in the future.
+  Bugfixes:
+    - Fixed a crash caused by modded recipes that produce research progress instead of items or fluids.
 ---------------------------------------------------------------------------------------------------
 Version: 2.5.1
 Date: 19.12.2024

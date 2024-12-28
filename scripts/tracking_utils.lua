@@ -243,7 +243,6 @@ function tracking.update_lost_module_requests_neo()
             if entity.proxy_target and not storage.tracked_requests["item_requests"][entity.proxy_target.unit_number] then
                 tracking.create_tracked_request({
                     entity = entity.proxy_target,
-                    player_index = 1,
                     item_request_proxy = entity,
                     request_type = "item_requests"
                 })

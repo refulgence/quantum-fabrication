@@ -3,6 +3,7 @@ local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
 local tracking = require("scripts/tracking_utils")
 local flib_table = require("__flib__.table")
+local chunks_utils = require("scripts/chunks_utils")
 
 ---@class QSPrototypeData
 ---@field name string
@@ -280,6 +281,10 @@ function on_built_entity(event)
         on_created(event)
         ::continue::
     end
+end
+
+function on_space_platform_built_entity(event)
+    chunks_utils.add_chunk(event.entity.surface_index, event.entity.position)
 end
 
 function on_created(event)
@@ -587,6 +592,8 @@ script.on_event(defines.events.on_surface_deleted, on_surface_deleted)
 
 script.on_event(defines.events.on_entity_cloned, on_entity_cloned)
 script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
+
+script.on_event(defines.events.on_space_platform_built_entity, on_space_platform_built_entity)
 
 if settings.startup["qf-enable-auto-repair"].value then
     script.on_event(defines.events.on_entity_damaged, on_entity_damaged, {{filter = "type", type = "unit", invert = true}})

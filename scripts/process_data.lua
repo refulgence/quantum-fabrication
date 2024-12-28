@@ -171,7 +171,7 @@ function process_recipes()
         if not recipe.hidden and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
-                if utils.is_placeable(product.name) then
+                if product.type == "item" and utils.is_placeable(product.name) then
                     -- Skip if this product/recipe pair is blacklisted
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst

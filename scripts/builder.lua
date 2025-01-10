@@ -70,6 +70,8 @@ function instant_tileation()
                     surface_index = surface_index,
                     quality = QS_DEFAULT_QUALITY
                 }, nil, player_inventory)
+                --Increment craft stats of removed tiles
+                qs_utils.increment_craft_stats(name, value)
             end
         end
     end

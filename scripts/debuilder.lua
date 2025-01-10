@@ -33,6 +33,8 @@ function instant_detileation()
     local function add_to_storage(indices, surface_index)
         for name, value in pairs(indices) do
             qs_utils.add_to_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
+            --Decrement craft stats of added tiles
+            qs_utils.increment_craft_stats(name, value * -1)
         end
     end
 

@@ -127,15 +127,17 @@ function process_entities()
         add_to_result(entity)
     end
     for _, tile in pairs(tiles) do
-        local item_prototype = prototypes.item[tile.items_to_place_this[1].name]
-        local thing = {
-            name = item_prototype.name,
-            type = "tile",
-            localised_name = item_prototype.localised_name,
-            localised_description = item_prototype.localised_description,
-            items_to_place_this = tile.items_to_place_this
-        }
-        add_to_result(thing)
+        if tile.items_to_place_this and next(tile.items_to_place_this) and tile.items_to_place_this[1].name then
+            local item_prototype = prototypes.item[tile.items_to_place_this[1].name]
+            local thing = {
+                name = item_prototype.name,
+                type = "tile",
+                localised_name = item_prototype.localised_name,
+                localised_description = item_prototype.localised_description,
+                items_to_place_this = tile.items_to_place_this
+            }
+            add_to_result(thing)
+        end
     end
     table.sort(result, function(a, b) return a.name < b.name end)
     for _, entity in pairs(result) do

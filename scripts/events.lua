@@ -448,7 +448,7 @@ end
 ---Checks if any of the currently researchable trigger techs can be researched and researches them
 function research_trigger_techs()
     for name, prototype in pairs(storage.trigger_techs_actual) do
-        if storage.craft_stats[prototype.item_name] >= prototype.count then
+        if storage.craft_stats[prototype.item_name] and storage.craft_stats[prototype.item_name] >= prototype.count then
             utils.research_technology(prototype.technology)
         end
     end

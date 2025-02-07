@@ -40,7 +40,7 @@ function build_main_gui(player)
     build_titlebar(player, recipe_flow)
 
     -- Recipe GUI
-    if not Filtered_data_ok or not storage.filtered_data then
+    if not Filtered_data_ok or not storage.filtered_data or not storage.filtered_data[player.index] then
         gui_utils.get_filtered_data(player, "")
         Filtered_data_ok = true
     end

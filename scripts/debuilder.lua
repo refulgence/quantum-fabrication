@@ -147,6 +147,8 @@ function instant_deforestation(entity, player_index)
             surface_index = surface_index
         }
         qs_utils.add_to_player_inventory(player_inventory, qs_item)
+    elseif prototype.type == "temporary-container" then
+        process_inventory(entity, player_inventory, surface_index)
     end
     if storage.trigger_techs_mine_actual[entity.name] then
         utils.research_technology(storage.trigger_techs_mine_actual[entity.name].technology)

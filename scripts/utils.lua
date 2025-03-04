@@ -81,7 +81,7 @@ end
 function utils.is_placeable(item_name)
     if storage.placeable[item_name] ~= nil then return storage.placeable[item_name] end
     local item_prototype = prototypes.item[item_name]
-    if item_prototype and item_prototype.place_result and item_prototype.place_result.create_ghost_on_death or storage.tiles[item_name] then
+    if item_prototype and item_prototype.place_result or storage.tiles[item_name] then
         storage.placeable[item_name] = true
         return true
     end

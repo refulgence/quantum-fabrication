@@ -111,7 +111,7 @@ end
 
 -- This mainly exists to obtain precious items_to_place_this data 
 function process_entities()
-    local entities = prototypes.get_entity_filtered({{filter = "buildable"}})
+    local entities = prototypes.get_entity_filtered({{filter = "buildable"}, {filter = "vehicle"}, {filter = "rolling-stock"}})
     local tiles = prototypes.tile
     storage.prototypes_data = {}
     if not storage.craft_stats then storage.craft_stats = {} end

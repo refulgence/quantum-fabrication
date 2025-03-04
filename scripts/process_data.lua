@@ -4,6 +4,7 @@ local flib_table = require("__flib__.table")
 
 --- These functions are only done on init and when configuration changes
 function process_data()
+    discard_old_data()
     utils.validate_surfaces()
     initialize_surfaces()
     chunks_utils.initialize_chunks()
@@ -21,6 +22,11 @@ function reprocess_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
+end
+
+-- Specifically erases old storage tables that aren't erased otherwise
+function discard_old_data()
+    storage.placeable = {}
 end
 
 ---Obtains a list of all techs researched via crafting/building a placeable building

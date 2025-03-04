@@ -572,9 +572,9 @@ script.on_event(defines.events.on_research_finished, on_research_changed)
 script.on_event(defines.events.on_research_reversed, on_research_changed)
 
 script.on_event(defines.events.on_built_entity, on_built_entity)
-script.on_event(defines.events.on_robot_built_entity, on_created)
-script.on_event(defines.events.script_raised_built, on_created)
-script.on_event(defines.events.script_raised_revive, on_created)
+script.on_event(defines.events.on_robot_built_entity, on_built_entity)
+script.on_event(defines.events.script_raised_built, on_built_entity)
+script.on_event(defines.events.script_raised_revive, on_built_entity)
 
 script.on_event(defines.events.on_marked_for_upgrade, on_upgrade)
 script.on_event(defines.events.on_cancelled_upgrade, on_cancelled_upgrade)

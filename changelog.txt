@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.5.9
+Date: 04.03.2025
+  Changes:
+    - Vehicles such as cars, trains and spidertrons can now be automatically fabricated and placed like regular buildings.
+---------------------------------------------------------------------------------------------------
 Version: 2.5.8
 Date: 18.02.2025
   Bugfixes:

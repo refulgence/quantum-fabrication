@@ -265,35 +265,29 @@ end
 
 
 function on_built_entity(event)
+    local entity = event.entity
     local player_index = event.player_index
     if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
         player_index = nil
     end
-    if event.entity and event.entity.valid then
-        if event.entity.type == "entity-ghost" then
+    if entity and entity.valid then
+        if entity.type == "entity-ghost" then
             storage.countdowns.revivals = 2
             storage.request_player_ids.revivals = player_index
-        elseif event.entity.type == "tile-ghost" then
+        elseif entity.type == "tile-ghost" then
             storage.countdowns.tile_creation = 10
             storage.request_player_ids.tiles = player_index
             goto continue
         end
-        on_created(event)
+        if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
+            tracking.create_tracked_request({request_type = "entities", entity = entity, player_index = event.player_index})
+        end
         ::continue::
     end
 end
 
 function on_space_platform_built_entity(event)
     chunks_utils.add_chunk(event.entity.surface_index, event.entity.position)
-end
-
-function on_created(event)
-    local entity = event.entity or event.entity
-    if entity and entity.valid then
-        if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
-            tracking.create_tracked_request({request_type = "entities", entity = entity, player_index = event.player_index})
-        end
-    end
 end
 
 function on_pre_player_mined_item(event)

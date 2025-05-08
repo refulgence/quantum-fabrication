@@ -11,6 +11,14 @@ table.insert(settings,
 table.insert(settings,
     {
         type = "bool-setting",
+        order = "afa",
+        name = "qf-allow-pulling-out",
+        setting_type = "runtime-global",
+        default_value = true
+})
+table.insert(settings,
+    {
+        type = "bool-setting",
         order = "ag",
         name = "qf-direct-mining-puts-in-storage",
         setting_type = "runtime-per-user",

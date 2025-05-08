@@ -91,7 +91,7 @@ function build_tab(player, parent_frame)
     local storage_index = get_storage_index(nil, player)
 
     -- We can't take out items from space platforms and different planets
-    local allow_take_out = not player.surface.platform and storage_index == player.physical_surface_index
+    local allow_take_out = not player.surface.platform and storage_index == player.physical_surface_index and settings.global["qf-allow-pulling-out"].value
 
     local sorted_list = storage.sorted_lists[player.index]
     local fabricator_inventory = storage.fabricator_inventory[storage_index]

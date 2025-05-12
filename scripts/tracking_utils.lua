@@ -374,7 +374,6 @@ function tracking.update_entity(entity_data)
             end
         end
         if entity_data.container_fluid and entity_data.container_fluid.get_fluid_contents() then
-            local clear
             for name, count in pairs(entity_data.container_fluid.get_fluid_contents()) do
                 local qs_item = {
                     name = name,
@@ -385,10 +384,9 @@ function tracking.update_entity(entity_data)
                 }
                 if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
                     qs_utils.add_to_storage(qs_item)
-                    clear = true
+                    entity_data.container_fluid.remove_fluid({name = name, amount = count})
                 end
             end
-            if clear then entity_data.container_fluid.clear_fluid_inside() end
         end
         return
     end

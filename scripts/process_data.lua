@@ -200,7 +200,6 @@ function process_recipes()
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst
                     if product.probability == 1 and not product.ignored_by_productivity then
-                        local prototype = prototypes.item[product.name]
                         if not storage.preprocessed_recipes[recipe.name] then
                             storage.preprocessed_recipes[recipe.name] = {
                                 name = recipe.name,

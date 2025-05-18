@@ -118,7 +118,7 @@ function process_entities()
     local result = {}
 
     local function add_to_result(thing)
-        if thing and thing.name and thing.items_to_place_this then
+        if thing and thing.name and thing.items_to_place_this and thing.type ~= "simple-entity" then
             result[#result + 1] = {
                 name = thing.name,
                 type = thing.type,
@@ -195,7 +195,7 @@ function process_recipes()
         if not recipe.hidden and not recipe.prototype.hidden_in_factoriopedia and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
-                if product.type == "item" and utils.is_placeable(product.name) then
+                if product.type == "item" and utils.is_placeable(product.name) and blueprintable(product.name) then
                     -- Skip if this product/recipe pair is blacklisted
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if product is 100% success and is not a catalyst
@@ -378,5 +378,20 @@ function process_ingredient_filter()
                 storage.ingredient_filter[ingredient.name].recipes[recipe.name] = true
             end
         end
+    end
+end
+
+---Checks if an item is blueprintable. If not, then it cannot be placed as a ghost and therefore should be ignored
+---@param item_name string
+---@return boolean
+function blueprintable(item_name)
+    local item_prototype = prototypes.item[item_name]
+    local place_result = item_prototype.place_result
+    if not place_result then return true end
+    local place_result_entity_prototype = prototypes.entity[place_result.name]
+    if place_result_entity_prototype.has_flag("not-blueprintable") or Non_blueprintable_types[place_result_entity_prototype.type] then
+        return false
+    else
+        return true
     end
 end

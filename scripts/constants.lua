@@ -84,6 +84,13 @@ Transport_belt_types = {
     ["lane-splitter"] = true
 }
 
+Non_blueprintable_types = {
+    ["tree"] = true,
+    ["simple-entity"] = true,
+    ["construction-robot"] = true,
+    ["logistic-robot"] = true
+}
+
 Cloneable_entities = {
     ["digitizer-chest"] = true,
     ["dedigitizer-reactor"] = true,

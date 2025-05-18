@@ -216,16 +216,6 @@ function process_recipes()
                                 priority_style = "slot_button"
                             }
                         end
-                        if not storage.prototypes_data[product.name] then
-                            storage.prototypes_data[product.name] = {
-                                name = product.name,
-                                type = product.type,
-                                localised_name = prototype.localised_name,
-                                localised_description = prototype.localised_description,
-                                order = prototype.order,
-                                item_name = "error"
-                            }
-                        end
                         if not storage.product_craft_data[product.name] then storage.product_craft_data[product.name] = {} end
                         storage.product_craft_data[product.name][#storage.product_craft_data[product.name] + 1] = {
                             recipe_name = recipe.name,

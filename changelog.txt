@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.5.13
+Date: 18.05.2025
+  Bugfixes:
+    - Fixed a crash caused by deconstruction of certain modded entities.
+  Changes:
+    - Non blueprintable entities no longer appear in the Fabricator GUI (since you cannot place them as ghosts you cannot fabricate them).
+    - Recipes hidden in Factoripedia are no longer processed.
+---------------------------------------------------------------------------------------------------
 Version: 2.5.12
 Date: 12.05.2025
   Bugfixes:

@@ -192,7 +192,7 @@ function process_recipes()
     storage.unpacked_recipes = {}
     for _, recipe in pairs(game.forces["player"].recipes) do
         -- Skip if hidden
-        if not recipe.hidden and not Recipe_blacklist[recipe.name] then
+        if not recipe.hidden and not recipe.prototype.hidden_in_factoriopedia and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
                 if product.type == "item" and utils.is_placeable(product.name) then

@@ -36,7 +36,12 @@ function build_main_tooltip(player, item_name, recipe_name)
     item_name_label.style.font = "heading-2"
     item_name_label.style.font_color = {0.0, 0.0, 0.0}
 
-    item_description_label_caption = {"?", storage.prototypes_data[item_name].localised_description, ""}
+    local item_description_label_caption
+    if storage.prototypes_data[item_name] then
+        item_description_label_caption = {"?", storage.prototypes_data[item_name].localised_description, ""}
+    else
+        item_description_label_caption = {""}
+    end
     local item_description_label = tooltip_frame.add{
         type = "label",
         caption = item_description_label_caption}

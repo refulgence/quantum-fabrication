@@ -43,10 +43,11 @@ function build_main_storage_gui(player, storage_flow_parent)
         local silo = storage.surface_data.planets[storage_index].rocket_silo
         if silo and silo.valid and silo.get_recipe() then
             local rocket_part_recipe, rocket_part_quality = silo.get_recipe()
+            local rocket_part_results = rocket_part_recipe.products[1].amount
             local numbers = qf_utils.how_many_can_craft(rocket_part_recipe, rocket_part_quality.name, storage_index)
             local rocket_parts_label = storage_titlebar.add{
                 type = "label",
-                caption = {"", "[item=rocket-part]", "x", numbers},
+                caption = {"", "[item=rocket-part]", "x", numbers * rocket_part_results},
                 style = "frame_title",
                 tooltip = {"qf-inventory.rocket-parts-hover"}
             }

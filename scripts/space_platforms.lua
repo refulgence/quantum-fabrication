@@ -74,7 +74,7 @@ function process_space_requests()
                     end
                     local rocket_silo = planets[storage_index].rocket_silo
                     if not rocket_silo or not rocket_silo.valid then
-                        for _, silo in pairs(game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo")) do
+                        for _, silo in pairs(game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo"})) do
                             local silo_prototype = silo.prototype
                             --- Can the silo actually carry materials?
                             if silo_prototype.launch_to_space_platforms and silo_prototype.name ~= "planet-hopper-launcher" then

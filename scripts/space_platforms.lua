@@ -106,14 +106,15 @@ function send_to_space(platform_payloads)
 
     ---@param transfer_cost uint
     ---@param ingredients table
+    ---@param quality string
     ---@param storage_index uint
-    local function pay_rocket_parts(transfer_cost, ingredients, storage_index)
+    local function pay_rocket_parts(transfer_cost, ingredients, quality, storage_index)
         for _, ingredient in pairs(ingredients) do
             qs_utils.remove_from_storage({
                 name = ingredient.name,
                 count = ingredient.amount * transfer_cost,
                 type = ingredient.type,
-                quality = QS_DEFAULT_QUALITY,
+                quality = quality,
                 surface_index = storage_index
             })
         end
@@ -127,8 +128,12 @@ function send_to_space(platform_payloads)
             local to_insert = qs_item.count
             local available = qs_utils.count_in_storage(qs_item)
             local insertable = hub_inventory.get_insertable_count({name = qs_item.name, quality = qs_item.quality})
-            local rocket_parts_recipe = QS_ROCKET_PART_RECIPE
-            local available_parts = qf_utils.how_many_can_craft(rocket_parts_recipe, "normal", storage_index)
+            local rocket_parts_recipe, rocket_parts_quality = payload.rocket_silo.get_recipe()
+            if not rocket_parts_recipe then
+                sent_everything = false
+                goto continue
+            end
+            local available_parts = qf_utils.how_many_can_craft(rocket_parts_recipe, rocket_parts_quality.name, storage_index)
             local cost_per_item = get_space_transfer_cost(qs_item, payload.rocket_silo)
             local sendable = math.floor(available_parts / cost_per_item)
             if sendable == 0 or insertable == 0 then
@@ -170,7 +175,7 @@ function send_to_space(platform_payloads)
             ::sending::
             -- Ok, now we know exactly how many items we can send to space, so let's do it!
             qs_item.count = to_insert
-            pay_rocket_parts(math.ceil(cost_per_item * to_insert), rocket_parts_recipe.ingredients, storage_index)
+            pay_rocket_parts(math.ceil(cost_per_item * to_insert), rocket_parts_recipe.ingredients, rocket_parts_quality.name, storage_index)
             qs_utils.pull_from_storage(qs_item, hub_inventory)
             ::continue::
         end

@@ -182,7 +182,8 @@ function send_to_space(platform_payloads)
             ::sending::
             -- Ok, now we know exactly how many items we can send to space, so let's do it!
             qs_item.count = to_insert
-            pay_rocket_parts(math.ceil(cost_per_item * to_insert), rocket_parts_recipe.ingredients, rocket_parts_quality.name, storage_index)
+            local recipe_parts_count = rocket_parts_recipe.products[1].amount
+            pay_rocket_parts(math.ceil(cost_per_item * to_insert / recipe_parts_count), rocket_parts_recipe.ingredients, rocket_parts_quality.name, storage_index)
             qs_utils.pull_from_storage(qs_item, hub_inventory)
             ::continue::
         end

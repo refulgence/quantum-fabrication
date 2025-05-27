@@ -261,7 +261,8 @@ function adjust_probabilities(main_product, products, ingredients)
         end
     end
     for _, ingredient in pairs(ingredients) do
-        ingredient.amount = math.floor(ingredient.amount * primary_probability_multiplier + 0.5)
+        --We add 0.8 here for a bit of extra cost increase (but not as much as using math.ceil would add)
+        ingredient.amount = math.floor(ingredient.amount * primary_probability_multiplier + 0.8)
         table.insert(ingredients_adjusted, ingredient)
     end
     return products_adjusted, ingredients_adjusted

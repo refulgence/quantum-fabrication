@@ -198,17 +198,18 @@ function process_recipes()
                 if product.type == "item" and utils.is_placeable(product.name) and blueprintable(product.name) then
                     -- Skip if this product/recipe pair is blacklisted
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
-                    -- Only keep going if product is 100% success and is not a catalyst
-                    if product.probability == 1 and not product.ignored_by_productivity then
+                    -- Only keep going if the product is not a catalyst
+                    if not product.ignored_by_productivity then
                         if not storage.preprocessed_recipes[recipe.name] then
+                            local products, ingredients = adjust_probabilities(product, recipe.products, recipe.ingredients)
                             storage.preprocessed_recipes[recipe.name] = {
                                 name = recipe.name,
                                 placeable_product = product.name,
                                 group_name = recipe.group.name,
                                 subgroup_name = recipe.subgroup.name,
                                 order = recipe.order,
-                                products = recipe.products,
-                                ingredients = recipe.ingredients,
+                                products = products,
+                                ingredients = ingredients,
                                 localised_name = recipe.localised_name,
                                 localised_description = recipe.localised_description,
                                 enabled = recipe.enabled,
@@ -235,6 +236,35 @@ function process_recipes()
         end
     end
     erase_non_duplicates(duplicate_recipes)
+end
+
+---Normalizes probabilities and random amounts of products, proportionally increasing ingredient costs
+---@param main_product Product
+---@param products [Product]
+---@param ingredients [Ingredient]
+---@return table
+---@return table
+function adjust_probabilities(main_product, products, ingredients)
+    local primary_probability_multiplier = 1 / main_product.probability
+    local products_adjusted = {}
+    local ingredients_adjusted = {}
+    for _, product in pairs(products) do
+        local secondary_probability_multiplier = 1
+        --Quick and dirty way to check if the current product is the "main" product, because we only need to adjust amounts of non-main products
+        if main_product.name ~= product.name and product.probability ~= main_product.probability then
+            secondary_probability_multiplier = product.probability * primary_probability_multiplier
+        end
+        if not product.amount then product.amount = (product.amount_min + product.amount_max) / 2 end
+        product.amount = math.floor(product.amount * secondary_probability_multiplier + 0.5)
+        if product.amount > 0 then
+            table.insert(products_adjusted, product)
+        end
+    end
+    for _, ingredient in pairs(ingredients) do
+        ingredient.amount = math.floor(ingredient.amount * primary_probability_multiplier + 0.5)
+        table.insert(ingredients_adjusted, ingredient)
+    end
+    return products_adjusted, ingredients_adjusted
 end
 
 -- only leave recipes that *could* be duplicates. we'll be checking if they are *actually* duplicates (as in, enabled at the same time) later

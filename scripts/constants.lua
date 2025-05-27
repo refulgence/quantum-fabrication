@@ -86,6 +86,7 @@ Transport_belt_types = {
 
 Non_blueprintable_types = {
     ["tree"] = true,
+    ["plant"] = true,
     ["simple-entity"] = true,
     ["construction-robot"] = true,
     ["logistic-robot"] = true

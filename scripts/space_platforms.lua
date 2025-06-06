@@ -73,7 +73,7 @@ function process_space_requests()
                         end
                     end
                     local rocket_silo = planets[storage_index].rocket_silo
-                    if not rocket_silo or not rocket_silo.valid then
+                    if not rocket_silo or not rocket_silo.valid or not rocket_silo.get_recipe() then
                         if not update_main_silo(storage_index) then goto continue end
                     end
                     result[#result + 1] = {
@@ -102,7 +102,7 @@ function update_main_silo(storage_index)
     for _, silo in pairs(game.get_surface(storage_index).find_entities_filtered({ type = "rocket-silo" })) do
         local silo_prototype = silo.prototype
         --- Can the silo actually carry materials?
-        if silo_prototype.launch_to_space_platforms and silo_prototype.name ~= "planet-hopper-launcher" then
+        if silo_prototype.launch_to_space_platforms and silo_prototype.name ~= "planet-hopper-launcher" and silo.get_recipe() then
             rocket_silo = silo
             break
         end
@@ -150,6 +150,7 @@ function send_to_space(platform_payloads)
                 sent_everything = false
                 goto continue
             end
+            ---@diagnostic disable-next-line: need-check-nil
             local available_parts = qf_utils.how_many_can_craft(rocket_parts_recipe, rocket_parts_quality.name, storage_index)
             local cost_per_item = get_space_transfer_cost(qs_item, payload.rocket_silo)
             local sendable = math.floor(available_parts / cost_per_item)
@@ -193,6 +194,7 @@ function send_to_space(platform_payloads)
             -- Ok, now we know exactly how many items we can send to space, so let's do it!
             qs_item.count = to_insert
             local recipe_parts_count = rocket_parts_recipe.products[1].amount
+            ---@diagnostic disable-next-line: need-check-nil
             pay_rocket_parts(math.ceil(cost_per_item * to_insert / recipe_parts_count), rocket_parts_recipe.ingredients, rocket_parts_quality.name, storage_index)
             qs_utils.pull_from_storage(qs_item, hub_inventory)
             ::continue::

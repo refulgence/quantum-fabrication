@@ -40,13 +40,18 @@ function build_main_storage_gui(player, storage_flow_parent)
     
     if player.surface.platform then
         ---@diagnostic disable-next-line: param-type-mismatch
-        local numbers = qf_utils.how_many_can_craft(QS_ROCKET_PART_RECIPE, "normal", storage_index)
-        local rocket_parts_label = storage_titlebar.add{
-            type = "label",
-            caption = {"", "[item=rocket-part]", "x", numbers},
-            style = "frame_title",
-            tooltip = {"qf-inventory.rocket-parts-hover"}
-        }
+        local silo = storage.surface_data.planets[storage_index].rocket_silo
+        if silo and silo.valid and silo.get_recipe() then
+            local rocket_part_recipe, rocket_part_quality = silo.get_recipe()
+            local rocket_part_results = rocket_part_recipe.products[1].amount
+            local numbers = qf_utils.how_many_can_craft(rocket_part_recipe, rocket_part_quality.name, storage_index)
+            local rocket_parts_label = storage_titlebar.add{
+                type = "label",
+                caption = {"", "[item=rocket-part]", "x", numbers * rocket_part_results},
+                style = "frame_title",
+                tooltip = {"qf-inventory.rocket-parts-hover"}
+            }
+        end
     end
 
     local storage_frame = storage_flow.add{type = "frame", name = "storage_frame", direction = "vertical", style="inside_deep_frame"}

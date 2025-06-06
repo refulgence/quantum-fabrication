@@ -4,6 +4,6 @@
   "title": "Quantum Fabricator",
   "author": "Tename",
   "factorio_version": "2.0",
-  "dependencies": ["base >= 2.0", "flib >= 0.14.2"],
+  "dependencies": ["base >= 2.0.55", "flib >= 0.14.2"],
   "description": "Makes construction bots and malls mostly obsolete by automatically crafting and building ghosts for you. Will handle most things construction bots are doing, like deconstruction, upgrades, placing/removing tiles, inserting modules and repairs."
 }

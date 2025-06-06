@@ -74,19 +74,7 @@ function process_space_requests()
                     end
                     local rocket_silo = planets[storage_index].rocket_silo
                     if not rocket_silo or not rocket_silo.valid then
-                        for _, silo in pairs(game.get_surface(storage_index).find_entities_filtered({type = "rocket-silo"})) do
-                            local silo_prototype = silo.prototype
-                            --- Can the silo actually carry materials?
-                            if silo_prototype.launch_to_space_platforms and silo_prototype.name ~= "planet-hopper-launcher" then
-                                rocket_silo = silo
-                                break
-                            end
-                        end
-                        if rocket_silo then
-                            planets[storage_index].rocket_silo = rocket_silo
-                        else
-                            goto continue
-                        end
+                        if not update_main_silo(storage_index) then goto continue end
                     end
                     result[#result + 1] = {
                         hub_inventory = hub_inventory,
@@ -102,6 +90,28 @@ function process_space_requests()
     ---If we failed to send everything, then we'll reset coundown to attempt later
     if not send_to_space(result) then
         storage.space_countdowns.space_sendoff = 60
+    end
+end
+
+---Updates the main rocket silo for a given surface. Returns true if a valid silo was found
+---@param storage_index uint
+---@return boolean
+function update_main_silo(storage_index)
+    storage.surface_data.planets[storage_index].rocket_silo = nil
+    local rocket_silo
+    for _, silo in pairs(game.get_surface(storage_index).find_entities_filtered({ type = "rocket-silo" })) do
+        local silo_prototype = silo.prototype
+        --- Can the silo actually carry materials?
+        if silo_prototype.launch_to_space_platforms and silo_prototype.name ~= "planet-hopper-launcher" then
+            rocket_silo = silo
+            break
+        end
+    end
+    if rocket_silo then
+        storage.surface_data.planets[storage_index].rocket_silo = rocket_silo
+        return true
+    else
+        return false
     end
 end
 

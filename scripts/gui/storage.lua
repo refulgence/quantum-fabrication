@@ -42,6 +42,7 @@ function build_main_storage_gui(player, storage_flow_parent)
         ---@diagnostic disable-next-line: param-type-mismatch
         local rocket_silo = storage.surface_data.planets[storage_index].rocket_silo
         if not rocket_silo or not rocket_silo.valid or not rocket_silo.get_recipe() then
+            ---@diagnostic disable-next-line: param-type-mismatch
             if not update_main_silo(storage_index) then goto continue end
             rocket_silo = storage.surface_data.planets[storage_index].rocket_silo
         end

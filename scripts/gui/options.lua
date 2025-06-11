@@ -75,6 +75,9 @@ function build_options_gui(player)
     duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling-caption-green"}, tooltip = {"qf-options.duplicates-handling-caption-green-tooltip"}}
     duplicate_flow.add{type = "label", caption = {"qf-options.duplicates-handling-caption-red"}, tooltip = {"qf-options.duplicates-handling-caption-red-tooltip"}}
 
+    -- Reprocess recipes with selected priorities button
+    duplicate_flow.add{type = "button", name = "qf_reprocess_recipes_button", caption = {"qf-options.duplicates-handling-reprocess-button-caption"}, tooltip = {"qf-options.duplicates-handling-reprocess-button-tooltip"}}
+
     local duplicate_main_frame = duplicate_flow.add{type = "frame", name = "duplicate_main_frame", direction = "vertical", style="inside_deep_frame"}
     local duplicate_main_pane = duplicate_main_frame.add{type = "scroll-pane", name = "duplicate_main_pane", direction = "vertical"}
 

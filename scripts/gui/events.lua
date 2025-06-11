@@ -101,6 +101,8 @@ function on_gui_click(event)
         toggle_qf_gui(player)
     elseif element.name == "qf_options_button" then
         toggle_options_gui(player)
+    elseif element.name == "qf_reprocess_recipes_button" then
+        reprocess_recipes()
     elseif element.name == "process_recipes_button" then
         game.print("Recipes rechecked, information is up to date")
         post_research_recheck()
@@ -153,24 +155,29 @@ function prioritise_recipe(tags)
             if recipe.prioritised then
                 recipe.prioritised = false
                 recipe.suitability = recipe.suitability - 10
+                recipe.priority_style = "slot_button"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
             elseif recipe.blacklisted then
                 recipe.prioritised = true
                 recipe.blacklisted = false
                 recipe.suitability = recipe.suitability + 20
+                recipe.priority_style = "flib_slot_button_green"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
             else
                 recipe.prioritised = true
                 recipe.suitability = recipe.suitability + 10
+                recipe.priority_style = "flib_slot_button_green"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_green"
             end
         else
             if recipe.prioritised then
                 recipe.prioritised = false
                 recipe.suitability = recipe.suitability - 10
+                recipe.priority_style = "slot_button"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
             end
         end
+        storage.recipe_priority[recipe.recipe_name] = recipe
     end
 end
 
@@ -182,17 +189,21 @@ function blacklist_recipe(tags)
             if recipe.blacklisted then
                 recipe.blacklisted = false
                 recipe.suitability = recipe.suitability + 10
+                recipe.priority_style = "slot_button"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "slot_button"
             elseif recipe.prioritised then
                 recipe.blacklisted = true
                 recipe.prioritised = false
                 recipe.suitability = recipe.suitability - 20
+                recipe.priority_style = "flib_slot_button_red"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
             else
                 recipe.blacklisted = true
                 recipe.suitability = recipe.suitability - 10
+                recipe.priority_style = "flib_slot_button_red"
                 storage.unpacked_recipes[recipe.recipe_name].priority_style = "flib_slot_button_red"
             end
+            storage.recipe_priority[recipe.recipe_name] = recipe
         end
     end
 end

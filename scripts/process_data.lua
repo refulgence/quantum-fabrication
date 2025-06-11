@@ -222,7 +222,7 @@ function process_recipes()
                             suitability = 0,
                             prioritised = false,
                             blacklisted = false,
-                            number_of_recipes = 1
+                            number_of_recipes = 1,
                         }
                         if not seen[product.name] then
                             seen[product.name] = true
@@ -312,6 +312,12 @@ function calculate_default_priority()
             local true_recipe = storage.preprocessed_recipes[recipe.recipe_name]
             storage.product_craft_data[product][key].suitability = suitability[recipe.recipe_name] + (#true_recipe.ingredients / max) + (min / #true_recipe.products)
             storage.product_craft_data[product][key].number_of_recipes = #recipe_names
+            -- If the recipe is already prioritised, we simply assign it the priority it already has
+            if storage.recipe_priority[recipe.recipe_name] then
+                storage.product_craft_data[product][key].suitability = storage.recipe_priority[recipe.recipe_name].suitability
+                storage.product_craft_data[product][key].prioritised = storage.recipe_priority[recipe.recipe_name].prioritised
+                storage.product_craft_data[product][key].blacklisted = storage.recipe_priority[recipe.recipe_name].blacklisted
+            end
         end
         table.sort(storage.product_craft_data[product], function(a, b) return a.suitability > b.suitability end)
     end
@@ -371,6 +377,11 @@ function unpack_recipe(recipe)
     end
     storage.unpacked_recipes[recipe.name] = recipe
     storage.unpacked_recipes[recipe.name].ingredients = deduplicate_ingredients(new_ingredients)
+
+    -- Update priority_style if recipe is already prioritised
+    if storage.recipe_priority[recipe.name] then
+        storage.unpacked_recipes[recipe.name].priority_style = storage.recipe_priority[recipe.name].priority_style
+    end
     table.sort(storage.unpacked_recipes[recipe.name].ingredients, function(a, b) return a.name < b.name end)
     return storage.unpacked_recipes[recipe.name]
 end

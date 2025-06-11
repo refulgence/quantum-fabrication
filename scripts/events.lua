@@ -120,6 +120,8 @@ function on_init()
     storage.prototypes_data = {}
     storage.craft_data = {}
     storage.filtered_data = {}
+    -- Spaghetti-cause table used to store priorities of duplicate recipes
+    storage.recipe_priority = {}
     -- Enables the mod function by default
     storage.qf_enabled = true
     if not Actual_non_duplicates then Actual_non_duplicates = {} end
@@ -473,7 +475,18 @@ function on_console_command(command)
         reprocess_recipes()
         game.print("Reprocessing recipes...")
     elseif name == "qf_debug_command" then
-        process_space_requests()
+        game.print("Reprocessing recipes...")
+        storage.unpacked_recipes = {}
+        Product_craft_data_anti_overwrite_flag = true
+        for product, _ in pairs(storage.duplicate_recipes) do
+            table.sort(storage.product_craft_data[product], function(a, b) return a.suitability > b.suitability end)
+        end
+        process_tiles()
+        process_entities()
+        process_recipes()
+        process_unpacking()
+        process_ingredient_filter()
+        Product_craft_data_anti_overwrite_flag = false
     end
 end
 

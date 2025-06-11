@@ -75,6 +75,7 @@ function process_space_requests()
                     local rocket_silo = planets[storage_index].rocket_silo
                     if not rocket_silo or not rocket_silo.valid or not rocket_silo.get_recipe() then
                         if not update_main_silo(storage_index) then goto continue end
+                        rocket_silo = planets[storage_index].rocket_silo
                     end
                     result[#result + 1] = {
                         hub_inventory = hub_inventory,

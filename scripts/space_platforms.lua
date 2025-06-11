@@ -39,6 +39,17 @@ function get_storage_index(space_location_prototype, player)
     return index
 end
 
+function incoming_items(requester)
+    local items = {}
+    for _, delivery in pairs(requester.targeted_items_deliver) do
+        if not items[delivery.name] then
+            items[delivery.name] = {}
+        end
+        items[delivery.name][delivery.quality] = (items[delivery.name][delivery.quality] or 0) + delivery.count
+    end
+    return items
+end
+
 function process_space_requests()
     local result = {}
     utils.validate_surfaces()
@@ -57,9 +68,12 @@ function process_space_requests()
                 local qs_items_result = {}
                 local index = 1
                 if requester_point and requester_point.filters then
+                    local pods = incoming_items(requester_point)
                     for _, filter in pairs(requester_point.filters) do
                         ---@diagnostic disable-next-line: need-check-nil
-                        local requested = filter.count - hub_inventory.get_item_count(filter.name)
+                        local incoming = (pods[filter.name] or {})[filter.quality] or 0
+                        local in_hub = hub_inventory.get_item_count({name = filter.name, quality = filter.quality})
+                        local requested = filter.count - in_hub - incoming
                         if requested > 0 then
                             local qs_item = {
                                 name = filter.name,

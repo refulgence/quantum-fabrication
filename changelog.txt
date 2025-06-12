@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.6.1
+Date: 12.06.2025
+  Bugfixes:
+    - Fixed space platform requests overdelivering when non-normal quality items are involved (thanks to @boomshroom for PR #17)
+    - Fixed space platform requests overdelivering when regular rockets are attempting to deliver the same items (thanks to @boomshroom for PR #17)
+    - Fixed issues related to non-player forces creating construction requests by forbidding non-player forces from creating construction requests.
+---------------------------------------------------------------------------------------------------
 Version: 2.6.0
 Date: 11.06.2025
   Minor Features:

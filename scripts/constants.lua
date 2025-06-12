@@ -62,9 +62,9 @@ Reactor_constants.item_transfer_rate = 4
 Reactor_constants.fluid_transfer_rate = 80
 
 Request_table_filter_link = {
-    ["revivals"] = {name = "entity-ghost"},
-    ["destroys"] = {to_be_deconstructed = true},
-    ["upgrades"] = {to_be_upgraded = true},
+    ["revivals"] = {name = "entity-ghost", force = "player"},
+    ["destroys"] = {to_be_deconstructed = true, force = "player"},
+    ["upgrades"] = {to_be_upgraded = true, force = "player"},
 }
 
 On_tick_requests = {

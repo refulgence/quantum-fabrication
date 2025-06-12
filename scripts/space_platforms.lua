@@ -70,8 +70,8 @@ function process_space_requests()
                 if requester_point and requester_point.filters then
                     local pods = incoming_items(requester_point)
                     for _, filter in pairs(requester_point.filters) do
-                        ---@diagnostic disable-next-line: need-check-nil
                         local incoming = (pods[filter.name] or {})[filter.quality] or 0
+                        ---@diagnostic disable-next-line: need-check-nil
                         local in_hub = hub_inventory.get_item_count({name = filter.name, quality = filter.quality})
                         local requested = filter.count - in_hub - incoming
                         if requested > 0 then

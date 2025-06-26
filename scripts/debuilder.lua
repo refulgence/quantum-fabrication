@@ -66,7 +66,7 @@ function instant_detileation()
             end
             indices[storage.tile_link[tile.name]] = (indices[storage.tile_link[tile.name]] or 0) + 1
         end
-        surface.set_tiles(final_tiles)
+        surface.set_tiles(final_tiles, true, true, true, true)
         set_hidden_tiles(surface, final_tiles)
         add_to_storage(indices, surface_index)
     end

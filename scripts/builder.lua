@@ -101,7 +101,7 @@ function instant_tileation()
                     schedule_retileation = true
                 end
             end
-            surface.set_tiles(final_tiles)
+            surface.set_tiles(final_tiles, true, true, true, true)
             remove_from_storage(indices, surface.index)
         end
     end

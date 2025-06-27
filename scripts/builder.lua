@@ -238,6 +238,9 @@ end
 ---@return boolean --true if it was revived, false otherwise
 function revive_ghost(entity, qs_item, player_inventory)
     local item_requests = entity.item_requests
+    local ghost_name = entity.ghost_name
+    local surface_index = entity.surface_index
+    local position = entity.position
     local _, revived_entity, item_request_proxy = entity.revive({raise_revive = true, return_item_request_proxy = true})
     if revived_entity and revived_entity.valid then
         -- Note: this won't work properly for reviving entities that require multiple items. A problem for future me to solve when the need arises
@@ -266,8 +269,20 @@ function revive_ghost(entity, qs_item, player_inventory)
         end
 
         qs_utils.increment_craft_stats(revived_entity.name, 1)
-        chunks_utils.add_chunk(revived_entity.surface_index, revived_entity.position)
+        chunks_utils.add_chunk(surface_index, position)
 
+        return true
+    -- Compatibility with ore-ganizer mod. Needed because it destroys the revived entity before we can get to it.
+    elseif not entity.valid and script.active_mods["ore-ganizer"] and string.find(ghost_name, "^rmd%-.+%-displayer$") then
+        if not player_inventory then
+            qs_utils.remove_from_storage(qs_item)
+        else
+            ---@diagnostic disable-next-line: need-check-nil
+            player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
+        end
+        qs_utils.increment_craft_stats(string.gsub(ghost_name, "-displayer$", ""), 1)
+        chunks_utils.add_chunk(surface_index, position)
+        
         return true
     end
     -- If we failed to revive the entity then we check if it's because of water

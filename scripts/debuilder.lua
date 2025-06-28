@@ -210,25 +210,28 @@ function instant_decliffing(entity, player_index)
     local entity_prototype = entity.prototype
     local cliff_explosive = entity_prototype.cliff_explosive_prototype
     if not cliff_explosive then return true end
-    local qs_item = {
-        name = cliff_explosive,
-        count = 1,
-        type = "item",
-        quality = QS_DEFAULT_QUALITY,
-        surface_index = entity.surface_index
-    }
-    local player_inventory = utils.get_player_inventory(nil, player_index)
-    local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
-    if total > 0 then
-        if in_storage > 0 then
-            qs_utils.remove_from_storage(qs_item)
-        else
-            if player_inventory then
-                player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
+    local qualities = utils.get_qualities()
+    for _, quality in pairs(qualities) do
+        local qs_item = {
+            name = cliff_explosive,
+            count = 1,
+            type = "item",
+            quality = quality.name,
+            surface_index = entity.surface_index
+        }
+        local player_inventory = utils.get_player_inventory(nil, player_index)
+        local in_storage, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
+        if total > 0 then
+            if in_storage > 0 then
+                qs_utils.remove_from_storage(qs_item)
+            else
+                if player_inventory then
+                    player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
+                end
             end
+            entity.destroy({raise_destroy = true})
+            return true
         end
-        entity.destroy({raise_destroy = true})
-        return true
     end
     return false
 end

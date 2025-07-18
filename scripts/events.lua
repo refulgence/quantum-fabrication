@@ -155,6 +155,7 @@ function on_player_created(event)
             },
             gui = {},
             translation_complete = false,
+            filtered_data_ok = false,
         }
     end
 end
@@ -418,7 +419,9 @@ function on_tick(event)
 end
 
 function post_research_recheck()
-    Filtered_data_ok = false
+    for _, player in pairs(game.players) do
+        storage.player_gui[player.index].filtered_data_ok = false
+    end
     process_ingredient_filter()
     process_recipe_enablement()
     find_trigger_techs()

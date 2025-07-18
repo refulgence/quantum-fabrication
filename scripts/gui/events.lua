@@ -35,7 +35,7 @@ function on_gui_text_changed(event)
     if not player then return end
     if not event.element then return end
     if event.element.name == "searchbar" then
-        Filtered_data_ok = false
+        storage.player_gui[event.player_index].filtered_data_ok = false
         gui_utils.apply_gui_filter(player, event.text, nil, true)
         event.element.focus()
     elseif event.element.name == "qf_intake_limit_textfield" then
@@ -73,10 +73,10 @@ function on_gui_click(event)
         element.toggled = true
         build_main_recipe_item_list_gui(player, player.gui.screen.qf_fabricator_frame.main_content_flow.recipe_flow.recipe_flow)
     elseif element_tags.button_type == "recipe_usage_search" then
-        Filtered_data_ok = false
+        storage.player_gui[event.player_index].filtered_data_ok = false
         gui_utils.apply_gui_filter(player, storage.ingredient_filter[element_tags.item_name].recipes, "Filtering recipes (Right click to reset)", false)
     elseif element.name == "filter_reset_button" then
-        Filtered_data_ok = true
+        storage.player_gui[event.player_index].filtered_data_ok = true
         gui_utils.apply_gui_filter(player, "", "", true)
     elseif element_tags.button_type == "recipe_priority_selector" then
         if event.button == defines.mouse_button_type.left then

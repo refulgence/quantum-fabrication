@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.6.7
+Date: 22.07.2025
+  Changes:
+    - The Fabricator will now update production statistics when (de)fabricating buildings.
+---------------------------------------------------------------------------------------------------
 Version: 2.6.6
 Date: 18.07.2025
   Bugfixes:
@@ -7,7 +12,7 @@ Date: 18.07.2025
 Version: 2.6.5
 Date: 28.06.2025
   Bugfixes:
-    - Allow non-normal cliff explosive to be used to destroy cliff
+    - Allow non-normal cliff explosive to be used to destroy cliffs.
 ---------------------------------------------------------------------------------------------------
 Version: 2.6.4
 Date: 27.06.2025

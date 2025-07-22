@@ -237,4 +237,36 @@ function qs_utils.increment_craft_stats(name, count)
     storage.craft_stats[name] = storage.craft_stats[name] + count
 end
 
+---Adds item to temp table for statistics
+---@param name string
+---@param quality string
+---@param type string
+---@param surface_index uint
+function qs_utils.add_temp_prod_statistics(name, quality, type, surface_index, count)
+    local uniq_name = name .. "_" .. quality .. "_" .. type .. "_" .. surface_index
+    if not storage.temp_statistics[uniq_name] then
+        storage.temp_statistics[uniq_name] = {name = name, type = type, quality = quality, count = count, surface_index = surface_index}
+    else
+        storage.temp_statistics[uniq_name].count = storage.temp_statistics[uniq_name].count + count
+    end
+    storage.countdowns.temp_statistics = 2
+end
+
+---Processes the entire temp_statistics table at once and resets it
+function qs_utils.add_production_statistics()
+    local item_stats = {}
+    local fluid_stats = {}
+    for _, item in pairs(storage.temp_statistics) do
+        local surface_index = item.surface_index
+        if not item_stats[surface_index] then item_stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
+        if not fluid_stats[surface_index] then fluid_stats[surface_index] = game.forces["player"].get_fluid_production_statistics(surface_index) end
+        if item.type == "item" then
+            item_stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
+        else
+            fluid_stats[surface_index].on_flow(item.name, item.count)
+        end
+    end
+    storage.temp_statistics = {}
+end
+
 return qs_utils

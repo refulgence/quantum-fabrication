@@ -120,6 +120,7 @@ function on_init()
     storage.prototypes_data = {}
     storage.craft_data = {}
     storage.filtered_data = {}
+    storage.temp_statistics = {}
     -- Spaghetti-cause table used to store priorities of duplicate recipes
     storage.recipe_priority = {}
     -- Enables the mod function by default
@@ -550,6 +551,8 @@ script.on_nth_tick(11, function(event)
                     elseif type == "revivals" or type == "destroys" or type == "upgrades" then
                         register_request_table(type)
                         storage.space_countdowns.space_sendoff = 2
+                    elseif type == "temp_statistics" then
+                        qs_utils.add_production_statistics()
                     elseif type == "in_combat" then
                         register_request_table("revivals")
                     elseif type == "tile_removal" then

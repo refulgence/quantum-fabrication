@@ -70,8 +70,6 @@ function instant_tileation()
                     surface_index = surface_index,
                     quality = QS_DEFAULT_QUALITY
                 }, nil, player_inventory)
-                --Increment craft stats of removed tiles
-                qs_utils.increment_craft_stats(name, value)
             end
         end
     end
@@ -268,7 +266,6 @@ function revive_ghost(entity, qs_item, player_inventory)
             end
         end
 
-        qs_utils.increment_craft_stats(revived_entity.name, 1)
         chunks_utils.add_chunk(surface_index, position)
 
         return true
@@ -280,7 +277,6 @@ function revive_ghost(entity, qs_item, player_inventory)
             ---@diagnostic disable-next-line: need-check-nil
             player_inventory.remove({name = qs_item.name, count = 1, quality = qs_item.quality})
         end
-        qs_utils.increment_craft_stats(string.gsub(ghost_name, "-displayer$", ""), 1)
         chunks_utils.add_chunk(surface_index, position)
         
         return true

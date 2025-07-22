@@ -25,7 +25,6 @@ function instant_defabrication(entity, player_index)
     if Transport_belt_types[entity.type] then
         process_transport_line(entity, player_inventory, surface_index)
     end
-    qs_utils.increment_craft_stats(entity.name, -1)
     return entity.destroy({raise_destroy = true})
 end
 
@@ -33,8 +32,6 @@ function instant_detileation()
     local function add_to_storage(indices, surface_index)
         for name, value in pairs(indices) do
             qs_utils.add_to_storage({name = name, type = "item", count = value, surface_index = surface_index, quality = QS_DEFAULT_QUALITY})
-            --Decrement craft stats of added tiles
-            qs_utils.increment_craft_stats(name, value * -1)
         end
     end
 

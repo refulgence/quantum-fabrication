@@ -426,7 +426,6 @@ function post_research_recheck()
     process_ingredient_filter()
     process_recipe_enablement()
     find_trigger_techs()
-    research_trigger_techs()
 end
 
 ---Grabs the currently researchable trigger techs
@@ -445,14 +444,6 @@ function find_trigger_techs()
     end
 end
 
----Checks if any of the currently researchable trigger techs can be researched and researches them
-function research_trigger_techs()
-    for name, prototype in pairs(storage.trigger_techs_actual) do
-        if storage.craft_stats[prototype.item_name] and storage.craft_stats[prototype.item_name] >= prototype.count then
-            utils.research_technology(prototype.technology)
-        end
-    end
-end
 
 --TODO: test if this is doing anything useful at all
 function on_research_changed(event)

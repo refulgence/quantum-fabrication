@@ -389,7 +389,7 @@ end
 function on_entity_settings_pasted(event)
     local source = event.source
     local destination = event.destination
-    if Cloneable_entities[source.name] then
+    if Cloneable_entities[source.name] and source.name == destination.name then
         tracking.clone_settings(source, destination)
     end
 end

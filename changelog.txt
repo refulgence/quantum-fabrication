@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.6.8
+Date: 09.08.2025
+  Bugfixes:
+    - Fixed quality dropdown appearing when quality feature flag is enabled, but quality mod is disabled.
+    - Fixed issues with Factorissimo support not being enabled automatically.
+    - Fixed a bunch of visual GUI issues.
+---------------------------------------------------------------------------------------------------
 Version: 2.6.7
 Date: 22.07.2025
   Changes:

@@ -198,7 +198,7 @@ function initialize_surface(surface)
 
     if not surface_platform then
         data.type = "planets"
-        if storage.factorissimo_support_enabled and script.active_mods["factorissimo-2-notnotmelon"] and surface.name:find("%-factory%-floor$") then
+        if script.active_mods["factorissimo-2-notnotmelon"] and surface.name:find("%-factory%-floor$") then
             local planet_name = surface.name:gsub("%-factory%-floor", "")
             local planet_surface_index = storage.planet_surface_link[planet_name]
             storage.fabricator_inventory[surface_index] = storage.fabricator_inventory[planet_surface_index]

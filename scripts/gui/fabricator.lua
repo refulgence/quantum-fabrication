@@ -13,6 +13,7 @@ function build_main_gui(player)
     else
         main_frame.auto_center = true
     end
+    main_frame.style.height = QF_GUI.main_frame.height / player.display_scale
 
     local main_content_flow = main_frame.add{
         type = "flow",
@@ -63,8 +64,8 @@ function build_titlebar(player, titlebar_flow_parent)
         name = "titlebar_flow",
         direction = "horizontal"
     }
+    titlebar_flow.style.size = {width = QF_GUI.recipe_frame.width, height = QF_GUI.titlebar.height}
 
-    titlebar_flow.style.height = QF_GUI.titlebar.height
     local titlebar_label = titlebar_flow.add{
         type = "label",
         style = "frame_title"

@@ -80,7 +80,7 @@ function build_titlebar(player, titlebar_flow_parent)
     titlebar_flow.drag_target = player.gui.screen.qf_fabricator_frame
 
     -- Quality dropdown
-    if script.feature_flags["quality"] then
+    if script.feature_flags["quality"] and script.active_mods["quality"] then
         local dropdown_items = {}
         local qualities = utils.get_qualities()
         for i = 1, #qualities do

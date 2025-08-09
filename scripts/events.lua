@@ -506,28 +506,11 @@ function on_lua_shortcut(event)
     end
 end
 
-function activate_factorissimo_link()
-    if script.active_mods["factorissimo-2-notnotmelon"] then
-        game.print("Experimental Factorissimo compatibility enabled.")
-        storage.factorissimo_support_enabled = true
-        for _, surface in pairs(game.surfaces) do
-            if surface.name:find("%-factory%-floor$") then
-                local planet_name = surface.name:gsub("%-factory%-floor", "")
-                local planet_surface_index = storage.planet_surface_link[planet_name]
-                storage.fabricator_inventory[surface.index] = storage.fabricator_inventory[planet_surface_index]
-            end
-        end
-    else
-        game.print("Factorissimo is not enabled. Alternatively, you have a wrong Factorissimo enabled - this only supports Factorissimo mod by notnotmelon.")
-    end
-end
-
 commands.add_command("qf_update_module_requests", nil, on_console_command)
 commands.add_command("qf_hesoyam", nil, on_console_command)
 commands.add_command("qf_hesoyam_harder", nil, on_console_command)
 commands.add_command("qf_debug_command", nil, on_console_command)
 commands.add_command("qf_reprocess_recipes", nil, on_console_command)
-commands.add_command("qf_factorissimo", nil, activate_factorissimo_link)
 
 script.on_nth_tick(11, function(event)
     if storage.qf_enabled then

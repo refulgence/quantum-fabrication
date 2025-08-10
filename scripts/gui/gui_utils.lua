@@ -84,6 +84,9 @@ function gui_utils.auto_position_tooltip(player, button_index)
     -- Step 5: adjust to prevent negative coordinates
     if x < 0 then x = 0 end
     if y < 0 then y = 0 end
+    -- Step 5.5: adjust for screen resolution
+    if x > player.display_resolution.width - (tooltip_frame.tags.width + extra_padding * 2 + button_size * 1) * scale then x = player.display_resolution.width - (tooltip_frame.tags.width + extra_padding * 2 + button_size * 1) * scale end
+    if y > player.display_resolution.height - (tooltip_frame.tags.heigth + extra_padding * 2 + button_size * 1) * scale then y = player.display_resolution.height - (tooltip_frame.tags.heigth + extra_padding * 2 + button_size * 1) * scale end
     -- Step 6: final adjustment in case tooltip is too close to the hovered button
     local adjust_top = player.display_resolution.height / 2 < button_y
     local adjust_left = player.display_resolution.width / 2 < button_x

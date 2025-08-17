@@ -1,6 +1,5 @@
 local qs_utils = require("scripts/qs_utils")
 local qf_utils = require("scripts/qf_utils")
-local flib_table = require("__flib__.table")
 local utils = require("scripts/utils")
 
 ---@class PlatformPayload
@@ -9,7 +8,6 @@ local utils = require("scripts/utils")
 ---@field rocket_silo LuaEntity
 ---@field storage_index uint
 
---{ hub_inventory: LuaInventory, rocket_silo: LuaEntity, qs_items: QSItem[] }[]
 ---Updates a table that links planets to their surface (so we'd have a shortcut)
 function update_planet_surface_link()
     storage.planet_surface_link = {}

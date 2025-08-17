@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.6.12
+Date: 17.08.2025
+  Bugfixes:
+    - Fixed a crash caused by enabling the mod in a save with Factorissimo factory floors present.
+---------------------------------------------------------------------------------------------------
 Version: 2.6.11
 Date: 17.08.2025
   Bugfixes:

@@ -225,8 +225,8 @@ end
 
 function on_surface_created(event)
     local surface = game.surfaces[event.surface_index]
-    initialize_surface(surface)
     update_planet_surface_link()
+    initialize_surface(surface)
     utils.validate_surfaces()
 end
 

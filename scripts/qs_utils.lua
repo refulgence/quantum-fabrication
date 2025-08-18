@@ -257,4 +257,25 @@ function qs_utils.add_production_statistics()
     storage.temp_statistics = {}
 end
 
+---@param storage_index uint
+---@return LogisticFilter[]
+function qs_utils.get_storage_signals(storage_index)
+    local signals = {}
+    for _, type in pairs({"item", "fluid"}) do
+        for name, item in pairs(storage.fabricator_inventory[storage_index][type]) do
+            for quality, count in pairs(item) do
+                local temp_count = count
+                if temp_count > 2147483647 then temp_count = 2147483647 end
+                if temp_count > 0 then
+                    signals[#signals + 1] = {
+                        value = {type = type, quality = quality, name = name},
+                        min = temp_count,
+                    }
+                end
+            end
+        end
+    end
+    return signals
+end
+
 return qs_utils

@@ -223,10 +223,6 @@ local technology = {
         type = "unlock-recipe",
         recipe = "qf-storage-reader"
       },
-      {
-        type = "unlock-recipe",
-        recipe = "qf-recipe-reader"
-      },
     },
     prerequisites = {"steel-processing", "circuit-network"},
     unit =

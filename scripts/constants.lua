@@ -101,7 +101,6 @@ Trackable_entities = {
     ["digitizer-chest"] = true,
     ["dedigitizer-reactor"] = true,
     ["qf-storage-reader"] = true,
-    ["qf-recipe-reader"] = true
 }
 
 if not Actual_non_duplicates then Actual_non_duplicates = {} end

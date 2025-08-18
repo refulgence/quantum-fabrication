@@ -135,6 +135,14 @@ script.on_nth_tick(18, function(event)
     end
 end)
 
+script.on_nth_tick(84, function(event)
+    if next(storage.tracked_entities["qf-storage-reader"]) then
+        storage.request_ids["qf-storage-reader"] = flib_table.for_n_of(storage.tracked_entities["qf-storage-reader"], storage.request_ids["qf-storage-reader"], 2, function(entity_data)
+            tracking.update_entity(entity_data)
+        end)
+    end
+end)
+
 script.on_nth_tick(8, function(event)
     if next(storage.tracked_requests["construction"]) then
         storage.request_ids["construction"] = flib_table.for_n_of(storage.tracked_requests["construction"], storage.request_ids["construction"], 3, function(request_table)
@@ -307,6 +315,17 @@ function tracking.add_tracked_entity(request_data)
         pseudo_fluid_container.destructible = false
         pseudo_fluid_container.operable = false
         entity_data.container_fluid = pseudo_fluid_container
+    elseif entity.name == "qf-storage-reader" then
+        local control_behavior = entity.get_control_behavior()
+        if not control_behavior then return end
+        ---@diagnostic disable-next-line: undefined-field
+        control_behavior.get_section(1).filters = {{
+            value = {
+                type = "virtual",
+                name = "signal-S",
+            },
+            min = entity_data.surface_index
+        }}
     end
     storage.tracked_entities[entity.name][entity.unit_number] = entity_data
 end
@@ -502,6 +521,26 @@ function tracking.update_entity(entity_data)
             entity_data.entity.temperature = entity_data.entity.temperature - (energy_consumption * energy_consumption_multiplier)
         end
 
+        return
+    end
+
+    if entity_data.entity.name == "qf-storage-reader" then
+        ---@type LuaConstantCombinatorControlBehavior
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        local control_behavior = entity.get_control_behavior()
+        if not control_behavior then return end
+        while control_behavior.sections_count < 2 do
+            control_behavior.add_section()
+        end
+        local storage_index
+        for _, signal in pairs(control_behavior.get_section(1).filters) do
+            if signal.value.name == "signal-S" then
+                storage_index = signal.min
+            end
+        end
+        if not storage_index or not storage.fabricator_inventory[storage_index] then storage_index = entity_data.surface_index end
+        local signals = qs_utils.get_storage_signals(storage_index)
+        control_behavior.get_section(2).filters = signals
         return
     end
 end

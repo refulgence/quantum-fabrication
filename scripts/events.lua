@@ -284,7 +284,7 @@ function on_built_entity(event)
             storage.request_player_ids.tiles = player_index
             goto continue
         end
-        if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
+        if Trackable_entities[entity.name] then
             tracking.create_tracked_request({request_type = "entities", entity = entity, player_index = event.player_index})
         end
         ::continue::
@@ -344,7 +344,7 @@ end
 function on_destroyed(event)
     local entity = event.entity
     if entity and entity.valid then
-        if entity.name == "digitizer-chest" or entity.name == "dedigitizer-reactor" then
+        if Trackable_entities[entity.name] then
             local entity_data = tracking.get_entity_data(entity)
             tracking.remove_tracked_entity(entity_data)
         end

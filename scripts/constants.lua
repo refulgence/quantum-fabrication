@@ -97,6 +97,13 @@ Cloneable_entities = {
     ["dedigitizer-reactor"] = true,
 }
 
+Trackable_entities = {
+    ["digitizer-chest"] = true,
+    ["dedigitizer-reactor"] = true,
+    ["qf-storage-reader"] = true,
+    ["qf-recipe-reader"] = true
+}
+
 if not Actual_non_duplicates then Actual_non_duplicates = {} end
 if not Unpacking_blacklist then Unpacking_blacklist = {} end
 if not Autocraft_blacklist then Autocraft_blacklist = {} end

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.0
+Date: 18.08.2025
+  Minor Features:
+    - Added a Quantum storage reader: a combinator that outputs the Storage content as signals for a given surface.
+---------------------------------------------------------------------------------------------------
 Version: 2.6.12
 Date: 17.08.2025
   Bugfixes:

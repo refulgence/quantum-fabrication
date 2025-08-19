@@ -110,6 +110,7 @@ function on_init()
     storage.tracked_entities = {
         ["digitizer-chest"] = {},
         ["dedigitizer-reactor"] = {},
+        ["qf-storage-reader"] = {},
     }
     ---@type { platforms: SurfaceData[], planets: SurfaceData[] }
     storage.surface_data = {

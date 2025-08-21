@@ -81,6 +81,7 @@ end
 ---@param player_inventory? LuaInventory
 ---@param surface_index uint
 function process_inventory(entity, player_inventory, surface_index)
+    if entity.type == "linked-container" then return end
     local max_index = entity.get_max_inventory_index()
     if not max_index then return end
     for i = 1, max_index do

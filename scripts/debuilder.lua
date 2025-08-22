@@ -6,7 +6,7 @@ local utils = require("scripts/utils")
 ---@param player_index? int id of a player who placed the order
 ---@return boolean --returns false if defabrication failed AND we'll need to retry later; true otherwise
 function instant_defabrication(entity, player_index)
-    if not storage.prototypes_data[entity.name] then return false end
+    if not storage.prototypes_data[entity.name] or Non_deconstructable_entities[entity.name] then return false end
     if entity.surface.platform then return true end
     
     local surface_index = entity.surface_index

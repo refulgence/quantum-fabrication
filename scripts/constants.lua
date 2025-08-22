@@ -84,6 +84,12 @@ Transport_belt_types = {
     ["lane-splitter"] = true
 }
 
+Non_deconstructable_entities = {
+    ["factory-1"] = true,
+    ["factory-2"] = true,
+    ["factory-3"] = true
+}
+
 Non_blueprintable_types = {
     ["tree"] = true,
     ["plant"] = true,

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.4
+Date: 22.08.2025
+  Changes:
+    - Deconstruction will now ignore Factorissimo's factories (they already cannot be destroyed by mods).
+---------------------------------------------------------------------------------------------------
 Version: 2.7.3
 Date: 21.08.2025
   Bugfixes:

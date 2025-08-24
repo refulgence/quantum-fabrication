@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.5
+Date: 24.08.2025
+  Bugfixes:
+    - Deconstruction will now ignore Factorissimo's factory items as well. Resolves crash on entity died.
+---------------------------------------------------------------------------------------------------
 Version: 2.7.4
 Date: 22.08.2025
   Changes:

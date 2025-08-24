@@ -137,6 +137,7 @@ function instant_deforestation(entity, player_index)
         process_mining(prototype.mineable_properties, player_inventory, surface_index)
     end
     if prototype.type == "item-entity" then
+        if Non_deconstructable_entities[entity.stack.name] then return end
         local qs_item = {
             name = entity.stack.name,
             count = entity.stack.count or 1,

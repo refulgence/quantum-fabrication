@@ -87,7 +87,10 @@ Transport_belt_types = {
 Non_deconstructable_entities = {
     ["factory-1"] = true,
     ["factory-2"] = true,
-    ["factory-3"] = true
+    ["factory-3"] = true,
+    ["factory-1-instantiated"] = true,
+    ["factory-2-instantiated"] = true,
+    ["factory-3-instantiated"] = true,
 }
 
 Non_blueprintable_types = {

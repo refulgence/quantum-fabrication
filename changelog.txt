@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.6
+Date: 30.08.2025
+  Changes:
+    - Added compatibility with Memory Storage mods.
+    - Factorissimo factories and Memory Storage units will now be instantly mined to the player's inventory when marked for deconstruction instead of just being ignored.
+---------------------------------------------------------------------------------------------------
 Version: 2.7.5
 Date: 24.08.2025
   Bugfixes:

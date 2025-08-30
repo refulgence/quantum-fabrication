@@ -39,15 +39,7 @@ function create_digitizer_chest_gui(player, entity)
     }
     intake_limit_textfield.tags = {unit_number = entity.unit_number}
     intake_limit_textfield.style.width = 150
-    local intake_limit_button = main_content_frame.add{
-        type = "button",
-        name = "qf_intake_limit_button",
-        caption = {"qf-entity.digitizer-chest-make-default"},
-        tooltip = {"qf-entity.digitizer-chest-make-default-tooltip"},
-    }
-    intake_limit_button.tags = {unit_number = entity.unit_number}
-    intake_limit_button.style.width = 150
-
+    
     local decraft_button = main_content_frame.add{
         type = "button",
         name = "qf_decraft_button",
@@ -58,4 +50,13 @@ function create_digitizer_chest_gui(player, entity)
     decraft_button.toggled = entity_settings.decraft
     decraft_button.tags = {unit_number = entity.unit_number}
     decraft_button.style.width = 150
+
+    local intake_limit_button = main_content_frame.add{
+        type = "button",
+        name = "qf_intake_limit_button",
+        caption = {"qf-entity.digitizer-chest-make-default"},
+        tooltip = {"qf-entity.digitizer-chest-make-default-tooltip"},
+    }
+    intake_limit_button.tags = {unit_number = entity.unit_number}
+    intake_limit_button.style.width = 150
 end

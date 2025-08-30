@@ -9,6 +9,10 @@ function instant_defabrication(entity, player_index)
     if not storage.prototypes_data[entity.name] or Non_deconstructable_entities[entity.name] then return false end
     if entity.surface.platform then return true end
     
+    if Mine_to_inventory_only_entities[entity.name] then
+        return try_mine(entity, player_index)
+    end
+
     local surface_index = entity.surface_index
     local qs_item = {
         name = storage.prototypes_data[entity.name].item_name,
@@ -138,6 +142,9 @@ function instant_deforestation(entity, player_index)
     end
     if prototype.type == "item-entity" then
         if Non_deconstructable_entities[entity.stack.name] then return end
+        if Mine_to_inventory_only_entities[entity.stack.name] then
+            return try_mine(entity, player_index)
+        end
         local qs_item = {
             name = entity.stack.name,
             count = entity.stack.count or 1,
@@ -230,6 +237,20 @@ function instant_decliffing(entity, player_index)
             end
             entity.destroy({raise_destroy = true})
             return true
+        end
+    end
+    return false
+end
+
+---Mines the entity if valid player_index was provided
+---@param entity LuaEntity
+---@param player_index? uint
+---@return boolean --true if entity was mined
+function try_mine(entity, player_index)
+    if player_index then
+        local player = game.get_player(player_index)
+        if player then
+            return player.mine_entity(entity)
         end
     end
     return false

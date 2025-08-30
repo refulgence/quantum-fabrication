@@ -84,7 +84,14 @@ Transport_belt_types = {
     ["lane-splitter"] = true
 }
 
+-- Compatibility: These entities will be ignored by deconstruction
 Non_deconstructable_entities = {
+}
+
+-- Compatibility: These entities will always be mined to player inventory when deconstructed to prevent bugs
+Mine_to_inventory_only_entities = {
+    ["memory-unit"] = true,
+    ["fluid-memory-unit"] = true,
     ["factory-1"] = true,
     ["factory-2"] = true,
     ["factory-3"] = true,

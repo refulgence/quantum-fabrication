@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.7
+Date: 30.08.2025
+  Changes:
+    - Digitizing chests: Setting default intake limit will also set default decraft toggle
+    - Digitizing chests: Decraft toggle can now be operated via circuits by sending D virtual signal. Signals will override chest settings.
+---------------------------------------------------------------------------------------------------
 Version: 2.7.6
 Date: 30.08.2025
   Changes:

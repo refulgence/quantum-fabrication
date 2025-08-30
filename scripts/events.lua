@@ -66,6 +66,7 @@ function on_init()
     storage.options = {
         auto_recheck_item_request_proxies = true,
         default_intake_limit = 0,
+        default_decraft = true,
     }
     storage.sorted_lists = {}
     ---@type table <string, table<uint, RequestData>>

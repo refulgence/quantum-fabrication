@@ -282,7 +282,7 @@ function tracking.add_tracked_entity(request_data)
     if entity.name == "digitizer-chest" then
         entity_data.inventory = entity.get_inventory(defines.inventory.chest)
         entity_data.settings.intake_limit = storage.options.default_intake_limit
-        entity_data.settings.decraft = true
+        entity_data.settings.decraft = storage.options.default_decraft
         local pseudo_fluid_container = surface.create_entity{
             name = "digitizer-chest-fluid",
             position = position,

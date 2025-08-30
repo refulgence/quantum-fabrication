@@ -117,6 +117,7 @@ function on_gui_click(event)
         game.print("Updating item request proxy tracking")
     elseif element.name == "qf_intake_limit_button" then
         storage.options.default_intake_limit = storage.tracked_entities["digitizer-chest"][element_tags.unit_number].settings.intake_limit
+        storage.options.default_decraft = storage.tracked_entities["digitizer-chest"][element_tags.unit_number].settings.decraft
     elseif element.name == "qf_decraft_button" then
         storage.tracked_entities["digitizer-chest"][element_tags.unit_number].settings.decraft = not storage.tracked_entities["digitizer-chest"][element_tags.unit_number].settings.decraft
     end

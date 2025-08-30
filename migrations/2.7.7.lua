@@ -1,0 +1,1 @@
+storage.options.default_decraft = true

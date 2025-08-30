@@ -376,6 +376,13 @@ function tracking.update_entity(entity_data)
         if limit_value == 0 then
             limit_value = entity_data.settings.intake_limit
         end
+        local decraft_value = entity_data.entity.get_signal({type = "virtual", name = "signal-D"}, defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
+        local decraft
+        if decraft_value == 0 then
+            decraft = entity_data.settings.decraft
+        else
+            decraft = decraft_value > 0
+        end
         if inventory and not inventory.is_empty() then
             local inventory_contents = inventory.get_contents()
             for _, item in pairs(inventory_contents) do
@@ -387,7 +394,7 @@ function tracking.update_entity(entity_data)
                     surface_index = surface_index
                 }
                 if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
-                    qs_utils.add_to_storage(qs_item, entity_data.settings.decraft)
+                    qs_utils.add_to_storage(qs_item, decraft)
                     inventory.remove({name = item.name, count = item.count, quality = item.quality})
                 end
             end

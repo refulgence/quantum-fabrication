@@ -123,7 +123,7 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
     if not storage.craft_data[player_index][surface_index] then storage.craft_data[player_index][surface_index] = {} end
     if not storage.craft_data[player_index][surface_index][recipe_name] then storage.craft_data[player_index][surface_index][recipe_name] = {} end
 
-    if not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if not settings.get_player_settings(player_index)["qf-use-player-inventory"].value then
         player_inventory = nil
     end
 

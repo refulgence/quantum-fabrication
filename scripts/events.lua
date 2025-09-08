@@ -274,7 +274,7 @@ end
 function on_built_entity(event)
     local entity = event.entity
     local player_index = event.player_index
-    if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if player_index and not settings.get_player_settings(player_index)["qf-use-player-inventory"].value then
         player_index = nil
     end
     if entity and entity.valid then
@@ -300,7 +300,7 @@ end
 function on_pre_player_mined_item(event)
     local entity = event.entity
     local player_index = event.player_index
-    if game.players[player_index].mod_settings["qf-direct-mining-puts-in-storage"].value then
+    if settings.get_player_settings(player_index)["qf-direct-mining-puts-in-storage"].value then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name
@@ -315,7 +315,7 @@ end
 function on_marked_for_deconstruction(event)
     local entity = event.entity
     local player_index = event.player_index
-    if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if player_index and not settings.get_player_settings(player_index)["qf-use-player-inventory"].value then
         player_index = nil
     end
     if entity and entity.valid then
@@ -356,7 +356,7 @@ end
 function on_upgrade(event)
     local entity = event.entity
     local player_index = event.player_index
-    if player_index and not game.players[player_index].mod_settings["qf-use-player-inventory"].value then
+    if player_index and not settings.get_player_settings(player_index)["qf-use-player-inventory"].value then
         player_index = nil
     end
     if entity and entity.valid then

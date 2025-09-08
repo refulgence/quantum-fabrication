@@ -75,7 +75,7 @@ function build_main_tooltip(player, item_name, recipe_name)
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
     local player_inventory
-    if game.players[player.index].mod_settings["qf-use-player-inventory"].value then
+    if player.mod_settings["qf-use-player-inventory"].value then
         player_inventory = utils.get_player_inventory(player)
     end
 

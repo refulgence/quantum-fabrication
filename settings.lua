@@ -19,6 +19,14 @@ table.insert(settings,
 table.insert(settings,
     {
         type = "bool-setting",
+        order = "afc",
+        name = "qf-deconstruct-non-buildables",
+        setting_type = "runtime-global",
+        default_value = true
+})
+table.insert(settings,
+    {
+        type = "bool-setting",
         order = "ag",
         name = "qf-direct-mining-puts-in-storage",
         setting_type = "runtime-per-user",

@@ -131,6 +131,7 @@ end
 ---@param entity LuaEntity
 ---@param player_index? int
 function instant_deforestation(entity, player_index)
+    if not settings.global["qf-deconstruct-non-buildables"].value then return end
     local player_inventory = utils.get_player_inventory(nil, player_index)
     local prototype = entity.prototype
     local surface_index = entity.surface_index

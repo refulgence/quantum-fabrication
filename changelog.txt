@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.8.0
+Date: 08.09.2025
+  Minor Features:
+    - Added a map setting to disable instant deconstruction of non-building entities (trees, rocks, etc).
+---------------------------------------------------------------------------------------------------
 Version: 2.7.7
 Date: 30.08.2025
   Changes:

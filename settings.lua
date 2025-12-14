@@ -82,5 +82,14 @@ table.insert(settings,
         setting_type = "startup",
         default_value = true
 })
+table.insert(settings,
+    {
+        type = "int-setting",
+        order = "ee",
+        name = "qf-chests-processed-per-second",
+        setting_type = "startup",
+        default_value = 6,
+        allowed_values = {1,2,3,4,5,6,10,12,15,20,30,60,120,180,240,300,360,600,1200,1800,2400},
+})
 
 data:extend(settings)

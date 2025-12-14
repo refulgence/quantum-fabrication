@@ -52,6 +52,14 @@ Update_rate.requests = {rate = 87, slots = 4}
 Update_rate.reactors = 60
 Update_rate.item_request_proxy_recheck = 244
 
+Update_rate.chests = {}
+if settings.startup["qf-chests-processed-per-second"].value <= 60 then
+    Update_rate.chests.per_tick = 1
+else
+    Update_rate.chests.per_tick = math.ceil(settings.startup["qf-chests-processed-per-second"].value/60)
+end
+Update_rate.chests.nth_tick = math.max(1,math.ceil(60 / settings.startup["qf-chests-processed-per-second"].value))
+
 Reactor_constants = {}
 Reactor_constants.idle_cost = 4
 Reactor_constants.active_cost = 20

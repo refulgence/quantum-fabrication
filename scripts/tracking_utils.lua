@@ -127,11 +127,13 @@ script.on_nth_tick(19, function(event)
     end
 end)
 
-script.on_nth_tick(18, function(event)
-    if next(storage.tracked_entities["digitizer-chest"]) then
-        storage.request_ids["digitizer-chest"] = flib_table.for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
-            tracking.update_entity(entity_data)
-        end)
+script.on_nth_tick(Update_rate.chests.nth_tick, function(event)
+    for i = 1, Update_rate.chests.per_tick do
+        if next(storage.tracked_entities["digitizer-chest"]) then
+            storage.request_ids["digitizer-chest"] = flib_table.for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
+                tracking.update_entity(entity_data)
+            end)
+        end
     end
 end)
 

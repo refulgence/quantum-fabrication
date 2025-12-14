@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.9.1
+Date: 14.12.2025
+  Minor Features:
+    - Added a startup setting to customize the number of Digitization chests processed per second to better handle builds with hundreds or even thousands chests.
+---------------------------------------------------------------------------------------------------
 Version: 2.9.0
 Date: 14.12.2025
   Minor Features:

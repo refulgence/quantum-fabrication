@@ -372,31 +372,143 @@ function tracking.update_entity(entity_data)
 
     if entity_data.entity.name == "digitizer-chest" then
         local inventory = entity_data.inventory
-        local limit_value = entity_data.entity.get_signal({type = "virtual", name = "signal-L"}, defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
-        if limit_value == 0 then
-            limit_value = entity_data.settings.intake_limit
+        local signals = entity_data.entity.get_signals(defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
+        local fetchable = settings.global["qf-super-digitizing-chests"].value
+
+        local limit_value = entity_data.settings.intake_limit
+        local decraft = entity_data.settings.decraft
+        local storage_index = surface_index
+        local fixed_quantity = 0
+        local quality = "normal"
+        local inventory_processing = {
+            items = {},
+            fluids = {
+                name = "",
+                count = 0,
+            },
+            preprocessed_items = {}
+        }
+        if signals then
+            for _, signal in pairs(signals) do
+                if signal.count > 0 then
+                    if (signal.signal.type == nil or signal.signal.type == "item") and fetchable then
+                        local item_quality = signal.signal.quality
+                        if item_quality then
+                            inventory_processing.items[signal.signal.name .. "-" .. item_quality] = {
+                                name = signal.signal.name,
+                                quality = signal.signal.quality,
+                                count = signal.count
+                            }
+                        else
+                            table.insert(inventory_processing.preprocessed_items, {
+                                name = signal.signal.name,
+                                count = signal.count
+                            })
+                        end
+                    elseif signal.signal.type == "fluid" and fetchable then
+                        -- Only fluid with the highest signal count will be added
+                        if signal.count > inventory_processing.fluids.count then
+                            inventory_processing.fluids = {
+                                name = signal.signal.name,
+                                count = signal.count
+                            }
+                        end
+                    elseif signal.signal.type == "virtual" then
+                        if signal.signal.name == "signal-S" then
+                            storage_index = signal.count
+                        elseif signal.signal.name == "signal-L" then
+                            limit_value = signal.count
+                        elseif signal.signal.name == "signal-D" then
+                            decraft = signal.count > 0
+                        elseif signal.signal.name == "signal-F" then
+                            fixed_quantity = signal.count
+                        end
+                    elseif signal.signal.type == "quality" then
+                        quality = signal.signal.name
+                    end
+                end
+            end
+            for _, item in pairs(inventory_processing.preprocessed_items) do
+                local t_name = item.name .. "-" .. quality
+                if not inventory_processing.items[t_name] then
+                    inventory_processing.items[t_name] = {
+                        name = item.name,
+                        quality = quality,
+                        count = 0
+                    }
+                end
+                inventory_processing.items[t_name].count = inventory_processing.items[t_name].count + item.count
+            end
         end
-        local decraft_value = entity_data.entity.get_signal({type = "virtual", name = "signal-D"}, defines.wire_connector_id.circuit_red, defines.wire_connector_id.circuit_green)
-        local decraft
-        if decraft_value == 0 then
-            decraft = entity_data.settings.decraft
-        else
-            decraft = decraft_value > 0
+
+        -- Set fixed quantity if it exists
+        if fixed_quantity > 0 then
+            for _, item in pairs(inventory_processing.items) do
+                item.count = fixed_quantity
+            end
+            if inventory_processing.fluids.count > 0 then
+                inventory_processing.fluids.count = fixed_quantity
+            end
         end
-        if inventory and not inventory.is_empty() then
-            local inventory_contents = inventory.get_contents()
-            for _, item in pairs(inventory_contents) do
+
+        -- We are only allower to select storage_index if the map setting is enabled
+        if not storage.fabricator_inventory[storage_index] or not fetchable then
+            storage_index = surface_index
+        end
+
+        if inventory then
+            if not inventory.is_empty() then
+                local inventory_contents = inventory.get_contents()
+                local control_behavior = entity.get_control_behavior()
+                -- If the container has "Read contents" checked, then we'll need to substract stored items from a signal value later
+                local read_contents = false
+                ---@diagnostic disable-next-line: undefined-field
+                if control_behavior and control_behavior.read_contents then
+                    read_contents = true
+                end
+                for _, item in pairs(inventory_contents) do
+                    local qs_item = {
+                        name = item.name,
+                        count = item.count,
+                        type = "item",
+                        quality = item.quality,
+                        surface_index = storage_index
+                    }
+                    local removable = limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value
+                    -- if we have a signal for this item and that quality...
+                    local t_name = item.name .. "-" .. item.quality
+                    if inventory_processing.items[t_name] then
+                        -- Substracting "fake" requests, but only if we didn't already set count to fixed value
+                        if read_contents and fixed_quantity == 0 then
+                            inventory_processing.items[t_name].count = inventory_processing.items[t_name].count - qs_item.count
+                        end
+                        -- Deciding what to do with items - store, fetch or ignore
+                        if qs_item.count == inventory_processing.items[t_name].count then
+                            inventory_processing.items[t_name] = nil
+                            removable = false
+                        elseif qs_item.count > inventory_processing.items[t_name].count then
+                            qs_item.count = qs_item.count - inventory_processing.items[t_name].count
+                            inventory_processing.items[t_name] = nil
+                        else
+                            inventory_processing.items[t_name].count = inventory_processing.items[t_name].count - qs_item.count
+                            removable = false
+                        end
+                    end
+                    if removable then
+                        qs_utils.add_to_storage(qs_item, decraft)
+                        inventory.remove({name = qs_item.name, count = qs_item.count, quality = qs_item.quality})
+                    end
+                end
+            end
+            for _, item in pairs(inventory_processing.items) do
                 local qs_item = {
                     name = item.name,
                     count = item.count,
                     type = "item",
                     quality = item.quality,
-                    surface_index = surface_index
+                    surface_index = storage_index
                 }
-                if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
-                    qs_utils.add_to_storage(qs_item, decraft)
-                    inventory.remove({name = item.name, count = item.count, quality = item.quality})
-                end
+                qs_utils.pull_from_storage(qs_item, inventory)
             end
         end
         if entity_data.container_fluid and entity_data.container_fluid.get_fluid_contents() then
@@ -406,12 +518,35 @@ function tracking.update_entity(entity_data)
                     count = count,
                     type = "fluid",
                     quality = QS_DEFAULT_QUALITY,
-                    surface_index = surface_index
+                    surface_index = storage_index
                 }
-                if limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value then
+                local removable = limit_value == 0 or qs_utils.count_in_storage(qs_item) < limit_value
+                if inventory_processing.fluids.count > 0 then
+                    if qs_item.count == inventory_processing.fluids.count then
+                        inventory_processing.fluids.count = 0
+                        removable = false
+                    elseif qs_item.count > inventory_processing.fluids.count then
+                        qs_item.count = qs_item.count - inventory_processing.fluids.count
+                        inventory_processing.fluids.count = 0
+                    else
+                        inventory_processing.fluids.count = inventory_processing.fluids.count - qs_item.count
+                        removable = false
+                    end
+                end
+                if removable then
                     qs_utils.add_to_storage(qs_item)
                     entity_data.container_fluid.remove_fluid({name = name, amount = count})
                 end
+            end
+            if inventory_processing.fluids.count > 0 then
+                local qs_item = {
+                    name = inventory_processing.fluids.name,
+                    count = inventory_processing.fluids.count,
+                    type = "fluid",
+                    quality = QS_DEFAULT_QUALITY,
+                    surface_index = storage_index
+                }
+                qs_utils.pull_from_storage(qs_item, entity_data.container_fluid)
             end
         end
         return

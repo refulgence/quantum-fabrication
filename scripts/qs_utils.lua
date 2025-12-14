@@ -146,7 +146,7 @@ function qs_utils.pull_from_storage(qs_item, target_inventory)
                 end
                 return status
             else
-                qs_utils.add_to_storage({surface_index = qs_item.surface_index, name = name, count = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid"})
+                qs_utils.add_to_storage({surface_index = qs_item.surface_index, name = name, count = target_inventory.remove_fluid{name = name, amount = amount}, type = "fluid", quality = QS_DEFAULT_QUALITY})
             end
         end
         ---@diagnostic disable-next-line: assign-type-mismatch

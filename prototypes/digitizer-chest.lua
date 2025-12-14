@@ -92,7 +92,7 @@ end
 local entity = table.deepcopy(data.raw["container"]["steel-chest"])
 entity.name = "digitizer-chest"
 entity.icon = "__quantum-fabricator__/graphics/icons/digitizer-chest.png"
-entity.flags = {"placeable-neutral", "player-creation", "no-automated-item-removal"}
+entity.flags = {"placeable-neutral", "player-creation"}
 entity.minable = {mining_time = 0.2, result = "digitizer-chest"}
 entity.corpse = nil
 entity.inventory_type = "with_filters_and_bar"

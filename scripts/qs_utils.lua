@@ -278,4 +278,42 @@ function qs_utils.get_storage_signals(storage_index)
     return signals
 end
 
+-- Moves all items from the source storage to the target storage
+---@param source_index uint
+---@param target_index uint
+function qs_utils.move_all_items(source_index, target_index)
+    for _, type in pairs({"item", "fluid"}) do
+        for name, item in pairs(storage.fabricator_inventory[source_index][type]) do
+            for quality, count in pairs(item) do
+                qs_utils.add_to_storage({type = type, name = name, count = count, quality = quality, surface_index = target_index})
+                storage.fabricator_inventory[source_index][type][name][quality] = 0
+            end
+        end
+    end
+end
+
+-- Unifies all currently existing storage inventories by moving items to storage #1 and making them a reference to it
+function qs_utils.unify_storage()
+    for storage_index, _ in pairs(storage.fabricator_inventory) do
+        if storage_index ~= 1 then
+            qs_utils.move_all_items(storage_index, 1)
+            storage.fabricator_inventory[storage_index] = storage.fabricator_inventory[1]
+        end
+    end
+end
+
+-- Removes reference to all existing storage inventories and processes factorissimo as well
+function qs_utils.deunify_storage()
+    for storage_index, _ in pairs(storage.fabricator_inventory) do
+        if storage_index ~= 1 then
+            storage.fabricator_inventory[storage_index] = nil
+            initialize_fabricator_inventory(storage_index)
+        end
+    end
+    -- Needed to restore factorissimo references
+    if script.active_mods["factorissimo-2-notnotmelon"] then
+        initialize_surfaces()
+    end
+end
+
 return qs_utils

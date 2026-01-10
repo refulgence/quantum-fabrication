@@ -77,6 +77,14 @@ table.insert(settings,
 table.insert(settings,
     {
         type = "bool-setting",
+        order = "ao",
+        name = "qf-unified-storage",
+        setting_type = "runtime-global",
+        default_value = false
+})
+table.insert(settings,
+    {
+        type = "bool-setting",
         order = "cf",
         name = "qf-enable-auto-repair",
         setting_type = "startup",

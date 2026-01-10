@@ -176,7 +176,14 @@ function on_config_changed()
     process_sorted_lists()
 end
 
-function on_mod_settings_changed()
+function on_mod_settings_changed(event)
+    if event.setting == "qf-unified-storage" then
+        if settings.global["qf-unified-storage"].value then
+            qs_utils.unify_storage()
+        else
+            qs_utils.deunify_storage()
+        end
+    end
 end
 
 ---Check every existing surface (except space platforms) and initialize fabricator inventories for all items and qualities. Doesn't overwrite anything
@@ -205,6 +212,10 @@ function initialize_surface(surface)
             local planet_name = surface.name:gsub("%-factory%-floor", "")
             local planet_surface_index = storage.planet_surface_link[planet_name]
             storage.fabricator_inventory[surface_index] = storage.fabricator_inventory[planet_surface_index]
+        end
+        -- Making the new storage a reference to the storage #1 if unified storage is enabled (workaround)
+        if settings.global["qf-unified-storage"].value then
+            storage.fabricator_inventory[surface_index] = storage.fabricator_inventory[1]
         end
         local rocket_silo = surface.find_entities_filtered({type = "rocket-silo", limit = 1})[1]
         if rocket_silo then

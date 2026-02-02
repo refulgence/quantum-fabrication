@@ -174,6 +174,7 @@ function on_config_changed()
     build_dictionaries()
     process_data()
     process_sorted_lists()
+    tracking.recheck_trackable_entities()
 end
 
 function on_mod_settings_changed(event)

@@ -50,6 +50,20 @@ function tracking.create_tracked_request(request_data)
     end
 end
 
+---Checks all surfaces and tracks trackable entities that aren't tracked yet
+function tracking.recheck_trackable_entities()
+    for _, surface in pairs(game.surfaces) do
+        for entity_name, _ in pairs(Trackable_entities) do
+            local entities = surface.find_entities_filtered { name = entity_name }
+            for _, entity in pairs(entities) do
+                if not storage.tracked_entities[entity_name][entity.unit_number] then
+                    tracking.create_tracked_request({ request_type = "entities", entity = entity })
+                end
+            end
+        end
+    end
+end
+
 ---@param request_data RequestData
 function tracking.add_request(request_data)
     local request_type = request_data.request_type

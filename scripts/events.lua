@@ -306,6 +306,7 @@ end
 
 function on_space_platform_built_entity(event)
     chunks_utils.add_chunk(event.entity.surface_index, event.entity.position)
+    on_built_entity(event)
 end
 
 function on_pre_player_mined_item(event)

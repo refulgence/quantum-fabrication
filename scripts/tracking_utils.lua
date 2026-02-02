@@ -312,7 +312,14 @@ function tracking.add_tracked_entity(request_data)
         }
         entity_data.settings.item_filter = nil
         entity_data.settings.fluid_filter = nil
-        entity_data.settings.surface_index = entity.surface_index
+
+        local surface_index
+        if surface.platform then
+            surface_index = get_storage_index(surface.platform.space_location)
+        end
+        if not surface_index then surface_index = entity.surface_index end
+        entity_data.settings.surface_index = surface_index
+
         entity_data.burnt_result_inventory = entity.get_inventory(defines.inventory.burnt_result)
         pseudo_fluid_container.destructible = false
         pseudo_fluid_container.operable = false

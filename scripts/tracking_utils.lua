@@ -387,6 +387,16 @@ function tracking.clone_settings(source, destination)
     storage.tracked_entities[destination.name][destination.unit_number].settings = flib_table.deep_copy(storage.tracked_entities[source.name][source.unit_number].settings)
 end
 
+---Checks if the signal belongs to an item we can get out of storage
+---@param signal Signal
+---@return boolean
+function is_item_signal(signal)
+    if (signal.signal.type == nil or signal.signal.type == "item") and not signal.signal.name:sub(1, 10) == "parameter-" then
+        return true
+    end
+    return false
+end
+
 ---@param entity_data EntityData
 function tracking.update_entity(entity_data)
     local entity = entity_data.entity
@@ -414,7 +424,7 @@ function tracking.update_entity(entity_data)
         if signals then
             for _, signal in pairs(signals) do
                 if signal.count > 0 then
-                    if (signal.signal.type == nil or signal.signal.type == "item") and fetchable then
+                    if is_item_signal(signal) and fetchable then
                         local item_quality = signal.signal.quality
                         if item_quality then
                             inventory_processing.items[signal.signal.name .. "-" .. item_quality] = {

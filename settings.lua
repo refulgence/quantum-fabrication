@@ -43,6 +43,14 @@ table.insert(settings,
 table.insert(settings,
     {
         type = "bool-setting",
+        order = "bha",
+        name = "qf-early-digitizing-chest",
+        setting_type = "startup",
+        default_value = false
+})
+table.insert(settings,
+    {
+        type = "bool-setting",
         order = "ahb",
         name = "qf-use-player-inventory",
         setting_type = "runtime-per-user",

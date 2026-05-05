@@ -238,6 +238,16 @@ local technology = {
     order = "a-d-c-a"
   }
 
+if settings.startup["qf-early-digitizing-chest"].value then
+  recipe.enabled = true
+  recipe.ingredients = {{type = "item", name = "iron-plate", amount = 12}, {type = "item", name = "copper-cable", amount = 8}}
+  technology.effects = {
+    {
+      type = "unlock-recipe",
+      recipe = "qf-storage-reader"
+    },
+  }
+end
 
 
 data:extend{item,entity,recipe,technology,fluid_container_entity}

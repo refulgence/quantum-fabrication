@@ -10,6 +10,8 @@ local chunks_utils = require("scripts/chunks_utils")
 function instant_fabrication(entity, player_index)
     local surface_index = entity.surface_index
     if not storage.prototypes_data[entity.ghost_name] then return false end
+    local player_surface_index = utils.get_player_surface_index(player_index)
+    local player_inventory = utils.get_player_inventory(nil, player_index)
 
     local qs_item = {
         name = storage.prototypes_data[entity.ghost_name].item_name,
@@ -18,17 +20,6 @@ function instant_fabrication(entity, player_index)
         quality = entity.quality.name,
         surface_index = surface_index
     }
-
-    local player
-    local player_surface_index
-    local player_inventory
-    if player_index then
-        player = game.get_player(player_index)
-        if player then
-            player_surface_index = player.surface_index
-            player_inventory = utils.get_player_inventory(player)
-        end
-    end
 
     -- Check if requested item is available
     local in_storage, in_inventory = qs_utils.count_in_storage(qs_item, player_inventory, player_surface_index)
@@ -49,17 +40,9 @@ end
 
 function instant_tileation()
     local schedule_retileation = false
-    local player
-    local player_inventory
-    local player_surface_index
-    if storage.request_player_ids.tiles then
-        player = game.get_player(storage.request_player_ids.tiles)
-        if player then
-            player_inventory = utils.get_player_inventory(player)
-            player_surface_index = player.physical_surface_index
-        end
-    end
-    
+    local player_surface_index = utils.get_player_surface_index(storage.request_player_ids.tiles)
+    local player_inventory = utils.get_player_inventory(nil, storage.request_player_ids.tiles)
+
     local function remove_from_storage(indices, surface_index)
         for name, value in pairs(indices) do
             if value > 0 then
@@ -114,17 +97,9 @@ end
 ---@param player_index? int
 ---@return "success" | "no_recipe" | "error"
 function instant_upgrade(entity, target, quality, player_index)
-    
     local surface_index = entity.surface_index
-    local player
-    local player_inventory
-    if player_index then
-        player = game.get_player(player_index)
-        if player then
-            player_inventory = utils.get_player_inventory(player)
-            player_surface_index = player.physical_surface_index
-        end
-    end
+    local player_surface_index = utils.get_player_surface_index(player_index)
+    local player_inventory = utils.get_player_inventory(nil, player_index)
 
     local qs_item_target = {
         name = storage.prototypes_data[target.name].item_name,

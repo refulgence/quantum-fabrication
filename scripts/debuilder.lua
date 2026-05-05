@@ -117,6 +117,7 @@ end
 function process_transport_line(entity, player_inventory, surface_index)
     local max_lines = entity.get_max_transport_line_index()
     for line = 1, max_lines do
+        ---@diagnostic disable-next-line: param-type-mismatch
         local transport_line = entity.get_transport_line(line)
         local contents = transport_line.get_contents()
         for _, item in pairs(contents) do

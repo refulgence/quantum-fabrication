@@ -130,6 +130,17 @@ function utils.get_player_inventory(player, player_index)
     return nil
 end
 
+---@param player_index uint?
+---@return uint?
+function utils.get_player_surface_index(player_index)
+    if not player then
+        if not player_index then return nil end
+        player = game.get_player(player_index)
+        if not player then return nil end
+    end
+    return player.surface_index
+end
+
 ---Returns true if a technology can be researched right now.
 ---@param technology LuaTechnology
 ---@return boolean

@@ -90,8 +90,6 @@ function on_init()
     storage.space_countdowns = {
         space_sendoff = nil,
     }
-    --Because cliffs do not have unit number
-    storage.cliff_ids = 0
     storage.request_ids = {
         cliffs = 1,
         revivals = 1,

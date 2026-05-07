@@ -80,8 +80,7 @@ function tracking.add_request(request_data)
     end
 
     if request_type == "cliffs" then
-        storage.cliff_ids = storage.cliff_ids + 1
-        index = storage.cliff_ids
+        index = utils.get_position_id(request_table.entity)
     else
         index = request_table.entity.unit_number
     end

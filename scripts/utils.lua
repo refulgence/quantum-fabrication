@@ -39,6 +39,10 @@ function utils.check_for_ghost_tiles(entity)
     return false
 end
 
+function utils.get_position_id(entity)
+    return entity.surface_index .. "_" .. entity.position.x .. "_" .. entity.position.y
+end
+
 function utils.validate_surfaces()
     for index, surface_data in pairs(storage.surface_data.planets) do
         if not surface_data.surface.valid then

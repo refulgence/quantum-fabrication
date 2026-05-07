@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.11.2
+Date: 07.05.2026
+  Changes:
+    - Added construction/deconstruction to the production statistics (thanks to @boomshroom for PR #18)
+---------------------------------------------------------------------------------------------------
 Version: 2.11.1
 Date: 07.05.2026
   Bugfixes:

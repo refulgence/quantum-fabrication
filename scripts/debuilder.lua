@@ -6,16 +6,17 @@ local utils = require("scripts/utils")
 ---@param player_index? int id of a player who placed the order
 ---@return boolean --returns false if defabrication failed AND we'll need to retry later; true otherwise
 function instant_defabrication(entity, player_index)
-    if not storage.prototypes_data[entity.name] or Non_deconstructable_entities[entity.name] then return false end
+    local entity_name = entity.name
+    if not storage.prototypes_data[entity_name] or Non_deconstructable_entities[entity_name] then return false end
     if entity.surface.platform then return true end
     
-    if Mine_to_inventory_only_entities[entity.name] then
+    if Mine_to_inventory_only_entities[entity_name] then
         return try_mine(entity, player_index)
     end
 
     local surface_index = entity.surface_index
     local qs_item = {
-        name = storage.prototypes_data[entity.name].item_name,
+        name = storage.prototypes_data[entity_name].item_name,
         count = 1,
         type = "item",
         quality = entity.quality.name,
@@ -32,6 +33,7 @@ function instant_defabrication(entity, player_index)
     local destroyed = entity.destroy({raise_destroy = true})
     if destroyed then
         qs_utils.add_to_storage(qs_item, true)
+        qs_utils.add_temp_prod_statistics(entity_name, qs_item.quality, "build", surface_index, -1)
     end
     return destroyed
 end

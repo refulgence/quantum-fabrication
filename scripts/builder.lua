@@ -251,6 +251,7 @@ function revive_ghost(entity, qs_item, player_inventory)
         end
 
         chunks_utils.add_chunk(surface_index, position)
+        qs_utils.add_temp_prod_statistics(ghost_name, qs_item.quality, "build", surface_index, 1)
 
         return true
     -- Compatibility with ore-ganizer mod. Needed because it destroys the revived entity before we can get to it.

@@ -242,16 +242,20 @@ end
 
 ---Processes the entire temp_statistics table at once and resets it
 function qs_utils.add_production_statistics()
-    local item_stats = {}
-    local fluid_stats = {}
+    local stats = {}
     for _, item in pairs(storage.temp_statistics) do
         local surface_index = item.surface_index
-        if not item_stats[surface_index] then item_stats[surface_index] = game.forces["player"].get_item_production_statistics(surface_index) end
-        if not fluid_stats[surface_index] then fluid_stats[surface_index] = game.forces["player"].get_fluid_production_statistics(surface_index) end
-        if item.type == "item" then
-            item_stats[surface_index].on_flow({name = item.name, quality = item.quality}, item.count)
+        if not stats[surface_index] then
+            stats[surface_index] = {
+                item = game.forces["player"].get_item_production_statistics(surface_index),
+                fluid = game.forces["player"].get_fluid_production_statistics(surface_index),
+                build = game.forces["player"].get_entity_build_count_statistics(surface_index),
+            }
+        end
+        if item.type == "fluid" then
+            stats[surface_index].fluid.on_flow(item.name, item.count)
         else
-            fluid_stats[surface_index].on_flow(item.name, item.count)
+            stats[surface_index][item.type].on_flow({name = item.name, quality = item.quality}, item.count)
         end
     end
     storage.temp_statistics = {}

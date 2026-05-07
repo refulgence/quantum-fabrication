@@ -354,6 +354,13 @@ function on_marked_for_deconstruction(event)
     end
 end
 
+function on_cancelled_cliff_deconstruction(event)
+    local entity = event.entity
+    if entity and entity.valid then
+        tracking.remove_tracked_request("cliffs", utils.get_position_id(entity))
+    end
+end
+
 function on_destroyed(event)
     local entity = event.entity
     if entity and entity.valid then
@@ -587,6 +594,7 @@ script.on_event(defines.events.on_robot_mined_entity, on_destroyed)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_pre_player_mined_item)
 script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_deconstruction)
+script.on_event(defines.events.on_cancelled_deconstruction, on_cancelled_cliff_deconstruction, {{filter = "type", type = "cliff"}})
 
 script.on_event(defines.events.on_surface_created, on_surface_created)
 script.on_event(defines.events.on_surface_deleted, on_surface_deleted)

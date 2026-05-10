@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.11.3
+Date: 10.05.2026
+  Bugfixes:
+    - Building tiles over water now properly consumes landfill
+    - Fixed issues with building tiles over water involving disappearing tiles
+---------------------------------------------------------------------------------------------------
 Version: 2.11.2
 Date: 07.05.2026
   Changes:

@@ -39,6 +39,23 @@ function utils.check_for_ghost_tiles(entity)
     return false
 end
 
+---Returns true if there are any foundation tile ghosts at the position
+---@param surface LuaSurface
+---@param position table
+---@return boolean
+function utils.check_foundation_ghost_tile(surface, position)
+    local tiles = surface.find_entities_filtered({name = "tile-ghost", position = position})
+    if tiles then
+        for _, tile in pairs(tiles) do
+            local tile_name = storage.tile_link[tile.ghost_name]
+            if storage.foundation_tiles[tile_name] then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 function utils.get_position_id(entity)
     return entity.surface_index .. "_" .. entity.position.x .. "_" .. entity.position.y
 end

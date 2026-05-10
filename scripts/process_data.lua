@@ -66,11 +66,15 @@ end
 
 function process_tiles()
     storage.tiles = {}
+    storage.foundation_tiles = {}
     storage.tile_link = {}
     local tiles = prototypes.get_tile_filtered{{filter = "item-to-place"}}
     for _, tile in pairs(tiles) do
         storage.tiles[tile.items_to_place_this[1].name] = true
         storage.tile_link[tile.name] = tile.items_to_place_this[1].name
+        if tile.is_foundation then
+            storage.foundation_tiles[tile.items_to_place_this[1].name] = true
+        end
     end
 end
 

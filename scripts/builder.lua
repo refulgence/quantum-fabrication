@@ -69,8 +69,8 @@ function instant_tileation()
             for tile_name, _ in pairs(storage.tiles) do
                 indices[tile_name] = 0
             end
-            for _, tile in pairs(tiles) do
-                local tile_name = storage.tile_link[tile.ghost_name]
+
+            local function update_final_tiles(tile, tile_name)
                 if tile_availability[tile_name] > indices[tile_name] then
                     final_tiles[overall_index] = {
                         name = tile.ghost_name,
@@ -82,7 +82,29 @@ function instant_tileation()
                     schedule_retileation = true
                 end
             end
+
+            -- First we process foundation tiles only
+            for _, tile in pairs(tiles) do
+                local tile_name = storage.tile_link[tile.ghost_name]
+                if storage.foundation_tiles[tile_name] then
+                    update_final_tiles(tile, tile_name)
+                end
+            end
             surface.set_tiles(final_tiles, true, true, true, true)
+            final_tiles = {}
+            overall_index = 1
+
+            -- Now we process non-foundation tiles and skip over ghosts that don't have solid foundation beneath
+            for _, tile in pairs(tiles) do
+                if tile.valid then
+                    local tile_name = storage.tile_link[tile.ghost_name]
+                    if not storage.foundation_tiles[tile_name] and not utils.check_foundation_ghost_tile(surface, tile.position) then
+                        update_final_tiles(tile, tile_name)
+                    end
+                end
+            end
+            surface.set_tiles(final_tiles, true, true, true, true)
+
             remove_from_storage(indices, surface.index)
         end
     end

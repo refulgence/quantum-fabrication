@@ -2,6 +2,7 @@ local utils = require("scripts/utils")
 local qf_utils = require("scripts/qf_utils")
 local qs_utils = require("scripts/qs_utils")
 local flib_dictionary = require("__flib__.dictionary")
+local tracking = require("scripts/tracking_utils")
 
 ---@class gui_utils
 local gui_utils = {}
@@ -12,6 +13,7 @@ function toggle_qf_gui(player)
     if Research_finished then post_research_recheck() Research_finished = false end
     storage.player_gui[player.index].tooltip_workaround = 0
     if main_frame == nil then
+        tracking.update_unique_unfullfilled_requests()
         if not storage.craft_data then storage.craft_data = {} end
         if not storage.craft_data[player.index] then storage.craft_data[player.index] = {} end
         if not storage.sorted_lists[player.index] then
@@ -231,6 +233,14 @@ function gui_utils.set_intake_limit(text, unit_number)
     local number = tonumber(text)
     if not number then number = 0 end
     entity_data.settings.intake_limit = number
+end
+
+function gui_utils.unfullfilled_ghosts(name, quality, surface_index)
+    return tracking.count_unique_request(name, quality, surface_index)
+end
+
+function gui_utils.get_selected_quality(player_index)
+    return storage.player_gui[player_index].quality.name
 end
 
 return gui_utils

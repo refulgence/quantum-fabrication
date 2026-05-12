@@ -2,11 +2,14 @@ local flib_format = require("__flib__.format")
 local qf_utils = require("scripts/qf_utils")
 local qs_utils = require("scripts/qs_utils")
 local utils = require("scripts/utils")
+local gui_utils = require("scripts/gui/gui_utils")
 
 ---@param player LuaPlayer
 ---@param item_name string
 ---@param recipe_name string
 function build_main_tooltip(player, item_name, recipe_name)
+    local surface_index = get_storage_index(nil, player)
+    local quality = gui_utils.get_selected_quality(player.index)
 
     local tooltip_frame = player.gui.screen.qf_recipe_tooltip
     if tooltip_frame then
@@ -69,15 +72,14 @@ function build_main_tooltip(player, item_name, recipe_name)
 
     item_description_label.style.maximal_width = 150 * column_count
 
-    local surface_index = get_storage_index(nil, player)
-    local quality = storage.player_gui[player.index].quality.name
-
     local ingredient_table = recipe_frame.add{type = "table", column_count = column_count}
 
     local player_inventory
     if player.mod_settings["qf-use-player-inventory"].value then
         player_inventory = utils.get_player_inventory(player)
     end
+
+    local can_craft = true
 
     for _, ingredient in pairs(ingredients) do
 
@@ -104,6 +106,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         end
         if available < required then
             font_color = {1.0, 0.0, 0.0}
+            can_craft = false
         end
 
         local ingredient_label = ingredient_table.add{type = "label", caption = ingredient_caption}
@@ -150,6 +153,11 @@ function build_main_tooltip(player, item_name, recipe_name)
         width = 36 + (column_count * 282 / 2),
         heigth = 120 + (math.ceil(#ingredients / column_count * 2) + #products) * 24 + 20 * 2 + 6
     }
+
+    local unfullfilled_ghosts = gui_utils.unfullfilled_ghosts(item_name, quality, surface_index) 
+    if unfullfilled_ghosts > 0 and not can_craft then
+        item_name_label.caption = {"", storage.unpacked_recipes[recipe_name].localised_name, {"qf-inventory.build-in-progress", unfullfilled_ghosts}}
+    end
 
     if not qf_utils.can_fabricate(item_name) then
         recipe_frame.visible = false

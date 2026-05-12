@@ -1,5 +1,6 @@
 local utils = require("scripts/utils")
 local gui_utils = require("scripts/gui/gui_utils")
+local tracking = require("scripts/tracking_utils")
 
 ---@param player LuaPlayer
 function build_main_gui(player)
@@ -264,7 +265,7 @@ end
 ---@param recipe_frame LuaGuiElement
 function build_main_recipe_item_list_gui(player, recipe_frame)
     local surface_index = get_storage_index(nil, player) or player.surface.index
-    local quality_name = storage.player_gui[player.index].quality.name
+    local quality_name = gui_utils.get_selected_quality(player.index)
     local player_index = player.index
     local player_inventory = utils.get_player_inventory(player)
     local item_group_rows = math.ceil(storage.filtered_data[player.index].size / QF_GUI.recipe_frame.item_group_table.max_number_of_columns)
@@ -337,6 +338,9 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     if storage.craft_data[player.index][surface_index][recipe_name][quality_name] == 0 then
                         if storage.player_gui[player.index].options.mark_red then
                             item_button.style = "flib_slot_button_red"
+                            if gui_utils.unfullfilled_ghosts(item_name, quality_name, surface_index) > 0 then
+                                item_button.style = "flib_slot_button_purple"
+                            end
                         end
                     end
                     if storage.player_gui[player.index].options.calculate_numbers then

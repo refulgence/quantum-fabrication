@@ -720,4 +720,64 @@ function tracking.update_entity(entity_data)
 end
 
 
+function tracking.update_unique_unfullfilled_requests()
+    storage.unique_requests = {}
+    for _, request_type in pairs({"revivals", "construction", "upgrades"}) do
+        for _, request in pairs(storage.tracked_requests[request_type]) do
+            local name
+            local quality
+            local surface_index
+            if request_type == "upgrades" then
+                ---@diagnostic disable-next-line: undefined-field
+                if not request.valid then goto skip end
+                ---@diagnostic disable-next-line: undefined-field
+                local upgrade_target = request.get_upgrade_target()
+                name = upgrade_target.name
+                ---@diagnostic disable-next-line: undefined-field
+                surface_index = request.surface_index
+                ---@diagnostic disable-next-line: undefined-field
+                quality = request.quality.name
+            elseif request_type == "construction" then
+                if not request.entity.valid then goto skip end
+                name = request.entity.ghost_name
+                surface_index = request.entity.surface_index
+                quality = request.entity.quality.name
+            else
+                ---@diagnostic disable-next-line: undefined-field
+                if not request.valid then goto skip end
+                ---@diagnostic disable-next-line: undefined-field
+                name = request.name
+                ---@diagnostic disable-next-line: undefined-field
+                surface_index = request.surface_index
+                ---@diagnostic disable-next-line: undefined-field
+                quality = request.quality.name
+            end
+            if not storage.unique_requests[surface_index] then
+                storage.unique_requests[surface_index] = {}
+            end
+            if not storage.unique_requests[surface_index][quality] then
+                storage.unique_requests[surface_index][quality] = {}
+            end
+            if not storage.unique_requests[surface_index][quality][name] then
+                storage.unique_requests[surface_index][quality][name] = 0
+            end
+            storage.unique_requests[surface_index][quality][name] = storage.unique_requests[surface_index][quality][name] + 1
+            ::skip::
+        end
+    end
+end
+
+
+---@param name string
+---@param quality string
+---@param surface_index uint
+---@return uint
+function tracking.count_unique_request(name, quality, surface_index)
+    if not storage.unique_requests[surface_index] then return 0 end
+    if not storage.unique_requests[surface_index][quality] then return 0 end
+    if not storage.unique_requests[surface_index][quality][name] then return 0 end
+    return storage.unique_requests[surface_index][quality][name]
+end
+
+
 return tracking

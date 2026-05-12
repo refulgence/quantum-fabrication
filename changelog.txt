@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.12.0
+Date: 12.05.2026
+  Minor Features:
+    - Construction/Upgrade requests that are currently waiting in queue due to the lack of materials are now marked wih purple in the Fabricator GUI.
+---------------------------------------------------------------------------------------------------
 Version: 2.11.3
 Date: 10.05.2026
   Bugfixes:

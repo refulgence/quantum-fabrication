@@ -769,7 +769,7 @@ end
 ---@param quality string
 ---@param surface_index uint
 ---@return uint
-function tracking.count_unique_request(name, quality, surface_index)
+function tracking.get_unique_request_count(name, quality, surface_index)
     if not storage.unique_requests[surface_index] then return 0 end
     if not storage.unique_requests[surface_index][quality] then return 0 end
     if not storage.unique_requests[surface_index][quality][name] then return 0 end

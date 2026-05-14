@@ -236,7 +236,7 @@ function gui_utils.set_intake_limit(text, unit_number)
 end
 
 function gui_utils.unfullfilled_ghosts(name, quality, surface_index)
-    return tracking.count_unique_request(name, quality, surface_index)
+    return tracking.get_unique_request_count(name, quality, surface_index)
 end
 
 function gui_utils.get_selected_quality(player_index)

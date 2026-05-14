@@ -390,10 +390,7 @@ end
 ---@param signal Signal
 ---@return boolean
 function is_item_signal(signal)
-    if (signal.signal.type == nil or signal.signal.type == "item") and not signal.signal.name:sub(1, 10) == "parameter-" then
-        return true
-    end
-    return false
+    return (signal.signal.type == nil or signal.signal.type == "item") and signal.signal.name:sub(1, 10) ~= "parameter-"
 end
 
 ---@param entity_data EntityData

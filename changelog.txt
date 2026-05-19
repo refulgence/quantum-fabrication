@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.12.2
+Date: 19.05.2026
+  Bugfixes:
+    - Fixed Digitizing chest from effectively erasing their contents when placed on space platforms.
+---------------------------------------------------------------------------------------------------
 Version: 2.12.1
 Date: 14.05.2026
   Bugfixes:

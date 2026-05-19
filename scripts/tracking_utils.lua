@@ -406,7 +406,13 @@ function tracking.update_entity(entity_data)
 
         local limit_value = entity_data.settings.intake_limit
         local decraft = entity_data.settings.decraft
-        local storage_index = surface_index
+        local storage_index
+        local surface = game.get_surface(surface_index)
+        if surface.platform then
+            storage_index = get_storage_index(surface.platform.space_location)
+        else
+            storage_index = surface_index
+        end
         local fixed_quantity = 0
         local quality = "normal"
         local inventory_processing = {
@@ -469,6 +475,7 @@ function tracking.update_entity(entity_data)
                 inventory_processing.items[t_name].count = inventory_processing.items[t_name].count + item.count
             end
         end
+        if not storage_index then return end
 
         -- Set fixed quantity if it exists
         if fixed_quantity > 0 then

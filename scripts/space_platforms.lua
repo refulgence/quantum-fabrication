@@ -223,7 +223,7 @@ end
 function get_space_transfer_cost(qs_item, rocket_silo)
     local weight = prototypes.item[qs_item.name].weight
     local rocket_parts_per_launch = rocket_silo.prototype.rocket_parts_required
-    local rocket_weight_limit = QS_ROCKET_WEIGHT_LIMIT
+    local rocket_weight_limit = rocket_silo.prototype.lift_weight
     local productivity = 1 + rocket_silo.productivity_bonus
     return rocket_parts_per_launch / (rocket_weight_limit / weight) / productivity
 end

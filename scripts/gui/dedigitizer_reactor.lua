@@ -61,7 +61,7 @@ function create_dedigitizer_reactor_gui(player, entity)
         tooltip = {"qf-entity.dedigitizing-reactor-choose-surface-tooltip"},
     }
     local surface_items, surface_link = get_surface_dropdown_items(entity.surface.index)
-    local selected_index = flib_table.invert(surface_link)[entity_settings.surface_index]
+    local selected_index = flib_table.inverted(surface_link)[entity_settings.surface_index]
     if not selected_index then selected_index = 1 end
     choose_surface_dropdown.items = surface_items
     choose_surface_dropdown.selected_index = selected_index

@@ -98,7 +98,7 @@ end
 function tracking.on_tick_update_requests()
     for i = 1, 3 do
         if next(storage.tracked_requests[On_tick_requests[i]]) then
-            storage.request_ids[On_tick_requests[i]] = flib_table.for_n_of(storage.tracked_requests[On_tick_requests[i]], storage.request_ids[On_tick_requests[i]], 3, function(entity)
+            storage.request_ids[On_tick_requests[i]] = for_n_of(storage.tracked_requests[On_tick_requests[i]], storage.request_ids[On_tick_requests[i]], 3, function(entity)
                 return tracking.on_tick_update_handler(entity, On_tick_requests[i])
             end)
         end
@@ -107,7 +107,7 @@ end
 
 script.on_nth_tick(5, function(event)
     if next(storage.tracked_requests["repairs"]) and not storage.countdowns.in_combat then
-        storage.request_ids["repairs"] = flib_table.for_n_of(storage.tracked_requests["repairs"], storage.request_ids["repairs"], 2, function(request_table)
+        storage.request_ids["repairs"] = for_n_of(storage.tracked_requests["repairs"], storage.request_ids["repairs"], 2, function(request_table)
             if not request_table.entity.valid then return nil, true, false end
             if instant_repair(request_table.entity) then
                 return nil, true, false
@@ -120,7 +120,7 @@ end)
 
 script.on_nth_tick(9, function(event)
     if next(storage.tracked_requests["item_requests"]) then
-        storage.request_ids["item_requests"] = flib_table.for_n_of(storage.tracked_requests["item_requests"], storage.request_ids["item_requests"], 2, function(request_table)
+        storage.request_ids["item_requests"] = for_n_of(storage.tracked_requests["item_requests"], storage.request_ids["item_requests"], 2, function(request_table)
             return tracking.update_item_request_proxy(request_table)
         end)
     end
@@ -129,7 +129,7 @@ end)
 
 script.on_nth_tick(19, function(event)
     if next(storage.tracked_requests["cliffs"]) then
-        storage.request_ids["cliffs"] = flib_table.for_n_of(storage.tracked_requests["cliffs"], storage.request_ids["cliffs"], 3, function(request_table)
+        storage.request_ids["cliffs"] = for_n_of(storage.tracked_requests["cliffs"], storage.request_ids["cliffs"], 3, function(request_table)
             if not request_table.entity.valid then return nil, true, false end
             if instant_decliffing(request_table.entity, request_table.player_index) then
                 return nil, true, false
@@ -143,7 +143,7 @@ end)
 script.on_nth_tick(Update_rate.chests.nth_tick, function(event)
     for i = 1, Update_rate.chests.per_tick do
         if next(storage.tracked_entities["digitizer-chest"]) then
-            storage.request_ids["digitizer-chest"] = flib_table.for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
+            storage.request_ids["digitizer-chest"] = for_n_of(storage.tracked_entities["digitizer-chest"], storage.request_ids["digitizer-chest"], 2, function(entity_data)
                 tracking.update_entity(entity_data)
             end)
         end
@@ -152,7 +152,7 @@ end)
 
 script.on_nth_tick(84, function(event)
     if next(storage.tracked_entities["qf-storage-reader"]) then
-        storage.request_ids["qf-storage-reader"] = flib_table.for_n_of(storage.tracked_entities["qf-storage-reader"], storage.request_ids["qf-storage-reader"], 2, function(entity_data)
+        storage.request_ids["qf-storage-reader"] = for_n_of(storage.tracked_entities["qf-storage-reader"], storage.request_ids["qf-storage-reader"], 2, function(entity_data)
             tracking.update_entity(entity_data)
         end)
     end
@@ -160,7 +160,7 @@ end)
 
 script.on_nth_tick(8, function(event)
     if next(storage.tracked_requests["construction"]) then
-        storage.request_ids["construction"] = flib_table.for_n_of(storage.tracked_requests["construction"], storage.request_ids["construction"], 3, function(request_table)
+        storage.request_ids["construction"] = for_n_of(storage.tracked_requests["construction"], storage.request_ids["construction"], 3, function(request_table)
             local entity = request_table.entity
             local player_index = request_table.player_index
             if not entity.valid then return nil, true, false end
@@ -261,7 +261,7 @@ end
 
 ---Updated way to get item request proxies
 function tracking.update_lost_module_requests_neo()
-    storage.request_ids.item_proxies = flib_table.for_n_of(storage.chunks, storage.request_ids.item_proxies, 1, function(chunk)
+    storage.request_ids.item_proxies = for_n_of(storage.chunks, storage.request_ids.item_proxies, 1, function(chunk)
         local surface = game.surfaces[chunk.surface_index]
         if not surface then return nil, true, false end
         for _, entity in pairs(surface.find_entities_filtered{name = "item-request-proxy", area = chunk.area}) do
@@ -571,7 +571,7 @@ function tracking.update_entity(entity_data)
                 end
                 if removable then
                     qs_utils.add_to_storage(qs_item)
-                    entity_data.container_fluid.remove_fluid({name = name, amount = count})
+                    entity_data.container_fluid.remove_fluid(1, count)
                 end
             end
             if inventory_processing.fluids.count > 0 then

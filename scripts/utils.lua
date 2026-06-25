@@ -180,7 +180,6 @@ function utils.research_technology(technology)
     technology.researched = true
     Research_finished = true
     game.print({"", "[technology="..technology.name.."]",{"qf-general.research-completed"}}, {sound_path = "utility/research_completed"})
-    find_trigger_techs()
 end
 
 return utils

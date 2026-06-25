@@ -2,7 +2,7 @@ local qs_utils = require("scripts/qs_utils")
 local qf_utils = require("scripts/qf_utils")
 local tracking = require("scripts/tracking_utils")
 local utils = require("scripts/utils")
-local flib_table = require("__flib__.table")
+local flib_array = require("__flib__.array")
 local chunks_utils = require("scripts/chunks_utils")
 
 ---@param entity LuaEntity Entity to fabricate
@@ -194,7 +194,7 @@ function register_request_table(request_type)
     utils.validate_surfaces()
     for _, surface_data in pairs(storage.surface_data.planets) do
         local targets = surface_data.surface.find_entities_filtered(Request_table_filter_link[request_type])
-        result = flib_table.array_merge({result, targets})
+        result = flib_array.flatten({result, targets})
     end
     storage.tracked_requests[request_type] = result
 end

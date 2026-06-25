@@ -9,6 +9,7 @@ require "scripts/process_data"
 require "scripts/builder"
 require "scripts/debuilder"
 require "scripts/space_platforms"
+require "scripts/flib_d"
 
 require "scripts/translation"
 require "scripts/gui/events"

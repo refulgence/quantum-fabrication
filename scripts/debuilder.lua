@@ -164,9 +164,6 @@ function instant_deforestation(entity, player_index)
     elseif prototype.type == "temporary-container" then
         process_inventory(entity, player_inventory, surface_index)
     end
-    if storage.trigger_techs_mine_actual[entity.name] then
-        utils.research_technology(storage.trigger_techs_mine_actual[entity.name].technology)
-    end
     local entity_name = entity.name
     local entity_quality = entity.quality.name
     entity.destroy({raise_destroy = true})
@@ -181,7 +178,7 @@ end
 ---@param surface_index uint
 function process_loot(loot, player_inventory, surface_index)
     for _, item in pairs(loot) do
-        if item.probability >= math.random() then
+        if item.independent_probability >= math.random() then
             local qs_item = {
                 name = item.item,
                 count = math.random(item.count_min, item.count_max),
@@ -202,7 +199,7 @@ end
 function process_mining(mining_properties, player_inventory, surface_index)
     if not mining_properties or not mining_properties.products then return end
     for _, item in pairs(mining_properties.products) do
-        if item.probability >= math.random() then
+        if item.independent_probability >= math.random() then
             local qs_item = {
                 name = item.name,
                 count = 1,

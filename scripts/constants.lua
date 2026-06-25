@@ -133,5 +133,4 @@ if not Autocraft_blacklist then Autocraft_blacklist = {} end
 if not Recipe_blacklist then Recipe_blacklist = {} end
 
 QS_DEFAULT_QUALITY = "normal"
-QS_ROCKET_WEIGHT_LIMIT = 1000000
 QS_SPACE_FOUNDATION_NAME = "space-platform-foundation"

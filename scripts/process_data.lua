@@ -11,8 +11,6 @@ function process_data()
     chunks_utils.initialize_chunks()
     reprocess_recipes()
     process_item_group_order()
-    get_trigger_techs()
-    find_trigger_techs()
 end
 
 function reprocess_recipes()
@@ -27,41 +25,6 @@ end
 -- Specifically erases old storage tables that aren't erased otherwise
 function discard_old_data()
     storage.placeable = {}
-end
-
----Obtains a list of all techs researched via crafting/building a placeable building
-function get_trigger_techs()
-    ---@type table <string, { trigger_type: string, item_name: string, count: uint, technology: LuaTechnology }>
-    storage.trigger_techs = {}
-    ---@type table <string, { technology: LuaTechnology }>
-    storage.trigger_techs_mine = {}
-    local tech_prototypes = prototypes.technology
-    local technologies = game.forces["player"].technologies
-    for name, prototype in pairs(tech_prototypes) do
-        local trigger = prototype.research_trigger
-        if trigger and not technologies[name].researched and (trigger.type == "craft-item" or trigger.type == "build-entity" or trigger.type == "mine-entity") then
-            local item_name
-            if trigger.item then
-                item_name = trigger.item.name or trigger.item
-            else
-                item_name = trigger.entity.name or trigger.entity
-            end
-            if storage.placeable[item_name] and trigger.type ~= "mine-entity" then
-                storage.trigger_techs[name] = {
-                    trigger_type = trigger.type,
-                    ---@diagnostic disable-next-line: assign-type-mismatch
-                    item_name = item_name,
-                    ---@diagnostic disable-next-line: undefined-field
-                    count = trigger.count or 1,
-                    technology = technologies[name]
-                }
-            elseif trigger.type == "mine-entity" then
-                storage.trigger_techs_mine[item_name] = {
-                    technology = technologies[name]
-                }
-            end
-        end
-    end
 end
 
 function process_tiles()
@@ -249,14 +212,14 @@ end
 ---@return table
 ---@return table
 function adjust_probabilities(main_product, products, ingredients)
-    local primary_probability_multiplier = 1 / main_product.probability
+    local primary_probability_multiplier = 1 / main_product.independent_probability
     local products_adjusted = {}
     local ingredients_adjusted = {}
     for _, product in pairs(products) do
         local secondary_probability_multiplier = 1
         --Quick and dirty way to check if the current product is the "main" product, because we only need to adjust amounts of non-main products
-        if main_product.name ~= product.name and product.probability ~= main_product.probability then
-            secondary_probability_multiplier = product.probability * primary_probability_multiplier
+        if main_product.name ~= product.name and product.independent_probability ~= main_product.independent_probability then
+            secondary_probability_multiplier = product.independent_probability * primary_probability_multiplier
         end
         if not product.amount then product.amount = (product.amount_min + product.amount_max) / 2 end
         product.amount = math.floor(product.amount * secondary_probability_multiplier + 0.5)

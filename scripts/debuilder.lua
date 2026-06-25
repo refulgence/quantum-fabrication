@@ -171,7 +171,7 @@ function instant_deforestation(entity, player_index)
     local entity_quality = entity.quality.name
     entity.destroy({raise_destroy = true})
     local destroyed = entity.destroy({raise_destroy = true})
-    if destroyed then
+    if destroyed and not prototype.type == "item-entity" then
         qs_utils.add_temp_prod_statistics(entity_name, entity_quality, "build", surface_index, -1)
     end
 end

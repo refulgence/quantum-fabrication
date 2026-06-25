@@ -167,7 +167,13 @@ function instant_deforestation(entity, player_index)
     if storage.trigger_techs_mine_actual[entity.name] then
         utils.research_technology(storage.trigger_techs_mine_actual[entity.name].technology)
     end
+    local entity_name = entity.name
+    local entity_quality = entity.quality.name
     entity.destroy({raise_destroy = true})
+    local destroyed = entity.destroy({raise_destroy = true})
+    if destroyed then
+        qs_utils.add_temp_prod_statistics(entity_name, entity_quality, "build", surface_index, -1)
+    end
 end
 
 ---@param loot table

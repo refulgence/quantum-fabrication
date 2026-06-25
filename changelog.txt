@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.13.0
+Date: 25.06.2026
+  Minor Features:
+    - Deconstructed trees and rocks and stuff are now counted in production statistics
+  Changes:
+    - Updated for Factorio 2.1
+---------------------------------------------------------------------------------------------------
 Version: 2.12.2
 Date: 19.05.2026
   Bugfixes:

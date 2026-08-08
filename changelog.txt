@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.13.2
+Date: 08.08.2026
+  Minor Features:
+    - Added a map setting to disable automatic fabrication. When disabled the mod would only be able to place buildings and not craft them.
+  Changes:
+    - Changed how unfullfilled construction/upgrade requests are shown in the Fabricator GUI because I suddenly remembered that negative numbers exist.
+---------------------------------------------------------------------------------------------------
 Version: 2.13.1
 Date: 25.07.2026
   Bugfixes:

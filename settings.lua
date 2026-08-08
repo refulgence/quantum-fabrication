@@ -41,6 +41,14 @@ table.insert(settings,
 table.insert(settings,
     {
         type = "bool-setting",
+        order = "ad",
+        name = "qf-allow-crafting",
+        setting_type = "runtime-global",
+        default_value = true
+})
+table.insert(settings,
+    {
+        type = "bool-setting",
         order = "af",
         name = "qf-allow-decrafting",
         setting_type = "runtime-global",

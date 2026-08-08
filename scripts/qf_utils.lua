@@ -108,6 +108,12 @@ function qf_utils.can_fabricate(item_name)
     return true
 end
 
+---@return boolean
+function qf_utils.fabrication_enabled()
+    ---@type boolean
+    return settings.global["qf-allow-crafting"].value
+end
+
 ---Fabricates a recipe. That recipe must be already checked or we could dip into negative storage and other funny stuff
 ---@param recipe table
 ---@param quality string

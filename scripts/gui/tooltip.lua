@@ -154,7 +154,7 @@ function build_main_tooltip(player, item_name, recipe_name)
         heigth = 120 + (math.ceil(#ingredients / column_count * 2) + #products) * 24 + 20 * 2 + 6
     }
 
-    local unfullfilled_ghosts = gui_utils.unfullfilled_ghosts(item_name, quality, surface_index) 
+    local unfullfilled_ghosts = gui_utils.unfullfilled_ghosts(item_name, quality, surface_index)
     if unfullfilled_ghosts > 0 and not can_craft then
         item_name_label.caption = {"", storage.unpacked_recipes[recipe_name].localised_name, {"qf-inventory.build-in-progress", unfullfilled_ghosts}}
     end

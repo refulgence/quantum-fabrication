@@ -7,6 +7,7 @@ local chunks_utils = require("scripts/chunks_utils")
 
 ---@param entity LuaEntity Entity to fabricate
 ---@param player_index? int
+---@return boolean true if fabrication was successful
 function instant_fabrication(entity, player_index)
     local surface_index = entity.surface_index
     if not storage.prototypes_data[entity.ghost_name] then return false end
@@ -30,6 +31,8 @@ function instant_fabrication(entity, player_index)
     elseif in_inventory > 0 then
         return revive_ghost(entity, qs_item, player_inventory)
     end
+
+    if not qf_utils.fabrication_enabled() then return false end
 
     -- Nothing? Guess we are fabricating
     local recipe = qf_utils.get_craftable_recipe(qs_item, player_inventory)

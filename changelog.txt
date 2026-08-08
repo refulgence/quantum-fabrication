@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.12.3
+Date: 25.07.2026
+  Bugfixes:
+    - Fixed a crash involving modded recipes that produce 0 of a product (not "not producing a product", but producing *zero* of a product)
+---------------------------------------------------------------------------------------------------
 Version: 2.12.2
 Date: 19.05.2026
   Bugfixes:

@@ -199,7 +199,7 @@ function process_recipes()
         if not recipe.hidden and not recipe.prototype.hidden_in_factoriopedia and not Recipe_blacklist[recipe.name] then
             -- Check all products. We are looking for at least one placeable product
             for _, product in pairs(recipe.products) do
-                if product.type == "item" and utils.is_placeable(product.name) and blueprintable(product.name) then
+                if product.type == "item" and utils.is_placeable(product.name) and blueprintable(product.name) and ((product.amount and product.amount > 0) or (product.amount_min and product.amount_min > 0)) then
                     -- Skip if this product/recipe pair is blacklisted
                     if Autocraft_blacklist[product.name] and Autocraft_blacklist[product.name][recipe.name] then goto continue end
                     -- Only keep going if the product is not a catalyst

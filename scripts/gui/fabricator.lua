@@ -1,6 +1,6 @@
 local utils = require("scripts/utils")
 local gui_utils = require("scripts/gui/gui_utils")
-local tracking = require("scripts/tracking_utils")
+local qf_utils = require("scripts/qf_utils")
 
 ---@param player LuaPlayer
 function build_main_gui(player)
@@ -348,7 +348,11 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     end
                 end
 
-                item_button.raise_hover_events = true
+                if qf_utils.fabrication_enabled() then
+                    item_button.raise_hover_events = true
+                else
+                    item_button.elem_tooltip = {type = "item", name = item_name}
+                end
                 item_button.tags = {
                     button_type = "take_out_ghost",
                     item_name = item_name,

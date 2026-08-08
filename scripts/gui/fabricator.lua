@@ -335,7 +335,7 @@ function build_main_recipe_item_list_gui(player, recipe_frame)
                     if not storage.craft_data[player.index][surface_index] or not storage.craft_data[player.index][surface_index][recipe_name] or not storage.craft_data[player.index][surface_index][recipe_name][quality_name] then
                         gui_utils.get_craft_data(player_index, player_inventory, surface_index, quality_name, recipe_name)
                     end
-                    if storage.craft_data[player.index][surface_index][recipe_name][quality_name] == 0 then
+                    if storage.craft_data[player.index][surface_index][recipe_name][quality_name] < 1 then
                         if storage.player_gui[player.index].options.mark_red then
                             item_button.style = "flib_slot_button_red"
                             if gui_utils.unfullfilled_ghosts(item_name, quality_name, surface_index) > 0 then

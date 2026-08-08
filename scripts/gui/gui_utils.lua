@@ -138,6 +138,7 @@ function gui_utils.get_craft_data(player_index, player_inventory, surface_index,
         surface_index = surface_index
     }
     local _, _, total = qs_utils.count_in_storage(qs_item, player_inventory)
+    if total < 1 then total = gui_utils.unfullfilled_ghosts(recipe.placeable_product, quality_name, surface_index) * -1 end
     if storage.tiles[recipe.placeable_product] or not qf_utils.fabrication_enabled() then
         storage.craft_data[player_index][surface_index][recipe_name][quality_name] = total
         return

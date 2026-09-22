@@ -203,7 +203,7 @@ function process_mining(mining_properties, player_inventory, surface_index)
             local qs_item = {
                 name = item.name,
                 count = 1,
-                type = "item",
+                type = item.type,
                 surface_index = surface_index,
                 quality = item.quality or QS_DEFAULT_QUALITY
             }

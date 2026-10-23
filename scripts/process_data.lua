@@ -5,6 +5,7 @@ local flib_table = require("__flib__.table")
 --- These functions are only done on init and when configuration changes
 function process_data()
     discard_old_data()
+    remove_nonexisting_items()
     utils.validate_surfaces()
     update_planet_surface_link()
     initialize_surfaces()
@@ -20,6 +21,37 @@ function reprocess_recipes()
     calculate_default_priority()
     process_unpacking()
     process_ingredient_filter()
+end
+
+function remove_nonexisting_items()
+    for _, surface_data in pairs(storage.fabricator_inventory) do
+        for item_type, type_data in pairs(surface_data) do
+            for item_name, name_data in pairs(type_data) do
+                if item_not_exist(item_name, item_type) then
+                    surface_data[item_type][item_name] = nil
+                else
+                    for quality_name, _ in pairs(name_data) do
+                        if quality_not_exist(quality_name) then
+                            surface_data[item_type][item_name][quality_name] = nil
+                        end
+                    end
+                end
+
+            end
+        end
+    end
+end
+
+function item_not_exist(item_name, item_type)
+    if item_type == "item" then
+        return prototypes.item[item_name] == nil
+    else
+        return prototypes.fluid[item_name] == nil
+    end
+end
+
+function quality_not_exist(quality_name)
+    return prototypes.quality[quality_name] == nil
 end
 
 -- Specifically erases old storage tables that aren't erased otherwise

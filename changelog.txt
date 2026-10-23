@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.13.4
+Date: 23.10.2026
+  Bugfixes:
+    - Fixed a crash happening when placing a storage reader after removing mods with modded items/qualities stored in the storage.
+---------------------------------------------------------------------------------------------------
 Version: 2.13.3
 Date: 22.09.2026
   Bugfixes:

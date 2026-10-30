@@ -311,7 +311,7 @@ end
 function on_pre_player_mined_item(event)
     local entity = event.entity
     local player_index = event.player_index
-    if settings.get_player_settings(player_index)["qf-direct-mining-puts-in-storage"].value then
+    if settings.get_player_settings(player_index)["qf-direct-mining-puts-in-storage"].value and storage.qf_enabled then
         if entity.can_be_destroyed() and entity.type ~= "entity-ghost" then
             if storage.prototypes_data[entity.name] then
                 local item_name = storage.prototypes_data[entity.name].item_name

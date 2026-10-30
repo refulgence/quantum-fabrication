@@ -138,6 +138,7 @@ end
 ---@param entity LuaEntity
 ---@param player_index? int
 function instant_deforestation(entity, player_index)
+    if not storage.qf_enabled then return end
     if not settings.global["qf-deconstruct-non-buildables"].value then return end
     local player_inventory = utils.get_player_inventory(nil, player_index)
     local prototype = entity.prototype
@@ -223,6 +224,7 @@ end
 ---@param entity LuaEntity
 ---@param player_index? uint
 function instant_decliffing(entity, player_index)
+    if not storage.qf_enabled then return end
     if not entity or not entity.valid then return true end
     local entity_prototype = entity.prototype
     local cliff_explosive = entity_prototype.cliff_explosive_prototype
